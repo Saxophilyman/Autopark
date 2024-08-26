@@ -1,0 +1,12 @@
+package org.example.autopark.repository;
+
+import org.example.autopark.entity.Driver;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface DriverRepository extends JpaRepository<Driver, Long> {
+    List<Driver> findDriversByEnterpriseOwnerOfDriver_EnterpriseId(Long id);
+}

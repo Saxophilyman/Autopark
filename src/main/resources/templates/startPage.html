@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Hello, manager</title>
+</head>
+<body>
+
+<span>Активный менеджер: </span>
+<b> <a th:text="${manager.getUsername()}">VALUE </a></b>
+
+<hr/>
+
+<b> <a th:href="@{/api/managers/{id}/enterprises(id=${manager.getManagerId()})}">Мои предприятия</a> </b>
+
+<br/>
+
+<b> <a th:href="@{/api/managers/{id}/vehicles(id=${manager.getManagerId()})}">Мои транспортные средства</a> </b>
+
+<br/>
+
+<b> <a th:href="@{/api/managers/{id}/drivers(id=${manager.getManagerId()})}">Мои водители</a> </b>
+
+<hr/>
+
+<form th:action="@{/logout}" th:method="POST">
+    <input type="submit" value="Выйти" />
+</form>
+
+</body>
+</html>
