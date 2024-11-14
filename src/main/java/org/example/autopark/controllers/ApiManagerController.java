@@ -1,5 +1,7 @@
 package org.example.autopark.controllers;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.example.autopark.dto.DriverDTO;
 import org.example.autopark.dto.VehicleDTO;
@@ -81,6 +83,21 @@ public class ApiManagerController {
         return modelMapper.map(driver, DriverDTO.class);
     }
 
+    @PostMapping("/hello")
+    public ResponseEntity<HttpStatus> hello(){
+        return ResponseEntity.ok(HttpStatus.OK);
+    }
+
+    @GetMapping("/debug-csrf")
+    public void debugCsrf(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                System.out.println("Cookie Name: " + cookie.getName());
+                System.out.println("Cookie Value: " + cookie.getValue());
+            }
+        }
+    }
     @PostMapping("/{id}/vehicles")
     public ResponseEntity<HttpStatus> create(@RequestBody @Valid VehicleDTO vehicle,
                                              BindingResult bindingResult, @PathVariable Long id) {

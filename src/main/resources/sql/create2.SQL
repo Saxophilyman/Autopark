@@ -139,3 +139,7 @@ CREATE TABLE Enterprise_Manager (
 
 INSERT INTO Manager (username, role) VALUES ('manager1','ADMIN');
 INSERT INTO Manager (username, role) VALUES ('manager2','ADMIN');
+
+ALTER table Manager add column role varchar;
+ALTER TABLE Manager
+    DROP COLUMN role;

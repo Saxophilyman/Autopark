@@ -87,7 +87,7 @@ public class SecurityConfig {
 //                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
 //        )
         http.authenticationManager(authenticationManager)
-                .authorizeHttpRequests((authz) -> authz
+                .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/auth/login", "/auth/registration").permitAll()
                         .anyRequest().authenticated()
                 );
@@ -104,6 +104,7 @@ public class SecurityConfig {
 
         return http.build();
     }
+
 
 
 

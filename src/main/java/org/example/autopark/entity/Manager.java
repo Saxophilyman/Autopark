@@ -27,6 +27,8 @@ public class Manager {
     private String username;
     @Column(name = "password")
     private String password;
+//    @Column(name = "role")
+//    private Role role;
 
 //    @Enumerated(EnumType.STRING)
 //    @Column(name = "role")
