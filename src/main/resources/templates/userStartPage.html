@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Hello, User</title>
+</head>
+<body>
+
+<span>Активный пользователь: </span>
+<b> <a th:text="${simpleUser.getUsername()}">VALUE </a></b>
+
+<!--<hr/>-->
+
+<!--<b> <a th:href="@{/api/users/{id}/enterprises(id=${simpleUser.getUser_id()})}">Все предприятия</a> </b>-->
+
+<!--<br/>-->
+
+<!--<b> <a th:href="@{/api/users/{id}/vehicles(id=${simpleUser.getUser_id()})}">Все транспортные средства</a> </b>-->
+
+<!--<br/>-->
+
+<!--<b> <a th:href="@{/api/users/{id}/drivers(id=${simpleUser.getUser_id()})}">Все водители</a> </b>-->
+<!--<b> <a th:href="@{/api/users/{id}/drivers(id=${simpleUser.getUser_id()})}">Все водители</a> </b>-->
+
+<hr/>
+
+<form th:action="@{/logout}" th:method="POST">
+    <input type="submit" value="Выйти" />
+</form>
+
+</body>
+</html>
