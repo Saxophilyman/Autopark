@@ -34,3 +34,5 @@ INSERT INTO Enterprise_Manager (enterprise_id, manager_id) VALUES (1, 1);
 INSERT INTO Enterprise_Manager (enterprise_id, manager_id) VALUES (2, 1);
 INSERT INTO Enterprise_Manager (enterprise_id, manager_id) VALUES (2, 2);
 INSERT INTO Enterprise_Manager (enterprise_id, manager_id) VALUES (3, 2);
+
+UPDATE  Manager SET role = 'ADMIN' WHERE manager.manager_id IN (1,2);

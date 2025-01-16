@@ -37,6 +37,10 @@ public class EnterpriseService {
     public List<Enterprise> findEnterprisesForManager(Long id) {
         return enterpriseRepository.findEnterprisesByManagerList_managerId(id);
     }
+//ищет все предприятия для пользователя
+//    public List<Enterprise> findEnterprisesForUser() {
+//        return enterpriseRepository.findEnterprises();
+//    }
 
     @Transactional
     public void save(Enterprise enterprise, Long id) {

@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface EnterpriseRepository extends JpaRepository<Enterprise, Long> {
     List<Enterprise> findEnterprisesByManagerList_managerId(Long id);
+
+    //List<Enterprise> findEnterprises();
 }

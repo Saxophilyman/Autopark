@@ -6,11 +6,11 @@
 //import jakarta.servlet.http.HttpServletRequest;
 //import jakarta.servlet.http.HttpServletResponse;
 //import org.example.autopark.security.JWTUtil;
-//import org.example.autopark.service.ManagerDetailsService;
+//import org.example.autopark.service.GeneralDetailsService;
 //import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 //import org.springframework.security.core.context.SecurityContextHolder;
-//import org.springframework.security.core.userdetails.UserDetails;
+//import org.springframework.security.core.userdetails.SimpleUserDetails;
 //import org.springframework.stereotype.Component;
 //import org.springframework.web.filter.OncePerRequestFilter;
 //
@@ -19,10 +19,10 @@
 //public class JWTFilter extends OncePerRequestFilter {
 //
 //    private final JWTUtil jwtUtil;
-//    private final ManagerDetailsService managerDetailsService;
+//    private final GeneralDetailsService managerDetailsService;
 //
 //    @Autowired
-//    public JWTFilter(JWTUtil jwtUtil, ManagerDetailsService managerDetailsService) {
+//    public JWTFilter(JWTUtil jwtUtil, GeneralDetailsService managerDetailsService) {
 //        this.jwtUtil = jwtUtil;
 //        this.managerDetailsService = managerDetailsService;
 //    }
@@ -40,7 +40,7 @@
 //            } else {
 //                try {
 //                    String username = jwtUtil.validateTokenAndRetrieve(jwt);
-//                    UserDetails userDetails = managerDetailsService.loadUserByUsername(username);
+//                    SimpleUserDetails userDetails = managerDetailsService.loadUserByUsername(username);
 //
 //                    UsernamePasswordAuthenticationToken authToken =
 //                            new UsernamePasswordAuthenticationToken(userDetails,

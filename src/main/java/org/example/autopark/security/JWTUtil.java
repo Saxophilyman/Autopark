@@ -20,7 +20,7 @@ public class JWTUtil {
         Date expirstionDate = Date.from(ZonedDateTime.now().plusMinutes(60).toInstant());
 
         return JWT.create()
-                .withSubject("User details")
+                .withSubject("SimpleUser details")
                 .withClaim("username", username)
                 .withIssuedAt(new Date())
                 .withIssuer("Saxophilyman")
@@ -30,7 +30,7 @@ public class JWTUtil {
 
     public String validateTokenAndRetrieve(String token) throws JWTVerificationException{
         JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(secret))
-                .withSubject("User details")
+                .withSubject("SimpleUser details")
                 .withIssuer("Saxophilyman")
                 .build();
         DecodedJWT decodedJWT = jwtVerifier.verify(token);

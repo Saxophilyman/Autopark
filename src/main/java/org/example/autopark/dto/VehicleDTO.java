@@ -19,13 +19,15 @@ public class VehicleDTO {
     private String vehicleName;
 
     @NotNull
+    @Min(value = 0)
+    private int vehicleCost;
+
+    @NotNull
     @Min(value = 1900, message = "Транспорт может быть только старше 1900 г.")
     @Max(value = 2024, message = "Транспорт не может быть сейчас старше 2024 г.")
     private int vehicleYearOfRelease;
 
-    @NotNull
-    @Min(value = 0)
-    private double vehicleCost;
+
 
     private BrandDTO brand;
 

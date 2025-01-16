@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.util.concurrent.*;
 
 import java.util.List;
 
@@ -27,15 +28,18 @@ public class Manager {
     private String username;
     @Column(name = "password")
     private String password;
+
 //    @Column(name = "role")
 //    private Role role;
 
-//    @Enumerated(EnumType.STRING)
-//    @Column(name = "role")
-//    private Role role;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role")
+    private Role role;
 
 
     @ManyToMany(mappedBy = "managerList")
     @JsonIgnore
     private List<Enterprise> enterpriseList;
+
 }
+

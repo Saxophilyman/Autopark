@@ -2,9 +2,12 @@ package org.example.autopark.security;
 
 import org.example.autopark.entity.Manager;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 public class ManagerDetails implements UserDetails {
     private final Manager manager;
@@ -15,7 +18,8 @@ public class ManagerDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+
+        return Collections.singleton(new SimpleGrantedAuthority("ROLE_MANAGER"));
     }
 
     @Override

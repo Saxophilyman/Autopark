@@ -3,7 +3,7 @@ package org.example.autopark.entity;
 import org.springframework.security.core.GrantedAuthority;
 
 public enum Role implements GrantedAuthority {
-    MANAGER1, MANAGER2;
+    MANAGER, USER;
 
     @Override
     public String getAuthority() {

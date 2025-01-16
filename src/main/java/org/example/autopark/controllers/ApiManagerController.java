@@ -17,6 +17,8 @@ import org.example.autopark.service.DriverService;
 import org.example.autopark.service.EnterpriseService;
 import org.example.autopark.service.VehicleService;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -37,6 +39,7 @@ public class ApiManagerController {
     private final VehicleService vehiclesService;
     private final DriverService driversService;
     private final ModelMapper modelMapper;
+    Logger logger = LoggerFactory.getLogger(ApiManagerController.class);
 
     public ApiManagerController(EnterpriseService enterprisesService, VehicleService vehiclesService,
                                 DriverService driversService, ModelMapper modelMapper) {
@@ -84,28 +87,17 @@ public class ApiManagerController {
     }
 
     @PostMapping("/hello")
-    public ResponseEntity<HttpStatus> hello(){
+    public ResponseEntity<HttpStatus> hello() {
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
-    @GetMapping("/debug-csrf")
-    public void debugCsrf(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                System.out.println("Cookie Name: " + cookie.getName());
-                System.out.println("Cookie Value: " + cookie.getValue());
-            }
-        }
-    }
+
     @PostMapping("/{id}/vehicles")
     public ResponseEntity<HttpStatus> create(@RequestBody @Valid VehicleDTO vehicle,
-                                             BindingResult bindingResult, @PathVariable Long id) {
-
+                                             BindingResult bindingResult) {
+        logger.info("Received vehicle: {}", vehicle);
         Binding(bindingResult);
-
         vehiclesService.save(convertToVehicle(vehicle));
-
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
@@ -113,9 +105,7 @@ public class ApiManagerController {
     public ResponseEntity<HttpStatus> create(@RequestBody @Valid Enterprise enterprise,
                                              BindingResult bindingResult,
                                              @PathVariable("id") Long id) {
-
         Binding(bindingResult);
-
         enterprisesService.save(enterprise, id);
         return ResponseEntity.ok(HttpStatus.OK);
     }
@@ -163,18 +153,10 @@ public class ApiManagerController {
 
     private void Binding(BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            StringBuilder errorMsg = new StringBuilder();
-
-            List<FieldError> errors = bindingResult.getFieldErrors();
-
-            for (FieldError error : errors) {
-                errorMsg.append(error.getField())
-                        .append(" - ")
-                        .append(error.getDefaultMessage())
-                        .append(";");
-            }
-
-            throw new NotCreatedException(errorMsg.toString());
+            StringBuilder errorMessage = new StringBuilder();
+            bindingResult.getAllErrors().forEach(error ->
+                    errorMessage.append(error.getDefaultMessage()).append("; "));
+            throw new IllegalArgumentException(errorMessage.toString());
         }
     }
 
