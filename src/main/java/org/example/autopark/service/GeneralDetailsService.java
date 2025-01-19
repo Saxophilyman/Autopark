@@ -29,13 +29,6 @@ public class GeneralDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-//        Optional<Manager> manager = managerRepository.findByUsername(username);
-//        if (manager.isEmpty()) {
-//            throw new UsernameNotFoundException("USer not found");
-//        }
-//        return new ManagerDetails(manager.get());
-
-
     // Сначала ищем среди менеджеров
     Optional<Manager> manager = managerRepository.findByUsername(username);
         if (manager.isPresent()) {

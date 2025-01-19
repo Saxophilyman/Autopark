@@ -2,9 +2,9 @@ INSERT INTO Brand (brand_name, type, capacity_fuel_tank, load_capacity, number_o
 INSERT INTO Brand (brand_name, type, capacity_fuel_tank, load_capacity, number_of_seats)  VALUES ('Toyota', 2, 65, 480, 4);
 INSERT INTO Brand (brand_name, type, capacity_fuel_tank, load_capacity, number_of_seats)  VALUES ('BMW', 2, 80, 600, 4);
 
-INSERT INTO Enterprise (city, name)  VALUES ('Автоваз','Москва');
-INSERT INTO Enterprise (city, name) VALUES ('BMW AG','Мюнхен');
-INSERT INTO Enterprise (city, name) VALUES ('Toyota Motor Corporation','Тоёта');
+INSERT INTO Enterprise (city, name)  VALUES ('Москва','Автоваз');
+INSERT INTO Enterprise (city, name) VALUES ('Мюнхен','BMW AG');
+INSERT INTO Enterprise (city, name) VALUES ('Тоёта', 'Toyota Motor Corporation');
 
 INSERT INTO Vehicle(vehicle_name, vehicle_cost, vehicle_year_of_release, brand_owner, enterprise_owner_of_vehicle) VALUES
     ('Kalina 2', 1000000, 2013, 1, 1);

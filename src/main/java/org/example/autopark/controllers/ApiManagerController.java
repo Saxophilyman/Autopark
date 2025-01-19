@@ -61,95 +61,125 @@ public class ApiManagerController {
         return new ModelAndView("startPage");
     }
 
+    //CRUD FOR ENTERPRISES
+    //GET
     @GetMapping("/{id}/enterprises")
     public List<Enterprise> indexEnterprises(@PathVariable("id") Long id) {
         return enterprisesService.findEnterprisesForManager(id);
     }
 
-    @GetMapping("/{id}/vehicles")
-    public List<VehicleDTO> indexVehicles(@PathVariable("id") Long id) {
-        return vehiclesService.findVehiclesForManager(id).stream().map(this::convertToVehicleDTO)
-                .collect(Collectors.toList());
-    }
-
-    private VehicleDTO convertToVehicleDTO(Vehicle vehicle) {
-        return modelMapper.map(vehicle, VehicleDTO.class);
-    }
-
-    @GetMapping("/{id}/drivers")
-    public List<DriverDTO> indexDrivers(@PathVariable("id") Long id) {
-        return driversService.findDriversForManager(id).stream().map(this::convertToDriverDTO)
-                .collect(Collectors.toList());
-    }
-
-    private DriverDTO convertToDriverDTO(Driver driver) {
-        return modelMapper.map(driver, DriverDTO.class);
-    }
-
-    @PostMapping("/hello")
-    public ResponseEntity<HttpStatus> hello() {
-        return ResponseEntity.ok(HttpStatus.OK);
-    }
-
-
-    @PostMapping("/{id}/vehicles")
-    public ResponseEntity<HttpStatus> create(@RequestBody @Valid VehicleDTO vehicle,
-                                             BindingResult bindingResult) {
-        logger.info("Received vehicle: {}", vehicle);
-        Binding(bindingResult);
-        vehiclesService.save(convertToVehicle(vehicle));
-        return ResponseEntity.ok(HttpStatus.OK);
-    }
-
-    @PostMapping("/{id}/enterprises")
-    public ResponseEntity<HttpStatus> create(@RequestBody @Valid Enterprise enterprise,
-                                             BindingResult bindingResult,
-                                             @PathVariable("id") Long id) {
-        Binding(bindingResult);
-        enterprisesService.save(enterprise, id);
-        return ResponseEntity.ok(HttpStatus.OK);
-    }
-
-
-    @PutMapping("/{id}/vehicles/{idVehicle}")
-    public ResponseEntity<HttpStatus> update(@RequestBody @Valid VehicleDTO vehicle,
-                                             BindingResult bindingResult,
-                                             @PathVariable("idVehicle") Long id) {
-        Binding(bindingResult);
-
-        vehiclesService.update(id, convertToVehicle(vehicle));
-
-        return ResponseEntity.ok(HttpStatus.OK);
-    }
-
+    //PUT
     @PutMapping("/{id}/enterprises/{idEnterprise}")
     public ResponseEntity<HttpStatus> update(@PathVariable("id") Long idManager,
                                              @RequestBody @Valid Enterprise enterprise,
                                              BindingResult bindingResult,
                                              @PathVariable("idEnterprise") Long idEnterprise) {
         Binding(bindingResult);
-
         enterprisesService.update(idManager, idEnterprise, enterprise);
-
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
+    //POST
+    @PostMapping("/{id}/enterprises")
+    public ResponseEntity<Void> create(@RequestBody @Valid Enterprise enterprise,
+                                             BindingResult bindingResult,
+                                             @PathVariable("id") Long id) {
+        Binding(bindingResult);
+        enterprisesService.save(enterprise, id);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
 
+    //DELETE
+    @DeleteMapping("/{id}/enterprises/{idEnterprise}")
+    public ResponseEntity<Void> delete(@PathVariable("id") Long idManager,
+                                             @PathVariable("idEnterprise") Long idEnterprise) {
+        enterprisesService.delete(idManager, idEnterprise);
+        return ResponseEntity.noContent().build(); // Возвращаем 204 No Content
+    }
+
+    //UPDATE
+//----------------------//
+
+    //CRUD FOR VEHICLES
+    //GET
+    @GetMapping("/{id}/vehicles")
+    public List<VehicleDTO> indexVehicles(@PathVariable("id") Long id) {
+        return vehiclesService.findVehiclesForManager(id).stream().map(this::convertToVehicleDTO)
+                .collect(Collectors.toList());
+    }
+
+    //PUT
+    @PutMapping("/{id}/vehicles/{idVehicle}")
+    public ResponseEntity<HttpStatus> update(@RequestBody @Valid VehicleDTO vehicle,
+                                             BindingResult bindingResult,
+                                             @PathVariable("idVehicle") Long idVehicle) {
+        Binding(bindingResult);
+        vehiclesService.update(idVehicle, convertToVehicle(vehicle));
+        return ResponseEntity.ok(HttpStatus.OK);
+    }
+
+    //POST
+    @PostMapping("/{id}/vehicles")
+    public ResponseEntity<Void> create(@RequestBody @Valid VehicleDTO vehicle,
+                                             BindingResult bindingResult) {
+        logger.info("Received vehicle: {}", vehicle);
+        Binding(bindingResult);
+        vehiclesService.save(convertToVehicle(vehicle));
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    //DELETE
     @DeleteMapping("/{id}/vehicles/{idVehicle}")
-    public ResponseEntity<HttpStatus> deleteVehicle(@PathVariable("idVehicle") Long id) {
+    public ResponseEntity<Void> deleteVehicle(@PathVariable("idVehicle") Long id) {
         vehiclesService.delete(id);
 
-        return ResponseEntity.ok(HttpStatus.OK);
+        return ResponseEntity.noContent().build(); // Возвращаем 204 No Content
     }
 
-    @DeleteMapping("/{id}/enterprises/{idEnterprise}")
-    public ResponseEntity<HttpStatus> delete(@PathVariable("id") Long idManager,
-                                             @PathVariable("idEnterprise") Long idEnterprise) {
+    //UPDATE
+//----------------------//
 
-        enterprisesService.delete(idManager, idEnterprise);
+    //CRUD FOR DRIVERS
+    //GET
+    @GetMapping("/{id}/drivers")
+    public List<DriverDTO> indexDrivers(@PathVariable("id") Long id) {
+        return driversService.findDriversForManager(id).stream().map(this::convertToDriverDTO)
+                .collect(Collectors.toList());
+    }
+
+    //PUT
+    @PutMapping("/{id}/drivers/{idDriver}")
+    public ResponseEntity<HttpStatus> update(@RequestBody @Valid DriverDTO driverDTO,
+                                             BindingResult bindingResult,
+                                             @PathVariable("idDriver") Long id) {
+        Binding(bindingResult);
+
+        driversService.update(id, convertToDriver(driverDTO));
 
         return ResponseEntity.ok(HttpStatus.OK);
     }
+//
+    //POST
+    @PostMapping("/{id}/drivers")
+    public ResponseEntity<Void> create(@RequestBody @Valid DriverDTO driverDTO,
+                                             BindingResult bindingResult) {
+        logger.info("Received vehicle: {}", driverDTO);
+        Binding(bindingResult);
+        driversService.save(convertToDriver(driverDTO));
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    //DELETE
+    @DeleteMapping("/{id}/drivers/{idDriver}")
+    public ResponseEntity<Void> deleteDriver(@PathVariable("idDriver") Long id) {
+        driversService.delete(id);
+        return ResponseEntity.noContent().build(); // Возвращаем 204 No Content
+    }
+
+    //UPDATE
+//----------------------//
+
+
 
     private void Binding(BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -160,9 +190,20 @@ public class ApiManagerController {
         }
     }
 
-
+    //внутренние методы
     private Vehicle convertToVehicle(VehicleDTO vehicleDTO) {
         return modelMapper.map(vehicleDTO, Vehicle.class);
+    }
+
+    private VehicleDTO convertToVehicleDTO(Vehicle vehicle) {
+        return modelMapper.map(vehicle, VehicleDTO.class);
+    }
+
+    private DriverDTO convertToDriverDTO(Driver driver) {
+        return modelMapper.map(driver, DriverDTO.class);
+    }
+    private Driver convertToDriver (DriverDTO driverDTO) {
+        return modelMapper.map(driverDTO, Driver.class);
     }
 
     @ExceptionHandler

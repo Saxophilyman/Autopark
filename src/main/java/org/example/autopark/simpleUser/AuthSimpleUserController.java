@@ -1,11 +1,9 @@
 package org.example.autopark.simpleUser;
 
 import jakarta.validation.Valid;
-import org.example.autopark.entity.Manager;
-import org.example.autopark.security.JWTUtil;
+
 import org.example.autopark.service.RegistrationService;
-import org.example.autopark.util.ManagerValidator;
-import org.modelmapper.ModelMapper;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;

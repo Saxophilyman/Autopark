@@ -62,6 +62,7 @@ public class EnterpriseService {
         if(!managerEnterprises.contains(enterprise)) {
             throw new EnterpriseNotUpdatedException("Нет доступа к данному предприятию");
         }
+
         List<Manager> managers = enterpriseRepository.findById(idEnterprise).get().getManagerList();
 
         updatedEnterprise.setManagerList(managers);
