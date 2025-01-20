@@ -1,10 +1,11 @@
-package org.example.autopark.jwt;
+package org.example.autopark.securityConfig.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.example.autopark.service.GeneralDetailsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,12 +16,13 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 @Component
-public class JwtRequestFilter extends OncePerRequestFilter {
+public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final GeneralDetailsService generalDetailsService;
 
-    public JwtRequestFilter(JwtUtil jwtUtil, GeneralDetailsService generalDetailsService) {
+    @Autowired
+    public JwtAuthFilter(JwtUtil jwtUtil, GeneralDetailsService generalDetailsService) {
         this.jwtUtil = jwtUtil;
         this.generalDetailsService = generalDetailsService;
     }
@@ -32,6 +34,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         final String authorizationHeader = request.getHeader("Authorization");
         String username = null;
         String jwt = null;
+
         // Проверяем наличие JWT в заголовке Authorization
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             jwt = authorizationHeader.substring(7);

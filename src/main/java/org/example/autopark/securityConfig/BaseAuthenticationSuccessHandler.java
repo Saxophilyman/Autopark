@@ -1,4 +1,4 @@
-package org.example.autopark.config;
+package org.example.autopark.securityConfig;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

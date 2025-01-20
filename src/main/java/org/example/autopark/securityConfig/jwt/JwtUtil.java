@@ -1,6 +1,7 @@
-package org.example.autopark.jwt;
+package org.example.autopark.securityConfig.jwt;
 
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 
@@ -9,10 +10,9 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
-    private final String SECRET_KEY = "your-256-bit-secret-key-here"; // Должен быть достаточно длинным
     private final int EXPIRATION_TIME = 1000 * 60 * 60 * 10; // 10 часов
 
-    private final Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
     public String generateToken(String username) {
         return Jwts.builder()
