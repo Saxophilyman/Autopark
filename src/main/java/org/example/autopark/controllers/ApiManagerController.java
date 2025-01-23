@@ -1,14 +1,12 @@
 package org.example.autopark.controllers;
 
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.example.autopark.appUtil.ValidationBindingUtil;
 import org.example.autopark.dto.DriverDTO;
 import org.example.autopark.dto.VehicleDTO;
 import org.example.autopark.entity.Driver;
 import org.example.autopark.entity.Enterprise;
 import org.example.autopark.entity.Vehicle;
-import org.example.autopark.exception.NotCreatedException;
 import org.example.autopark.exception.VehicleErrorResponse;
 import org.example.autopark.exception.VehicleNotCreatedException;
 import org.example.autopark.exception.VehicleNotFoundException;
@@ -25,7 +23,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -74,7 +71,7 @@ public class ApiManagerController {
                                              @RequestBody @Valid Enterprise enterprise,
                                              BindingResult bindingResult,
                                              @PathVariable("idEnterprise") Long idEnterprise) {
-        Binding(bindingResult);
+        ValidationBindingUtil.Binding(bindingResult);
         enterprisesService.update(idManager, idEnterprise, enterprise);
         return ResponseEntity.ok(HttpStatus.OK);
     }
@@ -84,7 +81,7 @@ public class ApiManagerController {
     public ResponseEntity<Void> create(@RequestBody @Valid Enterprise enterprise,
                                              BindingResult bindingResult,
                                              @PathVariable("id") Long id) {
-        Binding(bindingResult);
+        ValidationBindingUtil.Binding(bindingResult);
         enterprisesService.save(enterprise, id);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -113,7 +110,7 @@ public class ApiManagerController {
     public ResponseEntity<HttpStatus> update(@RequestBody @Valid VehicleDTO vehicle,
                                              BindingResult bindingResult,
                                              @PathVariable("idVehicle") Long idVehicle) {
-        Binding(bindingResult);
+        ValidationBindingUtil.Binding(bindingResult);
         vehiclesService.update(idVehicle, convertToVehicle(vehicle));
         return ResponseEntity.ok(HttpStatus.OK);
     }
@@ -123,7 +120,7 @@ public class ApiManagerController {
     public ResponseEntity<Void> create(@RequestBody @Valid VehicleDTO vehicle,
                                              BindingResult bindingResult) {
         logger.info("Received vehicle: {}", vehicle);
-        Binding(bindingResult);
+        ValidationBindingUtil.Binding(bindingResult);
         vehiclesService.save(convertToVehicle(vehicle));
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -152,7 +149,7 @@ public class ApiManagerController {
     public ResponseEntity<HttpStatus> update(@RequestBody @Valid DriverDTO driverDTO,
                                              BindingResult bindingResult,
                                              @PathVariable("idDriver") Long id) {
-        Binding(bindingResult);
+        ValidationBindingUtil.Binding(bindingResult);
 
         driversService.update(id, convertToDriver(driverDTO));
 
@@ -164,7 +161,7 @@ public class ApiManagerController {
     public ResponseEntity<Void> create(@RequestBody @Valid DriverDTO driverDTO,
                                              BindingResult bindingResult) {
         logger.info("Received vehicle: {}", driverDTO);
-        Binding(bindingResult);
+        ValidationBindingUtil.Binding(bindingResult);
         driversService.save(convertToDriver(driverDTO));
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -181,15 +178,6 @@ public class ApiManagerController {
 
 
 
-    private void Binding(BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            StringBuilder errorMessage = new StringBuilder();
-            bindingResult.getAllErrors().forEach(error ->
-                    errorMessage.append(error.getDefaultMessage()).append("; "));
-            throw new IllegalArgumentException(errorMessage.toString());
-        }
-    }
-
     //внутренние методы
     private Vehicle convertToVehicle(VehicleDTO vehicleDTO) {
         return modelMapper.map(vehicleDTO, Vehicle.class);
@@ -205,6 +193,16 @@ public class ApiManagerController {
     private Driver convertToDriver (DriverDTO driverDTO) {
         return modelMapper.map(driverDTO, Driver.class);
     }
+
+//    @ExceptionHandler
+//    private ResponseEntity<VehicleErrorResponse> handlerException(VehicleNotFoundException e) {
+//        VehicleErrorResponse response = new VehicleErrorResponse(
+//                "Vehicle with this id wasn't found",
+//                System.currentTimeMillis()
+//        );
+//
+//        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND); // статус 404
+//    }
 
     @ExceptionHandler
     private ResponseEntity<VehicleErrorResponse> handlerException(VehicleNotFoundException e) {
