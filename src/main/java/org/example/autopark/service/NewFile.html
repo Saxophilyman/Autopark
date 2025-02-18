@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Insert title here</title>
+</head>
+<body>
+<!-- ... код для списка транспортных средств ... -->
+<div th:each="vehicle : ${vehicles}">
+    <br/>
+    <a th:href="@{/vehicles/{id}(id=${vehicle.getId()})}" th:text="${vehicle.getId() + '. ' + vehicle.getRegistrationNumber() + ', ' + vehicle.getYearOfProduction()}">vehicle</a>
+</div>
+<!-- ... код для кнопок "Предыдущая страница" и "Следующая страница" ... -->
+<div>
+    <a th:if="${hasPrevious}" th:href="@{'/enterprises/' + ${id} + '/vehicles?page=' + ${currentPage - 1} + '&itemsPerPage=' + ${itemsPerPage}}">
+        Предыдущая страница
+    </a>
+    <span th:text="${currentPage}"></span>
+    <a th:if="${hasNext}" th:href="@{'/enterprises/' + ${id} + '/vehicles?page=' + ${currentPage + 1} + '&itemsPerPage=' + ${itemsPerPage}}">
+        Следующая страница
+    </a>
+</div>
+<!-- ... код для кнопки "Добавить транспортное средство" ... -->
+<hr/>
+<b>
+    <a href="/vehicles/new">Добавить транспортное средство</a>
+</b>
+</code></pre>
+</body>
+</html>

@@ -16,7 +16,7 @@ public class BaseAuthenticationSuccessHandler implements AuthenticationSuccessHa
 
         var authorities = authentication.getAuthorities();
         if (authorities.stream().anyMatch(auth -> auth.getAuthority().equals("ROLE_MANAGER"))) {
-            response.sendRedirect("/api/managers");
+            response.sendRedirect("/managers/enterprises");
         } else if (authorities.stream().anyMatch(auth -> auth.getAuthority().equals("ROLE_USER"))) {
             response.sendRedirect("/api/users");
         } else {

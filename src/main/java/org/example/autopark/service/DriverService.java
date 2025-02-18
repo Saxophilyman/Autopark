@@ -43,11 +43,12 @@ public class DriverService {
     public List<Driver> findDriversForManager(Long managerId) {
         List<Enterprise> enterprises = enterpriseService.findEnterprisesForManager(managerId);
         List<Driver> drivers = new ArrayList<Driver>();
-        for(Enterprise enterprise : enterprises) {
+        for (Enterprise enterprise : enterprises) {
             drivers.addAll(driverRepository.findDriversByEnterpriseOwnerOfDriver_EnterpriseId(enterprise.getEnterpriseId()));
         }
         return drivers;
     }
+
     @Transactional
     public void save(Driver driver) {
         driverRepository.save(driver);
@@ -82,7 +83,7 @@ public class DriverService {
         driverRepository.delete(driver);
     }
 
-    }
+}
 //    public List<Driver> findAllDrivers(Long managerId) {
 //        List<Enterprise> enterprises = enterpriseService.findEnterprisesForManager(managerId);
 //        List<Driver> drivers = new ArrayList<Driver>();

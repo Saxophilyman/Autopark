@@ -17,6 +17,10 @@ import org.example.autopark.service.VehicleService;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -26,6 +30,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,15 +38,15 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/managers")
 public class ApiManagerController {
     private final EnterpriseService enterprisesService;
-    private final VehicleService vehiclesService;
+    private final VehicleService vehicleService;
     private final DriverService driversService;
     private final ModelMapper modelMapper;
     Logger logger = LoggerFactory.getLogger(ApiManagerController.class);
 
-    public ApiManagerController(EnterpriseService enterprisesService, VehicleService vehiclesService,
+    public ApiManagerController(EnterpriseService enterprisesService, VehicleService vehicleService,
                                 DriverService driversService, ModelMapper modelMapper) {
         this.enterprisesService = enterprisesService;
-        this.vehiclesService = vehiclesService;
+        this.vehicleService = vehicleService;
         this.driversService = driversService;
         this.modelMapper = modelMapper;
     }
@@ -57,6 +62,9 @@ public class ApiManagerController {
 
         return new ModelAndView("startPage");
     }
+
+
+
 
     //CRUD FOR ENTERPRISES
     //GET
@@ -79,8 +87,8 @@ public class ApiManagerController {
     //POST
     @PostMapping("/{id}/enterprises")
     public ResponseEntity<Void> create(@RequestBody @Valid Enterprise enterprise,
-                                             BindingResult bindingResult,
-                                             @PathVariable("id") Long id) {
+                                       BindingResult bindingResult,
+                                       @PathVariable("id") Long id) {
         ValidationBindingUtil.Binding(bindingResult);
         enterprisesService.save(enterprise, id);
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -89,7 +97,7 @@ public class ApiManagerController {
     //DELETE
     @DeleteMapping("/{id}/enterprises/{idEnterprise}")
     public ResponseEntity<Void> delete(@PathVariable("id") Long idManager,
-                                             @PathVariable("idEnterprise") Long idEnterprise) {
+                                       @PathVariable("idEnterprise") Long idEnterprise) {
         enterprisesService.delete(idManager, idEnterprise);
         return ResponseEntity.noContent().build(); // Возвращаем 204 No Content
     }
@@ -99,11 +107,63 @@ public class ApiManagerController {
 
     //CRUD FOR VEHICLES
     //GET
-    @GetMapping("/{id}/vehicles")
-    public List<VehicleDTO> indexVehicles(@PathVariable("id") Long id) {
-        return vehiclesService.findVehiclesForManager(id).stream().map(this::convertToVehicleDTO)
+//    @GetMapping("/{id}/vehicles")
+//    public List<VehicleDTO> indexVehicles(@PathVariable("id") Long id) {
+//        return vehicleService.findVehiclesForManager(id).stream().map(this::convertToVehicleDTO)
+//                .collect(Collectors.toList());
+//    }
+
+    //GET бывший рабочий контроллер
+    @GetMapping("/enterprises/{id}/vehicles")
+    public List<VehicleDTO> indexVehicles(
+            @PathVariable("id") Long managerId,
+            @RequestParam(required = false) Long enterpriseId,
+            @RequestParam(required = false) Long brandId,
+            @RequestParam(required = false) Integer minPrice,
+            @RequestParam(required = false) Integer maxPrice,
+            @RequestParam(required = false) Integer year,
+            @RequestParam(defaultValue = "vehicleName,vehicleId") String sortField,  // Теперь стабильная сортировка
+            @RequestParam(defaultValue = "ASC") String sortDir,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        // Создаём `PageRequest` для сортировки и пагинации
+        String[] sortFields = sortField.split(",");
+        Pageable pageRequest = PageRequest.of(
+                page, size, Sort.by(
+                        Arrays.stream(sortFields)
+                                .map(field -> Sort.Order.by(field)
+                                        .with(Sort.Direction.fromString(sortDir)))
+                                .toList()
+                )
+        );
+
+        // Получаем данные с пагинацией
+        Page<Vehicle> vehiclesPage = vehicleService.findVehiclesForManager(
+                managerId, enterpriseId, brandId, minPrice, maxPrice, year, pageRequest);
+
+                return vehiclesPage.getContent().stream().map(this::convertToVehicleDTO)
                 .collect(Collectors.toList());
     }
+
+
+//    @GetMapping("/{id}/vehicles")
+//    public ResponseEntity<Page<VehicleDTO>> getVehicles(
+//            @PathVariable("id") Long id,
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "15") int size,
+//            @RequestParam(defaultValue = "vehicleName") String sortField,
+//            @RequestParam(defaultValue = "asc") String sortDirection) {
+//
+//        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+//        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortField));
+//
+//        Page<VehicleDTO> vehicles = vehicleService.findVehiclesForManager(id, pageable)
+//                .map(this::convertToVehicleDTO);
+//        return ResponseEntity.ok(vehicles);
+//    }
+
+
 
     //PUT
     @PutMapping("/{id}/vehicles/{idVehicle}")
@@ -111,24 +171,24 @@ public class ApiManagerController {
                                              BindingResult bindingResult,
                                              @PathVariable("idVehicle") Long idVehicle) {
         ValidationBindingUtil.Binding(bindingResult);
-        vehiclesService.update(idVehicle, convertToVehicle(vehicle));
+        vehicleService.update(idVehicle, convertToVehicle(vehicle));
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
     //POST
     @PostMapping("/{id}/vehicles")
     public ResponseEntity<Void> create(@RequestBody @Valid VehicleDTO vehicle,
-                                             BindingResult bindingResult) {
+                                       BindingResult bindingResult) {
         logger.info("Received vehicle: {}", vehicle);
         ValidationBindingUtil.Binding(bindingResult);
-        vehiclesService.save(convertToVehicle(vehicle));
+        vehicleService.save(convertToVehicle(vehicle));
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     //DELETE
     @DeleteMapping("/{id}/vehicles/{idVehicle}")
     public ResponseEntity<Void> deleteVehicle(@PathVariable("idVehicle") Long id) {
-        vehiclesService.delete(id);
+        vehicleService.delete(id);
 
         return ResponseEntity.noContent().build(); // Возвращаем 204 No Content
     }
@@ -155,11 +215,12 @@ public class ApiManagerController {
 
         return ResponseEntity.ok(HttpStatus.OK);
     }
-//
+
+    //
     //POST
     @PostMapping("/{id}/drivers")
     public ResponseEntity<Void> create(@RequestBody @Valid DriverDTO driverDTO,
-                                             BindingResult bindingResult) {
+                                       BindingResult bindingResult) {
         logger.info("Received vehicle: {}", driverDTO);
         ValidationBindingUtil.Binding(bindingResult);
         driversService.save(convertToDriver(driverDTO));
@@ -177,7 +238,6 @@ public class ApiManagerController {
 //----------------------//
 
 
-
     //внутренние методы
     private Vehicle convertToVehicle(VehicleDTO vehicleDTO) {
         return modelMapper.map(vehicleDTO, Vehicle.class);
@@ -190,7 +250,8 @@ public class ApiManagerController {
     private DriverDTO convertToDriverDTO(Driver driver) {
         return modelMapper.map(driver, DriverDTO.class);
     }
-    private Driver convertToDriver (DriverDTO driverDTO) {
+
+    private Driver convertToDriver(DriverDTO driverDTO) {
         return modelMapper.map(driverDTO, Driver.class);
     }
 

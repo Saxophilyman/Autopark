@@ -11,4 +11,6 @@ public class BrandDTO {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long brandId;
 
+    private String brandName;
+
 }

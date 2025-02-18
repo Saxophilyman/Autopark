@@ -1,0 +1,18 @@
+/* vehicles.css */
+.vehicle-link {
+    text-decoration: none; /* Убираем подчеркивание */
+    font-size: 20px;
+    margin-bottom: 10px;
+    display: block; /* Чтобы ссылки шли в столбик */
+    color: #000; /* Черный цвет текста */
+    font-weight: bold;
+}
+
+.vehicle-link:hover {
+    color: #007bff; /* Цвет при наведении */
+}
+
+.container {
+    max-width: 800px; /* Ограничиваем ширину контейнера */
+    margin: 0 auto; /* Выравниваем по центру */
+}

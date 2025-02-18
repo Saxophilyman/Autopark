@@ -1,5 +1,6 @@
 package org.example.autopark.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.example.autopark.entity.Enterprise;
 import org.example.autopark.entity.Manager;
 import org.example.autopark.exception.EnterpriseNotDeletedException;
@@ -59,7 +60,7 @@ public class EnterpriseService {
     public void update(Long idManager, Long idEnterprise, Enterprise updatedEnterprise) {
         Enterprise enterprise = enterpriseRepository.findById(idEnterprise).get();
         List<Enterprise> managerEnterprises = managersRepository.findById(idManager).get().getEnterpriseList();
-        if(!managerEnterprises.contains(enterprise)) {
+        if (!managerEnterprises.contains(enterprise)) {
             throw new EnterpriseNotUpdatedException("Нет доступа к данному предприятию");
         }
 
@@ -75,7 +76,7 @@ public class EnterpriseService {
         Enterprise enterprise = enterpriseRepository.findById(idEnterprise).get();
         List<Enterprise> managerEnterprises = managersRepository.findById(idManager).get().getEnterpriseList();
 
-        if(!managerEnterprises.contains(enterprise)) {
+        if (!managerEnterprises.contains(enterprise)) {
             throw new EnterpriseNotDeletedException("Нет доступа к данному предприятию");
         }
 
@@ -85,5 +86,11 @@ public class EnterpriseService {
         }
 
         enterpriseRepository.deleteById(idEnterprise);
+    }
+
+    public boolean managerHasEnterprise(Long managerId, Long enterpriseId) {
+        Manager manager = managersRepository.findById(managerId)
+                .orElseThrow(() -> new EntityNotFoundException("Менеджер не найден"));
+        return enterpriseRepository.existsByManagerListContainsAndEnterpriseId(manager, enterpriseId);
     }
 }

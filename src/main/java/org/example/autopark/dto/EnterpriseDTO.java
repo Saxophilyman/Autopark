@@ -10,4 +10,5 @@ public class EnterpriseDTO {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long enterpriseId;
+
 }

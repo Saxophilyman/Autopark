@@ -45,7 +45,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authz -> authz
                         // Разрешаем доступ без аутентификации к указанным ресурсам
                         .requestMatchers("/auth/login", "/auth/login2","/auth/registration", "/favicon.ico", "/css/**", "/js/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/api/managers/**").hasRole("MANAGER")
+                        .requestMatchers("/api/managers/**","/api/generate","/managers/**").hasRole("MANAGER")
                         .requestMatchers("/api/users/**").hasRole("USER")
                         // Все остальные запросы требуют аутентификации
                         .anyRequest().authenticated()
@@ -72,8 +72,3 @@ public class SecurityConfig {
         return authConfig.getAuthenticationManager();
     }
 }
-//
-//        AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
-//        authenticationManagerBuilder.userDetailsService(generalDetailsService);
-//
-//        AuthenticationManager authenticationManager = authenticationManagerBuilder.build();

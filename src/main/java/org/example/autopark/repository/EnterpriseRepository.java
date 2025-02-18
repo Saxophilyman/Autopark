@@ -1,6 +1,7 @@
 package org.example.autopark.repository;
 
 import org.example.autopark.entity.Enterprise;
+import org.example.autopark.entity.Manager;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -10,5 +11,6 @@ import java.util.List;
 public interface EnterpriseRepository extends JpaRepository<Enterprise, Long> {
     List<Enterprise> findEnterprisesByManagerList_managerId(Long id);
 
-    //List<Enterprise> findEnterprises();
+    boolean existsByManagerListContainsAndEnterpriseId(Manager manager, Long id);
+
 }
