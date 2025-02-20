@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.util.List;
 
 @Entity
@@ -57,4 +58,14 @@ public class Vehicle {
     @JsonIgnore
     private List<Driver> driverList;
     //Каждому автомобилю может быть назначено несколько водителей.
+    
+    @Column(name = "purchase_date_utc", nullable = false)
+    private Instant purchaseDateUtc; // Дата покупки в UTC
+
+    @PrePersist
+    protected void onCreate() {
+        if (this.purchaseDateUtc == null) { // Только если дата не была установлена вручную
+            this.purchaseDateUtc = Instant.now();
+        }
+    }
 }

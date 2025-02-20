@@ -64,29 +64,5 @@ public class ApiSimpleUserController {
         return new ModelAndView("userStartPage");
     }
 
-//    @GetMapping("/{id}/enterprises")
-//    public List<Enterprise> indexEnterprises(@PathVariable("id") Long id) {
-//        return enterprisesService.findEnterprisesForUser();
-//    }
 
-//    @GetMapping("/{id}/vehicles")
-//    public List<VehicleDTO> indexVehicles(@PathVariable("id") Long id) {
-//        return vehiclesService.findVehiclesForManager(id).stream().map(this::convertToVehicleDTO)
-//                .collect(Collectors.toList());
-//    }
-//
-    private VehicleDTO convertToVehicleDTO(Vehicle vehicle) {
-        return modelMapper.map(vehicle, VehicleDTO.class);
-    }
-
-//    @ResponseBody
-//    @GetMapping("/{id}/drivers")
-//    public List<DriverDTO> indexDrivers(@PathVariable("id") Long id) {
-//        return driversService.findAll().stream().map(this::convertToDriverDTO)
-//                .collect(Collectors.toList());
-//    }
-//
-    private DriverDTO convertToDriverDTO(Driver driver) {
-        return modelMapper.map(driver, DriverDTO.class);
-    }
 }

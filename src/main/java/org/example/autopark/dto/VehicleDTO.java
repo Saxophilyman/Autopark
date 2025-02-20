@@ -28,8 +28,10 @@ public class VehicleDTO {
     private int vehicleYearOfRelease;
 
 
-
     private BrandDTO brand;
 
     private EnterpriseDTO enterprise;
+
+    //через DTO производить конвертацию
+    private String purchaseDateEnterpriseTime;
 }

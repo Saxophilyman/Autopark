@@ -1,4 +1,4 @@
-package org.example.autopark.controllers;
+package org.example.autopark.controllers.managers.UIController;
 
 import jakarta.validation.Valid;
 import org.example.autopark.customAnnotation.currentManagerId.CurrentManagerId;

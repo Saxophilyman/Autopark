@@ -1,14 +1,22 @@
 package org.example.autopark.dto;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotEmpty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class EnterpriseDTO {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private Long enterpriseId;
 
+    @NotEmpty
+    private String name;
+
+    @NotEmpty
+    private String cityOfEnterprise;
+
+    private String timeZone; // Значение по умолчанию устанавливается в маппере/сущности
 }

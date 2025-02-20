@@ -1,9 +1,10 @@
-package org.example.autopark.controllers;
+package org.example.autopark.controllers.managers.APIControllers;
 
 import jakarta.validation.Valid;
 import org.example.autopark.appUtil.ValidationBindingUtil;
 import org.example.autopark.dto.DriverDTO;
 import org.example.autopark.dto.VehicleDTO;
+import org.example.autopark.dto.mapper.VehicleMapper;
 import org.example.autopark.entity.Driver;
 import org.example.autopark.entity.Enterprise;
 import org.example.autopark.entity.Vehicle;
@@ -40,14 +41,17 @@ public class ApiManagerController {
     private final EnterpriseService enterprisesService;
     private final VehicleService vehicleService;
     private final DriverService driversService;
+    private final VehicleMapper vehicleMapper;
     private final ModelMapper modelMapper;
+
     Logger logger = LoggerFactory.getLogger(ApiManagerController.class);
 
     public ApiManagerController(EnterpriseService enterprisesService, VehicleService vehicleService,
-                                DriverService driversService, ModelMapper modelMapper) {
+                                DriverService driversService, VehicleMapper vehicleMapper, ModelMapper modelMapper) {
         this.enterprisesService = enterprisesService;
         this.vehicleService = vehicleService;
         this.driversService = driversService;
+        this.vehicleMapper = vehicleMapper;
         this.modelMapper = modelMapper;
     }
 
@@ -55,18 +59,12 @@ public class ApiManagerController {
     public ModelAndView start(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         ManagerDetails managerDetails = (ManagerDetails) authentication.getPrincipal();
-
-        //System.out.println(managerDetails.getManager().getUsername());
-
         model.addAttribute("manager", managerDetails.getManager());
 
         return new ModelAndView("startPage");
     }
 
-
-
-
-    //CRUD FOR ENTERPRISES
+    // ----------------- CRUD CRUD FOR ENTERPRISES -----------------
     //GET
     @GetMapping("/{id}/enterprises")
     public List<Enterprise> indexEnterprises(@PathVariable("id") Long id) {
@@ -142,30 +140,12 @@ public class ApiManagerController {
         Page<Vehicle> vehiclesPage = vehicleService.findVehiclesForManager(
                 managerId, enterpriseId, brandId, minPrice, maxPrice, year, pageRequest);
 
-                return vehiclesPage.getContent().stream().map(this::convertToVehicleDTO)
+        return vehiclesPage.getContent().stream()
+                .map(vehicleMapper::convertToVehicleDTO)
                 .collect(Collectors.toList());
     }
 
-
-//    @GetMapping("/{id}/vehicles")
-//    public ResponseEntity<Page<VehicleDTO>> getVehicles(
-//            @PathVariable("id") Long id,
-//            @RequestParam(defaultValue = "0") int page,
-//            @RequestParam(defaultValue = "15") int size,
-//            @RequestParam(defaultValue = "vehicleName") String sortField,
-//            @RequestParam(defaultValue = "asc") String sortDirection) {
-//
-//        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
-//        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortField));
-//
-//        Page<VehicleDTO> vehicles = vehicleService.findVehiclesForManager(id, pageable)
-//                .map(this::convertToVehicleDTO);
-//        return ResponseEntity.ok(vehicles);
-//    }
-
-
-
-    //PUT
+        //PUT
     @PutMapping("/{id}/vehicles/{idVehicle}")
     public ResponseEntity<HttpStatus> update(@RequestBody @Valid VehicleDTO vehicle,
                                              BindingResult bindingResult,
@@ -255,15 +235,6 @@ public class ApiManagerController {
         return modelMapper.map(driverDTO, Driver.class);
     }
 
-//    @ExceptionHandler
-//    private ResponseEntity<VehicleErrorResponse> handlerException(VehicleNotFoundException e) {
-//        VehicleErrorResponse response = new VehicleErrorResponse(
-//                "Vehicle with this id wasn't found",
-//                System.currentTimeMillis()
-//        );
-//
-//        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND); // статус 404
-//    }
 
     @ExceptionHandler
     private ResponseEntity<VehicleErrorResponse> handlerException(VehicleNotFoundException e) {

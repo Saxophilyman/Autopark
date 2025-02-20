@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 import java.util.List;
+import java.util.TimeZone;
 
 import static java.util.stream.Collectors.toList;
 
@@ -13,6 +14,7 @@ import static java.util.stream.Collectors.toList;
 public class AutoparkApplication {
 
 	public static void main(String[] args) {
+		TimeZone.setDefault(TimeZone.getTimeZone("UTC")); // Принудительно устанавливаем UTC
 		SpringApplication.run(AutoparkApplication.class, args);
 	}
 

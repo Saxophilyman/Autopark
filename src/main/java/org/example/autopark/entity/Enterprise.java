@@ -32,4 +32,15 @@ public class Enterprise {
             joinColumns = @JoinColumn(name = "enterprise_id"),
             inverseJoinColumns = @JoinColumn(name = "manager_id"))
     private List<Manager> managerList;
+
+    @Column(name="timezone", nullable = false)
+    private String timeZone = "UTC";
+
+    @PrePersist
+    @PreUpdate
+    private void ensureTimezone() {
+        if (this.timeZone == null || this.timeZone.isBlank()) {
+            this.timeZone = "UTC"; // Если нет значения, устанавливаем UTC
+        }
+    }
 }
