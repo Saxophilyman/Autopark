@@ -4,7 +4,7 @@ import jakarta.validation.Valid;
 import org.example.autopark.customAnnotation.currentManagerId.CurrentManagerId;
 import org.example.autopark.dto.VehicleDTO;
 import org.example.autopark.entity.Vehicle;
-import org.example.autopark.service.BrandService;
+import org.example.autopark.service.BrandsService;
 import org.example.autopark.service.DriverService;
 import org.example.autopark.service.EnterpriseService;
 import org.example.autopark.service.VehicleService;
@@ -32,12 +32,12 @@ import java.util.stream.Collectors;
 public class ManagerUIController {
     private final EnterpriseService enterpriseService;
     private final VehicleService vehicleService;
-    private final BrandService brandService;
+    private final BrandsService brandService;
     private final DriverService driverService;
     private final ModelMapper modelMapper;
 
     @Autowired
-    public ManagerUIController(EnterpriseService enterpriseService, VehicleService vehicleService, BrandService brandService, DriverService driverService, ModelMapper modelMapper) {
+    public ManagerUIController(EnterpriseService enterpriseService, VehicleService vehicleService, BrandsService brandService, DriverService driverService, ModelMapper modelMapper) {
         this.enterpriseService = enterpriseService;
         this.vehicleService = vehicleService;
         this.brandService = brandService;
@@ -46,14 +46,14 @@ public class ManagerUIController {
     }
 
 
-    @GetMapping("/enterprises")
-    public ModelAndView indexStart(@CurrentManagerId Long managerId) {
-
-        ModelAndView enterprises = new ModelAndView("enterprises/index");
-        enterprises.addObject("enterprises", enterpriseService.findEnterprisesForManager(managerId));
-
-        return enterprises;
-    }
+//    @GetMapping("/enterprises")
+//    public ModelAndView indexStart(@CurrentManagerId Long managerId) {
+//
+//        ModelAndView enterprises = new ModelAndView("enterprisesStartPage");
+//        enterprises.addObject("enterprises", enterpriseService.findEnterprisesForManager(managerId));
+//
+//        return enterprises;
+//    }
 
 
     @GetMapping("/enterprises/{id}/vehicles")

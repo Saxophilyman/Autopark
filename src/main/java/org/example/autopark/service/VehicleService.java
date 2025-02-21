@@ -9,27 +9,24 @@ import org.example.autopark.repository.VehicleRepository;
 import org.example.autopark.specifications.VehicleSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
 @Transactional(readOnly = true)
 public class VehicleService {
     private final VehicleRepository vehicleRepository;
-    private final BrandService brandService;
+    private final BrandsService brandService;
     private final EnterpriseService enterpriseService;
     private final DriverRepository driverRepository;
 
     @Autowired
-    public VehicleService(VehicleRepository vehicleRepository, BrandService brandService, EnterpriseService enterpriseService, DriverRepository driverRepository) {
+    public VehicleService(VehicleRepository vehicleRepository, BrandsService brandService, EnterpriseService enterpriseService, DriverRepository driverRepository) {
         this.vehicleRepository = vehicleRepository;
         this.brandService = brandService;
         this.enterpriseService = enterpriseService;

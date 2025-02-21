@@ -1,7 +1,7 @@
 package org.example.autopark.controllers;
 
 import org.example.autopark.entity.Brand;
-import org.example.autopark.service.BrandService;
+import org.example.autopark.service.BrandsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,10 +14,10 @@ import java.util.List;
 @RequestMapping("/api/brands")
 public class ApiBrandController {
 
-    private final BrandService brandsService;
+    private final BrandsService brandsService;
 
     @Autowired
-    public ApiBrandController(BrandService brandsService) {
+    public ApiBrandController(BrandsService brandsService) {
         this.brandsService = brandsService;
     }
 

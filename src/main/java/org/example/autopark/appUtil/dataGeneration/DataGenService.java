@@ -7,7 +7,7 @@ import org.example.autopark.entity.Brand;
 import org.example.autopark.entity.Driver;
 import org.example.autopark.entity.Enterprise;
 import org.example.autopark.entity.Vehicle;
-import org.example.autopark.service.BrandService;
+import org.example.autopark.service.BrandsService;
 import org.example.autopark.service.DriverService;
 import org.example.autopark.service.EnterpriseService;
 import org.example.autopark.service.VehicleService;
@@ -22,11 +22,11 @@ import java.util.Random;
 @Transactional(readOnly = true)
 public class DataGenService {
     private final EnterpriseService enterpriseService;
-    private final BrandService brandService;
+    private final BrandsService brandService;
     private final DriverService driverService;
     private final VehicleService vehicleService;
 
-    public DataGenService(EnterpriseService enterprisesService, BrandService brandsService,
+    public DataGenService(EnterpriseService enterprisesService, BrandsService brandsService,
                           DriverService driversService, VehicleService vehiclesService) {
         this.enterpriseService = enterprisesService;
         this.brandService = brandsService;

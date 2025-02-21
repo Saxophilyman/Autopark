@@ -66,10 +66,10 @@ public class ApiManagerController {
 
     // ----------------- CRUD CRUD FOR ENTERPRISES -----------------
     //GET
-    @GetMapping("/{id}/enterprises")
-    public List<Enterprise> indexEnterprises(@PathVariable("id") Long id) {
-        return enterprisesService.findEnterprisesForManager(id);
-    }
+//    @GetMapping("/{id}/enterprises")
+//    public List<Enterprise> indexEnterprises(@PathVariable("id") Long id) {
+//        return enterprisesService.findEnterprisesForManager(id);
+//    }
 
     //PUT
     @PutMapping("/{id}/enterprises/{idEnterprise}")

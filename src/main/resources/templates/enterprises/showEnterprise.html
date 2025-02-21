@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Предприятие</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+          rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+          crossorigin="anonymous">
+</head>
+<body>
+
+<div class="container mt-4">
+    <h1 class="mb-4">Просмотр предприятия</h1>
+
+    <table class="table table-bordered">
+        <tr>
+            <th>ID:</th>
+            <td th:text="${enterprise.getEnterpriseId()}"></td>
+        </tr>
+        <tr>
+            <th>Имя:</th>
+            <td th:text="${enterprise.getName()}"></td>
+        </tr>
+        <tr>
+            <th>Город:</th>
+            <td th:text="${enterprise.getCityOfEnterprise()}"></td>
+        </tr>
+        <tr>
+            <th>Часовой пояс:</th>
+            <td th:text="${enterprise.getTimeZone()}"></td>
+        </tr>
+
+    </table>
+
+    <div class="d-flex gap-2">
+        <a th:href="@{/managers/enterprises}" class="btn btn-secondary">Назад</a>
+        <a th:href="@{/managers/enterprises/{enterpriseId}/edit(enterpriseId=${enterpriseId})}" class="btn btn-warning">Редактировать</a>
+        <form th:action="@{/managers/enterprises/{enterpriseId}/delete(enterpriseId=${enterpriseId})}"
+              method="post"
+              onsubmit="return confirm('Вы уверены, что хотите удалить это предприятие?');">
+            <button type="submit" class="btn btn-danger">Удалить</button>
+        </form>
+        <a th:href="@{/managers/enterprises/{id}/vehicles(id=${enterprise.getEnterpriseId()})}" class="btn bg-info-subtle" >К списку автомобилей</a>
+    </div>
+</div>
+
+</body>
+</html>

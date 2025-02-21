@@ -9,11 +9,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 @Service
-public class BrandService {
+public class BrandsService {
     private final BrandRepository brandRepository;
 
     @Autowired
-    public BrandService(BrandRepository brandRepository) {
+    public BrandsService(BrandRepository brandRepository) {
         this.brandRepository = brandRepository;
     }
 
