@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.example.autopark.GPS.PointGPS;
 
 import java.time.Instant;
 import java.util.List;
@@ -68,4 +69,9 @@ public class Vehicle {
             this.purchaseDateUtc = Instant.now();
         }
     }
+
+    // new
+    @OneToMany(mappedBy = "vehicleGPS")
+    @JsonIgnore
+    private List<PointGPS> PointsGPS;
 }
