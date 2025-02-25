@@ -42,7 +42,6 @@ public class UIManagerEnterprisesController {
         if (!hasAccess) {
             throw new AccessDeniedException("У вас нет доступа к этому предприятию!");
         }
-        //enterpriseService.findEnterprisesForManager(managerId);
         EnterpriseDTO enterpriseDTO = enterpriseMapper.convertToDTO(enterpriseService.findOne(enterpriseId));
 
         model.addAttribute("enterprise", enterpriseDTO);

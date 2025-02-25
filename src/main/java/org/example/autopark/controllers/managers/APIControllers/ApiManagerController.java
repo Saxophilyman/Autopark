@@ -2,6 +2,7 @@ package org.example.autopark.controllers.managers.APIControllers;
 
 import jakarta.validation.Valid;
 import org.example.autopark.appUtil.ValidationBindingUtil;
+import org.example.autopark.customAnnotation.currentManagerId.CurrentManagerId;
 import org.example.autopark.dto.DriverDTO;
 import org.example.autopark.dto.VehicleDTO;
 import org.example.autopark.dto.mapper.VehicleMapper;
@@ -103,47 +104,47 @@ public class ApiManagerController {
     //UPDATE
 //----------------------//
 
-    //CRUD FOR VEHICLES
-    //GET
-//    @GetMapping("/{id}/vehicles")
-//    public List<VehicleDTO> indexVehicles(@PathVariable("id") Long id) {
-//        return vehicleService.findVehiclesForManager(id).stream().map(this::convertToVehicleDTO)
-//                .collect(Collectors.toList());
-//    }
 
     //GET бывший рабочий контроллер
-    @GetMapping("/enterprises/{id}/vehicles")
-    public List<VehicleDTO> indexVehicles(
-            @PathVariable("id") Long managerId,
-            @RequestParam(required = false) Long enterpriseId,
-            @RequestParam(required = false) Long brandId,
-            @RequestParam(required = false) Integer minPrice,
-            @RequestParam(required = false) Integer maxPrice,
-            @RequestParam(required = false) Integer year,
-            @RequestParam(defaultValue = "vehicleName,vehicleId") String sortField,  // Теперь стабильная сортировка
-            @RequestParam(defaultValue = "ASC") String sortDir,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-
-        // Создаём `PageRequest` для сортировки и пагинации
-        String[] sortFields = sortField.split(",");
-        Pageable pageRequest = PageRequest.of(
-                page, size, Sort.by(
-                        Arrays.stream(sortFields)
-                                .map(field -> Sort.Order.by(field)
-                                        .with(Sort.Direction.fromString(sortDir)))
-                                .toList()
-                )
-        );
-
-        // Получаем данные с пагинацией
-        Page<Vehicle> vehiclesPage = vehicleService.findVehiclesForManager(
-                managerId, enterpriseId, brandId, minPrice, maxPrice, year, pageRequest);
-
-        return vehiclesPage.getContent().stream()
-                .map(vehicleMapper::convertToVehicleDTO)
-                .collect(Collectors.toList());
-    }
+//    @GetMapping("/enterprises/{enterpriseId}/vehicles")
+//    public List<VehicleDTO> indexVehicles(
+//            @CurrentManagerId Long managerId,
+//            @PathVariable Long enterpriseId,
+//            @RequestParam(required = false) Long brandId,
+//            @RequestParam(required = false) Integer minPrice,
+//            @RequestParam(required = false) Integer maxPrice,
+//            @RequestParam(required = false) Integer year,
+//            @RequestParam(defaultValue = "vehicleName,vehicleId") String sortField,  // Теперь стабильная сортировка
+//            @RequestParam(defaultValue = "ASC") String sortDir,
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "10") int size) {
+//
+//        // Получаем предприятие и его таймзону
+//        Enterprise enterprise = enterprisesService.findOne(enterpriseId);
+//        String enterpriseTimezone = enterprise.getTimeZone();
+//
+//        // Создаём `PageRequest` для сортировки и пагинации
+//        String[] sortFields = sortField.split(",");
+//        Pageable pageRequest = PageRequest.of(
+//                page, size, Sort.by(
+//                        Arrays.stream(sortFields)
+//                                .map(field -> Sort.Order.by(field)
+//                                        .with(Sort.Direction.fromString(sortDir)))
+//                                .toList()
+//                )
+//        );
+//
+//        // Получаем данные с пагинацией
+//        Page<Vehicle> vehiclesPage = vehicleService.findVehiclesForManager(
+//                managerId, enterpriseId, brandId, minPrice, maxPrice, year, pageRequest);
+//
+//        List<VehicleDTO> vehicleDTOList = vehiclesPage.getContent()
+//                .stream()
+//                .map(vehicle -> vehicleMapper.convertToVehicleDTO(vehicle, enterpriseTimezone))
+//                .collect(Collectors.toList());
+//
+//        return vehicleDTOList;
+//    }
 
         //PUT
     @PutMapping("/{id}/vehicles/{idVehicle}")

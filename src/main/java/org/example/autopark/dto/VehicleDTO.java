@@ -34,4 +34,6 @@ public class VehicleDTO {
 
     //через DTO производить конвертацию
     private String purchaseDateEnterpriseTime;
+    private String purchaseDateUtc; // Оригинальное UTC время для корректного перевода в браузере
+
 }

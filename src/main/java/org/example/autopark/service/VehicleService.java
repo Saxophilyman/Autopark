@@ -1,6 +1,10 @@
 package org.example.autopark.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.example.autopark.dto.VehicleApiDto;
+import org.example.autopark.dto.VehicleDTO;
+import org.example.autopark.dto.mapper.VehicleMapper;
+import org.example.autopark.dto.mapper.VehiclePageDTO;
 import org.example.autopark.entity.Driver;
 import org.example.autopark.entity.Enterprise;
 import org.example.autopark.entity.Vehicle;
@@ -9,12 +13,16 @@ import org.example.autopark.repository.VehicleRepository;
 import org.example.autopark.specifications.VehicleSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
@@ -24,13 +32,15 @@ public class VehicleService {
     private final BrandsService brandService;
     private final EnterpriseService enterpriseService;
     private final DriverRepository driverRepository;
+    private final VehicleMapper vehicleMapper;
 
     @Autowired
-    public VehicleService(VehicleRepository vehicleRepository, BrandsService brandService, EnterpriseService enterpriseService, DriverRepository driverRepository) {
+    public VehicleService(VehicleRepository vehicleRepository, BrandsService brandService, EnterpriseService enterpriseService, DriverRepository driverRepository, VehicleMapper vehicleMapper) {
         this.vehicleRepository = vehicleRepository;
         this.brandService = brandService;
         this.enterpriseService = enterpriseService;
         this.driverRepository = driverRepository;
+        this.vehicleMapper = vehicleMapper;
     }
 
 
@@ -190,10 +200,61 @@ public class VehicleService {
         return vehicleRepository.findAll(spec, pageable);
     }
 
-
-
-
     private void enrichVehicle(Vehicle vehicle) {
         vehicle.setEnterpriseOwnerOfVehicle(null);
     }
+
+    /**
+     * Получение списка машин с учётом таймзоны предприятия и пагинации.
+     */
+    public VehiclePageDTO getVehiclesForEnterprise(
+            Long managerId, Long enterpriseId, Long brandId, Integer minPrice, Integer maxPrice, Integer year,
+            String sortField, String sortDir, int page, int size) {
+
+        // Проверяем, имеет ли менеджер доступ к предприятию
+        if (!enterpriseService.managerHasEnterprise(managerId, enterpriseId)) {
+            throw new AccessDeniedException("У вас нет доступа к этому предприятию!");
+        }
+
+        // Получаем предприятие и его таймзону
+        Enterprise enterprise = enterpriseService.findOne(enterpriseId);
+        String enterpriseTimezone = enterprise.getTimeZone();
+
+        // Создаём объект пагинации и сортировки
+        Pageable pageRequest = createPageRequest(sortField, sortDir, page, size);
+
+        // Запрашиваем список машин с пагинацией
+        Page<Vehicle> vehiclesPage = findVehiclesForManager(
+                managerId, enterpriseId, brandId, minPrice, maxPrice, year, pageRequest);
+
+        // Конвертируем машины в DTO с учётом таймзоны предприятия
+        List<VehicleApiDto> VehicleApiDtoList = vehiclesPage.getContent()
+                .stream()
+                .map(vehicle -> vehicleMapper.convertToVehicleApiDto(vehicle, enterpriseTimezone))
+                .collect(Collectors.toList());
+
+        return new VehiclePageDTO(
+                VehicleApiDtoList,
+                vehiclesPage.getNumber() + 1, // Thymeleaf использует индексацию с 1, а Spring с 0
+                vehiclesPage.getTotalPages(),
+                vehiclesPage.hasNext(),
+                vehiclesPage.hasPrevious(),
+                enterpriseTimezone
+        );
+    }
+
+    /**
+     * Создаёт объект `PageRequest` для сортировки и пагинации.
+     */
+    private Pageable createPageRequest(String sortField, String sortDir, int page, int size) {
+        String[] sortFields = sortField.split(",");
+        return PageRequest.of(
+                page, size, Sort.by(
+                        Arrays.stream(sortFields)
+                                .map(field -> Sort.Order.by(field).with(Sort.Direction.fromString(sortDir)))
+                                .toList()
+                )
+        );
+    }
+
 }

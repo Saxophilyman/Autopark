@@ -56,49 +56,49 @@ public class ManagerUIController {
 //    }
 
 
-    @GetMapping("/enterprises/{id}/vehicles")
-    public String indexVehicles(
-            @CurrentManagerId Long managerId,
-            @PathVariable("id") Long enterpriseId,
-            @RequestParam(required = false) Long brandId,
-            @RequestParam(required = false) Integer minPrice,
-            @RequestParam(required = false) Integer maxPrice,
-            @RequestParam(required = false) Integer year,
-            @RequestParam(defaultValue = "vehicleName,vehicleId") String sortField,  // Теперь стабильная сортировка
-            @RequestParam(defaultValue = "ASC") String sortDir,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            Model model) {
-
-        // Проверяем, принадлежит ли `enterpriseId` текущему `managerId`
-        boolean hasAccess = enterpriseService.managerHasEnterprise(managerId, enterpriseId);
-        if (!hasAccess) {
-            throw new AccessDeniedException("У вас нет доступа к этому предприятию!");
-        }
-
-        // Создаём `PageRequest` для сортировки и пагинации
-        String[] sortFields = sortField.split(",");
-        Pageable pageRequest = PageRequest.of(
-                page, size, Sort.by(
-                        Arrays.stream(sortFields)
-                                .map(field -> Sort.Order.by(field)
-                                        .with(Sort.Direction.fromString(sortDir)))
-                                .toList()
-                )
-        );
-
-        // Получаем данные с пагинацией
-        Page<Vehicle> vehiclesPage = vehicleService.findVehiclesForManager(
-                managerId, enterpriseId, brandId, minPrice, maxPrice, year, pageRequest);
-
-        model.addAttribute("vehicles", vehiclesPage.getContent().stream().map(this::convertToVehicleDTO).collect(Collectors.toList()));
-        model.addAttribute("currentPage", vehiclesPage.getNumber() + 1);
-        model.addAttribute("totalPages", vehiclesPage.getTotalPages());
-        model.addAttribute("hasNext", vehiclesPage.hasNext());
-        model.addAttribute("hasPrevious", vehiclesPage.hasPrevious());
-        model.addAttribute("enterpriseId", enterpriseId);
-        return "vehicles/index";
-    }
+//    @GetMapping("/enterprises/{id}/vehicles")
+//    public String indexVehicles(
+//            @CurrentManagerId Long managerId,
+//            @PathVariable("id") Long enterpriseId,
+//            @RequestParam(required = false) Long brandId,
+//            @RequestParam(required = false) Integer minPrice,
+//            @RequestParam(required = false) Integer maxPrice,
+//            @RequestParam(required = false) Integer year,
+//            @RequestParam(defaultValue = "vehicleName,vehicleId") String sortField,  // Теперь стабильная сортировка
+//            @RequestParam(defaultValue = "ASC") String sortDir,
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "10") int size,
+//            Model model) {
+//
+//        // Проверяем, принадлежит ли `enterpriseId` текущему `managerId`
+//        boolean hasAccess = enterpriseService.managerHasEnterprise(managerId, enterpriseId);
+//        if (!hasAccess) {
+//            throw new AccessDeniedException("У вас нет доступа к этому предприятию!");
+//        }
+//
+//        // Создаём `PageRequest` для сортировки и пагинации
+//        String[] sortFields = sortField.split(",");
+//        Pageable pageRequest = PageRequest.of(
+//                page, size, Sort.by(
+//                        Arrays.stream(sortFields)
+//                                .map(field -> Sort.Order.by(field)
+//                                        .with(Sort.Direction.fromString(sortDir)))
+//                                .toList()
+//                )
+//        );
+//
+//        // Получаем данные с пагинацией
+//        Page<Vehicle> vehiclesPage = vehicleService.findVehiclesForManager(
+//                managerId, enterpriseId, brandId, minPrice, maxPrice, year, pageRequest);
+//
+//        model.addAttribute("vehicles", vehiclesPage.getContent().stream().map(this::convertToVehicleDTO).collect(Collectors.toList()));
+//        model.addAttribute("currentPage", vehiclesPage.getNumber() + 1);
+//        model.addAttribute("totalPages", vehiclesPage.getTotalPages());
+//        model.addAttribute("hasNext", vehiclesPage.hasNext());
+//        model.addAttribute("hasPrevious", vehiclesPage.hasPrevious());
+//        model.addAttribute("enterpriseId", enterpriseId);
+//        return "vehicles/index";
+//    }
 
 
     @GetMapping("/enterprises/{id}/vehicles/new")
@@ -156,31 +156,7 @@ public class ManagerUIController {
         return "redirect:/managers/enterprises/" + enterpriseId + "/vehicles";
     }
 
-    @GetMapping("/enterprises/{enterpriseId}/vehicles/{vehicleId}")
-    public String showVehicle(
-            @CurrentManagerId Long managerId,
-            @PathVariable("enterpriseId") Long enterpriseId,
-            @PathVariable("vehicleId") Long vehicleId,
-            Model model) {
 
-        // Проверяем, принадлежит ли предприятие текущему менеджеру
-        boolean hasAccess = enterpriseService.managerHasEnterprise(managerId, enterpriseId);
-        if (!hasAccess) {
-            throw new AccessDeniedException("У вас нет доступа к этому предприятию!");
-        }
-
-        // Загружаем транспортное средство
-        Vehicle vehicle = vehicleService.findOne(vehicleId);
-        if (vehicle == null || !vehicle.getEnterpriseOwnerOfVehicle().getEnterpriseId().equals(enterpriseId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Транспортное средство не найдено");
-        }
-
-        // Передаём объект в модель для Thymeleaf
-        model.addAttribute("vehicle", vehicle);
-        model.addAttribute("enterpriseId", enterpriseId);
-
-        return "vehicles/showVehicle"; // Отображаем страницу просмотра
-    }
 
     @GetMapping("/enterprises/{enterpriseId}/vehicles/{id}/edit")
     public String editVehicle(

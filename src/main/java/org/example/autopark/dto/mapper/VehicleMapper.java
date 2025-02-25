@@ -1,17 +1,12 @@
 package org.example.autopark.dto.mapper;
 
-import org.example.autopark.dto.BrandDTO;
-import org.example.autopark.dto.EnterpriseDTO;
+import org.example.autopark.dto.VehicleApiDto;
 import org.example.autopark.dto.VehicleDTO;
-import org.example.autopark.entity.Enterprise;
 import org.example.autopark.entity.Vehicle;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 
 @Component
@@ -25,43 +20,71 @@ public class VehicleMapper {
         this.modelMapper = modelMapper;
     }
 
-
-    public VehicleDTO convertToVehicleDTO(Vehicle vehicle) {
+    /**
+     * Конвертирует `Vehicle` в `VehicleDTO` и переводит время в таймзону предприятия.
+     */
+    public VehicleDTO convertToVehicleDTO(Vehicle vehicle, String enterpriseTimezone) {
         if (vehicle == null) {
             throw new IllegalArgumentException("Vehicle cannot be null");
         }
-        // Используем ModelMapper для автоматического маппинга полей
+
         VehicleDTO vehicleDTO = modelMapper.map(vehicle, VehicleDTO.class);
-        // Конвертация UTC -> Таймзона предприятия
-        vehicleDTO.setPurchaseDateEnterpriseTime(formatUtcToEnterpriseTime(
-                vehicle.getPurchaseDateUtc(), vehicle.getEnterpriseOwnerOfVehicle()));
+        vehicleDTO.setPurchaseDateEnterpriseTime(
+                formatUtcToEnterpriseTime(vehicle.getPurchaseDateUtc(), enterpriseTimezone)
+        );
+        vehicleDTO.setPurchaseDateUtc(vehicle.getPurchaseDateUtc().toString()); // Добавляем UTC время
+
         return vehicleDTO;
     }
 
+    public VehicleApiDto convertToVehicleApiDto(Vehicle vehicle, String enterpriseTimezone) {
+        if (vehicle == null) {
+            throw new IllegalArgumentException("Vehicle cannot be null");
+        }
+        VehicleApiDto vehicleApiDto = modelMapper.map(vehicle, VehicleApiDto.class);
+
+
+        if (vehicle.getBrandOwner() != null) {
+            vehicleApiDto.setBrandId(vehicle.getBrandOwner().getBrandId());
+        }
+        if (vehicle.getEnterpriseOwnerOfVehicle() != null) {
+            vehicleApiDto.setEnterpriseId(vehicle.getEnterpriseOwnerOfVehicle().getEnterpriseId());
+        }
+
+        vehicleApiDto.setPurchaseDateEnterpriseTime(
+                formatUtcToEnterpriseTime(vehicle.getPurchaseDateUtc(), enterpriseTimezone)
+        );
+        return vehicleApiDto;
+    }
+
     /**
-     * Конвертация DTO в сущность Vehicle перед сохранением.
+     * Конвертирует `VehicleDTO` в `Vehicle` и переводит время из таймзоны предприятия в UTC.
      */
-    public Vehicle convertToVehicle(VehicleDTO vehicleDTO, Enterprise enterprise) {
+    public Vehicle convertToVehicle(VehicleDTO vehicleDTO, String enterpriseTimezone) {
         if (vehicleDTO == null) {
             throw new IllegalArgumentException("VehicleDTO cannot be null");
         }
-        // Используем ModelMapper для автоматического маппинга полей
+
         Vehicle vehicle = modelMapper.map(vehicleDTO, Vehicle.class);
-        vehicle.setEnterpriseOwnerOfVehicle(enterprise);
-        // Конвертация времени из локальной таймзоны предприятия в UTC перед сохранением
-        vehicle.setPurchaseDateUtc(parseEnterpriseTimeToUtc(
-                vehicleDTO.getPurchaseDateEnterpriseTime(), enterprise.getTimeZone()));
+        vehicle.setPurchaseDateUtc(
+                parseEnterpriseTimeToUtc(vehicleDTO.getPurchaseDateEnterpriseTime(), enterpriseTimezone)
+        );
+
         return vehicle;
     }
 
     /**
      * Преобразует время покупки из UTC в локальное время предприятия.
      */
-    private String formatUtcToEnterpriseTime(Instant utcTime, Enterprise enterprise) {
-        if (utcTime == null) return null;
+    private String formatUtcToEnterpriseTime(Instant utcTime, String enterpriseTimezone) {
+        if (utcTime == null || enterpriseTimezone == null) return null;
 
-        ZoneId zoneId = (enterprise != null && enterprise.getTimeZone() != null) ?
-                ZoneId.of(enterprise.getTimeZone()) : ZoneOffset.UTC;
+        ZoneId zoneId;
+        try {
+            zoneId = ZoneId.of(enterpriseTimezone);
+        } catch (Exception e) {
+            zoneId = ZoneOffset.UTC; // Если таймзона указана неправильно, используем UTC
+        }
 
         return utcTime.atZone(ZoneOffset.UTC)
                 .withZoneSameInstant(zoneId)
@@ -71,12 +94,15 @@ public class VehicleMapper {
     /**
      * Преобразует локальное время предприятия в UTC перед сохранением.
      */
-    private Instant parseEnterpriseTimeToUtc(String localDateTimeStr, String timezone) {
-        if (localDateTimeStr == null || timezone == null) return null;
+    private Instant parseEnterpriseTimeToUtc(String localDateTimeStr, String enterpriseTimezone) {
+        if (localDateTimeStr == null || enterpriseTimezone == null) return null;
 
-        ZoneId zoneId = ZoneId.of(timezone);
-        LocalDateTime localDateTime = LocalDateTime.parse(localDateTimeStr, DATE_TIME_FORMATTER);
-
-        return localDateTime.atZone(zoneId).withZoneSameInstant(ZoneOffset.UTC).toInstant();
+        try {
+            ZoneId zoneId = ZoneId.of(enterpriseTimezone);
+            LocalDateTime localDateTime = LocalDateTime.parse(localDateTimeStr, DATE_TIME_FORMATTER);
+            return localDateTime.atZone(zoneId).withZoneSameInstant(ZoneOffset.UTC).toInstant();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Ошибка при обработке даты: " + localDateTimeStr);
+        }
     }
 }
