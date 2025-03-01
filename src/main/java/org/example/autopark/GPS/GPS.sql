@@ -1,5 +1,6 @@
+-- чтобы в целом заработал postGis
 CREATE EXTENSION postgis;
-
+-- проверка что postgis установлен и используется
 SELECT * FROM pg_available_extensions WHERE name = 'postgis';
 
 
@@ -9,6 +10,33 @@ CREATE TABLE track (
                        location GEOMETRY(Point, 4326)
 );
 
-INSERT INTO track (gps_of_vehicle_id, location) VALUES (1, ST_GeomFromText('POINT(40.7128 -74.0060)', 4326));
-INSERT INTO track (gps_of_vehicle_id, location) VALUES (1, ST_GeomFromText('POINT(34.0522 -118.2437)', 4326));
-INSERT INTO track (gps_of_vehicle_id, location) VALUES (1, ST_GeomFromText('POINT(51.5074 -0.1278)', 4326));
+INSERT INTO track (gps_of_vehicle_id, location) VALUES(1,
+ST_GeomFromText('POINT(40.7128 -74.0060)', 4326));
+INSERT INTO track (gps_of_vehicle_id, location) VALUES (1,
+ST_GeomFromText('POINT(34.0522 -118.2437)', 4326));
+INSERT INTO track (gps_of_vehicle_id, location) VALUES (1,
+ST_GeomFromText('POINT(51.5074 -0.1278)', 4326));
+-- --------------------------------------------------------------------------------------
+
+CREATE TABLE track (
+                       id BIGSERIAL PRIMARY KEY,
+                       gps_of_vehicle_id BIGINT NOT NULL REFERENCES vehicle(vehicle_id) ON DELETE SET NULL,
+                       location GEOMETRY(Point, 4326) NOT NULL,
+                       timestamp TIMESTAMP WITHOUT TIME ZONE NOT NULL
+);
+
+-- машина принадлежит к 1му и 2му предприятию (1й менеджер)
+INSERT INTO gps_points ( vehicle_id_for_gps, location, timestamp)
+VALUES
+    (1, ST_SetSRID(ST_MakePoint(40.7128, -74.0060), 4326), '2025-02-01 12:30:00'),
+    (1, ST_SetSRID(ST_MakePoint(34.0522, -118.2437), 4326), '2025-02-01 14:00:00'),
+    (4, ST_SetSRID(ST_MakePoint(55.7558, 37.6173), 4326), '2025-02-05 15:00:00'),
+    (4, ST_SetSRID(ST_MakePoint(55.7517, 37.6175), 4326), '2025-02-05 17:20:00'),
+    (4, ST_SetSRID(ST_MakePoint(55.7400, 37.6200), 4326), '2025-02-05 20:10:00');
+
+-- машина принадлежит к 3му предприятию (2й менеджер)
+INSERT INTO gps_points (vehicle_id_for_gps, location, timestamp)
+VALUES
+    (5, ST_SetSRID(ST_MakePoint(41.8781, -87.6298), 4326), '2025-02-04 09:00:00'),
+    (5, ST_SetSRID(ST_MakePoint(41.9000, -87.6200), 4326), '2025-02-04 11:30:00'),
+    (5, ST_SetSRID(ST_MakePoint(41.8500, -87.6500), 4326), '2025-02-04 14:20:00');

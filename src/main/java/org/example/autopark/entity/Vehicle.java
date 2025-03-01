@@ -9,7 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.example.autopark.GPS.PointGPS;
+import org.example.autopark.GPS.GpsPoint;
 
 import java.time.Instant;
 import java.util.List;
@@ -71,7 +71,7 @@ public class Vehicle {
     }
 
     // new
-    @OneToMany(mappedBy = "vehicleGPS")
+    @OneToMany(mappedBy = "vehicleIdForGps")
     @JsonIgnore
-    private List<PointGPS> PointsGPS;
+    private List<GpsPoint> PointsGPS;
 }
