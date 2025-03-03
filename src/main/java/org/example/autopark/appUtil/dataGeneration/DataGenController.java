@@ -8,7 +8,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/generate")
+@RequestMapping("/api/data/generate")
 public class DataGenController {
 
     private final DataGenService dataGenService;
