@@ -125,7 +125,24 @@
 <!--			<artifactId>postgis-jdbc</artifactId>-->
 <!--			<version>2024.1.0</version>-->
 <!--		</dependency>-->
+		<dependency>
+			<groupId>org.locationtech.jts</groupId>
+			<artifactId>jts-core</artifactId>
+			<version>1.18.2</version>
+		</dependency>
 
+		<!-- Apache HttpClient для работы с GraphHopper API -->
+		<dependency>
+			<groupId>org.apache.httpcomponents.client5</groupId>
+			<artifactId>httpclient5</artifactId>
+			<version>5.2.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20220924</version>
+		</dependency>
 
 	</dependencies>
 

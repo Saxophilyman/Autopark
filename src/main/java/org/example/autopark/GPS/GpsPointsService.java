@@ -69,6 +69,16 @@ public class GpsPointsService {
 
         return localDateTime.atZone(enterpriseZone).toInstant();
     }
+
+    @Transactional
+    public void saveAll(List<GpsPoint> pointsGps) {
+        gpsPointsRepository.saveAll(pointsGps);
+    }
+
+    @Transactional
+    public void save(GpsPoint pointsGps) {
+        gpsPointsRepository.save(pointsGps);
+    }
 }
 
 
