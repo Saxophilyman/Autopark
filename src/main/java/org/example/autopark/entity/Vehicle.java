@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.example.autopark.GPS.GpsPoint;
+import org.example.autopark.trip.Trip;
 
 import java.time.Instant;
 import java.util.List;
@@ -70,8 +71,12 @@ public class Vehicle {
         }
     }
 
-    // new
     @OneToMany(mappedBy = "vehicleIdForGps")
     @JsonIgnore
     private List<GpsPoint> PointsGPS;
+
+    //new
+    @OneToMany(mappedBy = "vehicleOfTrip" )
+    @JsonIgnore
+    private List<Trip> tripList;
 }

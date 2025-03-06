@@ -45,8 +45,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authz -> authz
                         // Разрешаем доступ без аутентификации к указанным ресурсам
                         .requestMatchers("/auth/login", "/auth/login2","/auth/registration", "/favicon.ico", "/css/**", "/js/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/api/managers/**","/managers/**").hasRole("MANAGER")
-                        .requestMatchers("/api/generate/**").permitAll()
+                        .requestMatchers("/api/managers/**","/api/generate/**","/managers/**").hasRole("MANAGER")
+//                        .requestMatchers("/api/generate/**").permitAll()
                         .requestMatchers("/api/users/**").hasRole("USER")
                         // Все остальные запросы требуют аутентификации
                         .anyRequest().authenticated()

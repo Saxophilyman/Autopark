@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("api/managers/tracks")
+@RequestMapping("api/managers")
 public class ApiManControllers {
     private final GpsPointsService gpsPointsService;
 
