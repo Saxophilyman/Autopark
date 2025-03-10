@@ -23,7 +23,7 @@ public class TrackGenController {
      * @param request
      * @return Void
      */
-    @PostMapping("track")
+    @PostMapping("/track")
     public ResponseEntity<Void> generateTrack(@CurrentManagerId @RequestBody TrackGenDTO request,
                                               BindingResult bindingResult) {
         System.out.println("Запрос дошёл до контроллера!");

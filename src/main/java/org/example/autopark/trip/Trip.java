@@ -25,12 +25,17 @@ public class Trip {
     @JoinColumn(name = "vehicle_of_trip", referencedColumnName = "vehicle_id", nullable = false)
     private Vehicle vehicleOfTrip;
 
-    @Column(name = "startDate", columnDefinition = "TIMESTAMP WITH TIME ZONE", nullable = false)
+    @Column(name = "start_date", columnDefinition = "TIMESTAMP WITH TIME ZONE", nullable = false)
     @NotNull
     private Instant startDate;
 
     @NotNull
-    @Column(name = "endDate", columnDefinition = "TIMESTAMP WITH TIME ZONE", nullable = false)
+    @Column(name = "end_date", columnDefinition = "TIMESTAMP WITH TIME ZONE", nullable = false)
     private Instant endDate;
 
+    public Trip(Vehicle vehicleOfTrip, Instant startDate, Instant endDate) {
+        this.vehicleOfTrip = vehicleOfTrip;
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
 }

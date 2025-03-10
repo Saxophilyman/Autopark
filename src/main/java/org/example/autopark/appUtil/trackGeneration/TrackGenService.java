@@ -6,9 +6,13 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.example.autopark.GPS.GenerateRandomTimeForDate;
 import org.example.autopark.GPS.GpsPoint;
 import org.example.autopark.GPS.GpsPointsService;
+import org.example.autopark.entity.Vehicle;
 import org.example.autopark.service.VehicleService;
+import org.example.autopark.trip.Trip;
+import org.example.autopark.trip.TripService;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,24 +36,30 @@ import static org.aspectj.bridge.Version.getTime;
 public class TrackGenService {
     private final VehicleService vehicleService;
     private final GpsPointsService gpsPointsService;
+    private final TripService tripService;
 
     double centerLongitude = 37.614720;
     double centerLatitude = 55.757071;
-    double radius = 4; // в км
+    double radius = 6; // в км
 
     private final String openRouteUrl = "https://api.openrouteservice.org/v2/directions/driving-car?api_key=5b3ce3597851110001cf6248c3876f54a9c846e7bba824abc9f891f3";
 
     @Autowired
-    public TrackGenService(VehicleService vehicleService, GpsPointsService gpsPointsService) {
+    public TrackGenService(VehicleService vehicleService, GpsPointsService gpsPointsService, TripService tripService) {
         this.vehicleService = vehicleService;
         this.gpsPointsService = gpsPointsService;
+        this.tripService = tripService;
     }
 
     @Transactional
     public void generate(TrackGenDTO request) {
+
         int lengthOfTrack = request.getLengthOfTrack(); // Длина маршрута
         GpsPointCoord start = generateStart(); // Генерация начальной точки
         GpsPointCoord end = generateEnd(start, lengthOfTrack); // Генерация конечной точки
+
+        //находим автомобиль по id
+        Vehicle vehicle = vehicleService.findOne(request.getIdVehicle());
 
         //получает маршрут между точками.
         List<GpsPointCoord> track = getRouting(
@@ -59,38 +69,32 @@ public class TrackGenService {
 
         List<GpsPoint> points = new ArrayList<>();
 
-        /*
-        for (GpsPointCoord pointOfTrack : track) {
-    GpsPoint point = GpsPointMapper.toEntity(pointOfTrack, vehicleService.findOne(request.getIdVehicle()));
-    gpsPointsService.save(point); // Сохраняем в базу
-    try {
-        TimeUnit.SECONDS.sleep(10);
-    } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-    }
-}
-        */
+        // Генерируем случайное время в пределах указанной даты
+        Instant startTimestamp = GenerateRandomTimeForDate.generateRandomTimeForDate(request.getDate());
+        Instant currentTimestamp = startTimestamp; // Начальная точка
 
         for (GpsPointCoord pointOfTrack : track) {
             GpsPoint point = new GpsPoint();
-            point.setVehicleIdForGps(vehicleService.findOne(request.getIdVehicle())); // Привязываем к авто
+            point.setVehicleIdForGps(vehicle); // Привязываем к авто
 
             GeometryFactory geometryFactory = new GeometryFactory();
             Coordinate coordinate = new Coordinate(pointOfTrack.getLng(), pointOfTrack.getLat());
             Point coord = geometryFactory.createPoint(coordinate);
             point.setLocation(coord);
-            //подумать - с временем могут быть неточности
-            point.setTimestamp(Instant.now()); // Записываем время точки
+
+            point.setTimestamp(currentTimestamp); // Записываем вычисленное время
 
             points.add(point);
             gpsPointsService.save(point); // Сохраняем в базу
 
-            try {
-                TimeUnit.SECONDS.sleep(10); // Пауза 10 сек перед записью следующей точки
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
+            // Прибавляем 10 секунд к следующей точке
+            currentTimestamp = currentTimestamp.plusSeconds(10);
         }
+        System.out.println("Всё В ПОРЯДКЕ");
+        Instant timeOfStart = points.get(0).getTimestamp();
+        Instant timeOfEnd = points.get(points.size()-1).getTimestamp();
+        Trip trip = new Trip(vehicle, timeOfStart, timeOfEnd);
+        tripService.save(trip);
     }
 
     public GpsPointCoord generateStart() {
@@ -130,7 +134,7 @@ public class TrackGenService {
 
             try (CloseableHttpResponse response = httpClient.execute(request)) {
                 int statusCode = response.getCode(); // Новый метод для получения кода ответа
-
+                System.out.println(statusCode + "Здесь");
                 if (statusCode == 200 || statusCode == 201) {
                     HttpEntity entity = response.getEntity();
                     String jsonResponse = EntityUtils.toString(entity);

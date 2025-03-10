@@ -26,10 +26,10 @@ public class ApiTripController {
     public ResponseEntity<?> getTrips(
             @CurrentManagerId
             @RequestParam Long vehicleId,
-            @RequestParam String start,
-            @RequestParam String end
+            @RequestParam String startTripDate,
+            @RequestParam String endTripDate
     ) {
-        return ResponseEntity.ok(tripService.getTrips(vehicleId, start, end));
+        return ResponseEntity.ok(tripService.getTrips(vehicleId, startTripDate, endTripDate));
     }
 }
 

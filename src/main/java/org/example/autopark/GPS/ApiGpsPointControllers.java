@@ -7,11 +7,11 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("api/managers")
-public class ApiManControllers {
+public class ApiGpsPointControllers {
     private final GpsPointsService gpsPointsService;
 
     @Autowired
-    public ApiManControllers(GpsPointsService gpsPointsService) {
+    public ApiGpsPointControllers(GpsPointsService gpsPointsService) {
         this.gpsPointsService = gpsPointsService;
     }
 
