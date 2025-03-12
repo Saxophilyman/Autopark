@@ -13,7 +13,6 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -34,7 +33,6 @@ public class TripService {
         this.gpsPointMapper = gpsPointMapper;
     }
 
-
     public List<GpsPointDto> getTrips(Long vehicleId, String start, String end) {
         // Получаем временную зону предприятия по vehicleId
         String timeZone = Optional.ofNullable(enterpriseRepository.findTimeZoneByVehicleId(vehicleId))
@@ -43,25 +41,13 @@ public class TripService {
         Instant startTime = convertToUTC(start, timeZone);
         Instant endTime = convertToUTC(end, timeZone);
 
-
-        //ищем конкретные поездки с UTC временем
-        List<Trip> trips = tripRepository.findTripsWithinRange(vehicleId, startTime, endTime);
-
-        // Преобразуем список Trip в список их ID
-        List<Long> tripIds = trips.stream().map(Trip::getId).toList();
-
-        // Получаем GPS-точки, передавая список ID, а не объекты Trip
-        List<GpsPoint> pointsOfTrips = gpsPointsRepository.findPointsByTripsAndVehicle(tripIds, vehicleId);
-//
-//        // Получаем все точки только из этих поездок
-//        List<GpsPoint> pointsOfTrips = gpsPointsRepository.findPointsByTripsAndVehicle(trips, vehicleId);
+        List<GpsPoint> pointsOfTrips = gpsPointsRepository.findPointsByTripsAndVehicle(vehicleId, startTime, endTime);
 
         // Конвертируем в DTO с учетом временной зоны предприятия
         return  pointsOfTrips.stream()
                 .map(point -> gpsPointMapper.toDto(point, timeZone))
                 .collect(Collectors.toList());
     }
-
 
     private Instant convertToUTC(String localDateTimeStr, String timezone) {
         ZoneId enterpriseZone = ZoneId.of(timezone);

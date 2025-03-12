@@ -33,6 +33,9 @@ public class Trip {
     @Column(name = "end_date", columnDefinition = "TIMESTAMP WITH TIME ZONE", nullable = false)
     private Instant endDate;
 
+    @Column(name = "duration", insertable = false, updatable = false)
+    private String duration;  // PostgreSQL интервал хранится как строка
+
     public Trip(Vehicle vehicleOfTrip, Instant startDate, Instant endDate) {
         this.vehicleOfTrip = vehicleOfTrip;
         this.startDate = startDate;
