@@ -17,6 +17,9 @@ CREATE INDEX idx_gps_time ON gps_points (vehicle_id_for_gps, timestamp);
 -- только если у нас много запросов с OVERLAPS
 CREATE INDEX idx_trips_range ON trips USING GIST (tstzrange(start_date, end_date, '[]'));
 
+
+
+
 -- если ты работаешь с географическими запросами (например, ST_Distance(), ST_Within()).
 -- !!!ПОКА НЕ НУЖЕН!!!
 CREATE INDEX idx_gps_location ON gps_points USING gist (location);

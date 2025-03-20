@@ -7,6 +7,8 @@ import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public interface GpsPointsRepository extends JpaRepository<GpsPoint, Long> {
@@ -20,6 +22,20 @@ public interface GpsPointsRepository extends JpaRepository<GpsPoint, Long> {
             @Param("start") Instant start,
             @Param("end") Instant end
     );
+
+    @Query("""
+    SELECT g FROM GpsPoint g 
+    WHERE g.vehicleIdForGps.vehicleId = :vehicleId 
+    AND g.timestamp IN :timestamps
+""")
+    List<GpsPoint> findGpsPointsForTrips(
+            @Param("vehicleId") Long vehicleId,
+            @Param("timestamps") Set<Instant> timestamps
+    );
+
+
+    @Query("SELECT p FROM GpsPoint p WHERE p.vehicleIdForGps.vehicleId = :vehicleId AND p.timestamp = :time")
+    Optional<GpsPoint> findFirstByVehicleIdAndTimeOfPointGps(@Param("vehicleId") Long vehicleId, @Param("time") Instant time);
 
     @Query(value = """
     SELECT g.* FROM gps_points g
@@ -39,9 +55,10 @@ public interface GpsPointsRepository extends JpaRepository<GpsPoint, Long> {
             @Param("startTripDate") Instant startTripDate,
             @Param("endTripDate") Instant endTripDate
     );
-
-
 }
+
+
+
 // Начальный Query
 //@Query("""
 //    SELECT g FROM GpsPoint g

@@ -41,8 +41,6 @@ public class GpsPointMapper {
         ZoneId zoneId  = ZoneId.of(timeZone);
         ZonedDateTime localTime = ZonedDateTime.ofInstant(gpsPoint.getTimestamp(), zoneId);
         dto.setTimestamp(localTime.toLocalDateTime()); // Теперь это время в локальной зоне предприятия
-
-
         return dto;
     }
 

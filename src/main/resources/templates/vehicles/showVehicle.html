@@ -4,12 +4,64 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Просмотр ТС</title>
+
+    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
           rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
           crossorigin="anonymous">
-    <script th:src="@{/js/timezone-converter.js}"></script>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <link rel="stylesheet" th:href="@{/css/map.css}">
 </head>
-<body>
+<body th:data-vehicle-id="${vehicle.vehicleId}">
+
+<div class="container mt-4">
+    <h2>Список поездок</h2>
+
+    <div class="row g-2">
+        <div class="col-md-5">
+            <input type="date" id="fromDate" class="form-control">
+        </div>
+        <div class="col-md-5">
+            <input type="date" id="toDate" class="form-control">
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-primary" onclick="loadTrips()">Загрузить поездки</button>
+        </div>
+    </div>
+
+    <table class="table table-striped mt-3" id="tripsTable">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Начало поездки</th>
+            <th>Конец поездки</th>
+            <th>Откуда</th>
+            <th>Куда</th>
+            <th>Длительность</th>
+            <th>Действия</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Данные загружаются динамически -->
+        </tbody>
+    </table>
+
+    <!-- Карта -->
+    <div class="map-container">
+        <div id="map"></div>
+    </div>
+</div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+
+<!-- Trip Loader Script -->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script th:src="@{/js/trip-loader.js}"></script>
+
+
 
 <div class="container mt-4">
     <h1 class="mb-4">Просмотр транспортного средства</h1>

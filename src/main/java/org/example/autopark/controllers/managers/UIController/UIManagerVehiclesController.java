@@ -118,6 +118,34 @@ public class UIManagerVehiclesController {
         model.addAttribute("vehicle", vehicle);
         model.addAttribute("enterpriseId", enterpriseId);
 
+
         return "vehicles/showVehicle"; // Отображаем страницу просмотра
     }
+
+//    @GetMapping("/enterprises/{enterpriseId}/vehicles/{vehicleId}")
+//    public String showMapVehicle(
+//            @CurrentManagerId Long managerId,
+//            @PathVariable("enterpriseId") Long enterpriseId,
+//            @PathVariable("vehicleId") Long vehicleId,
+//            Model model) {
+//
+//        // Проверяем, принадлежит ли предприятие текущему менеджеру
+//        boolean hasAccess = enterpriseService.managerHasEnterprise(managerId, enterpriseId);
+//        if (!hasAccess) {
+//            throw new AccessDeniedException("У вас нет доступа к этому предприятию!");
+//        }
+//
+//        // Загружаем транспортное средство
+//        Vehicle vehicle = vehicleService.findOne(vehicleId);
+//        if (vehicle == null || !vehicle.getEnterpriseOwnerOfVehicle().getEnterpriseId().equals(enterpriseId)) {
+//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Транспортное средство не найдено");
+//        }
+//
+//        // Передаём объект в модель для Thymeleaf
+//        model.addAttribute("vehicle", vehicle);
+//        model.addAttribute("enterpriseId", enterpriseId);
+//
+//        return "";
+//    }
+
 }
