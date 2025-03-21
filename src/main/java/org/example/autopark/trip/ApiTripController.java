@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -52,13 +53,15 @@ public class ApiTripController {
         return tripService.getOnlyTrips(vehicleId, startTripDate, endTripDate);
     }
 
-//    //нужна ещё проверка по соответствующему предприятию
-//    @GetMapping("trip-trackUI")
-//    public ResponseEntity<List<GpsPointDto>> getTripTrackUI(
-//            @CurrentManagerId
-//            @RequestParam Long tripId
-//    ) {
-//        List<GpsPointDto> gpsPoints = tripService.getTripTrack(tripId);
-//        return ResponseEntity.ok(gpsPoints);
-//    }
+    //тоже для UI
+    //проверка на соответствие предприятию
+    @GetMapping("trip-track")
+    public ResponseEntity<List<GpsPointDto>> getTripTrack(
+            @CurrentManagerId
+            @RequestParam Long tripId) {
+        List<GpsPointDto> gpsPoints = tripService.getTrackByTripId(tripId);
+        return ResponseEntity.ok(gpsPoints);
+    }
+
+
 }

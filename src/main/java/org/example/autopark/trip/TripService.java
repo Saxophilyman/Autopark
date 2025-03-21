@@ -112,6 +112,34 @@ public class TripService {
                 .collect(Collectors.toList());
     }
 
+    public List<GpsPointDto> getTrackByTripId(Long tripId) {
+        // Ищем поездку
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Поездка не найдена"));
+
+        // Получаем временную зону предприятия (если её нет, используем UTC)
+        String timeZone = Optional.ofNullable(
+                trip.getVehicleOfTrip().getEnterpriseOwnerOfVehicle().getTimeZone()
+        ).orElse("UTC");
+
+        // Запрашиваем GPS-точки по времени поездки
+        List<GpsPoint> gpsPoints = gpsPointsRepository.findTrackByVehicleAndTimeRange(
+                trip.getVehicleOfTrip().getVehicleId(),
+                trip.getStartDate(),
+                trip.getEndDate()
+        );
+
+        if (gpsPoints.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "GPS-данные для поездки не найдены");
+        }
+
+        return gpsPoints.stream()
+                .map(point -> gpsPointMapper.toDto(point, timeZone))
+                .collect(Collectors.toList());
+    }
+
+
+
 
     @Transactional
     public void save(Trip trip) {

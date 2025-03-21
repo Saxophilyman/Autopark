@@ -55,6 +55,8 @@ public interface GpsPointsRepository extends JpaRepository<GpsPoint, Long> {
             @Param("startTripDate") Instant startTripDate,
             @Param("endTripDate") Instant endTripDate
     );
+
+
 }
 
 

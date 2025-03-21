@@ -69,6 +69,85 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     };
 
+    // Функция загрузки трека
+    window.loadTrack = function (tripId) {
+        axios.get(`/api/managers/trip-track`, { params: { tripId } })
+            .then(response => {
+                let trackPoints = response.data;
+
+                if (trackPoints.length === 0) {
+                    alert("Для данной поездки нет GPS-данных.");
+                    return;
+                }
+
+                let coordinates = trackPoints.map(p => [p.latitude, p.longitude]);
+
+                // Очищаем старый трек перед отрисовкой нового
+                if (window.currentTrack) {
+                    window.currentTrack.remove();
+                }
+
+                // Рисуем трек на карте
+                window.currentTrack = L.polyline(coordinates, { color: "red" }).addTo(map);
+                map.fitBounds(window.currentTrack.getBounds());
+            })
+            .catch(error => {
+                console.error("Ошибка загрузки трека:", error);
+                alert("Ошибка загрузки трека.");
+            });
+    };
+
+    window.loadAllTracks = function () {
+        let vehicleId = document.body.dataset.vehicleId;
+        let fromDate = document.getElementById("fromDate").value;
+        let toDate = document.getElementById("toDate").value;
+
+        axios.get(`/api/managers/all-trip-tracksUI`, {
+            params: { vehicleId, startTripDate: fromDate, endTripDate: toDate }
+        }).then(response => {
+            let allTracks = response.data;
+
+            if (Object.keys(allTracks).length === 0) {
+                alert("Нет треков для выбранного диапазона.");
+                return;
+            }
+
+            // Очищаем карту перед отрисовкой новых треков
+            if (window.currentTracks) {
+                window.currentTracks.forEach(track => track.remove());
+            }
+            window.currentTracks = [];
+
+            let colors = ["red", "blue", "green", "purple", "orange", "brown"]; // Разные цвета для треков
+            let colorIndex = 0;
+
+            // Проходим по каждому треку и рисуем его
+            for (let tripId in allTracks) {
+                let trackPoints = allTracks[tripId];
+
+                let coordinates = trackPoints.map(p => [p.latitude, p.longitude]);
+
+                if (coordinates.length > 1) {
+                    let color = colors[colorIndex % colors.length];
+                    let polyline = L.polyline(coordinates, { color: color }).addTo(map);
+                    window.currentTracks.push(polyline);
+                    colorIndex++;
+                }
+            }
+
+            // Подгоняем масштаб карты под все треки
+            let allBounds = window.currentTracks.map(track => track.getBounds());
+            if (allBounds.length > 0) {
+                let fullBounds = allBounds.reduce((acc, bounds) => acc.extend(bounds));
+                map.fitBounds(fullBounds);
+            }
+        }).catch(error => {
+            console.error("Ошибка загрузки всех треков:", error);
+            alert("Ошибка загрузки всех треков.");
+        });
+    };
+
+
     function formatDate(dateTimeString) {
         let date = new Date(dateTimeString);
         return date.toLocaleString("ru-RU", { timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone });
