@@ -63,11 +63,104 @@ document.addEventListener("DOMContentLoaded", function () {
                 </tr>`;
                 tableBody.innerHTML += row;
             });
+
+            // После загрузки поездок, загружаем все точки
+            loadAllTripsData(vehicleId, fromDate, toDate);
         }).catch(error => {
             console.error("Ошибка загрузки поездок:", error);
             alert("Ошибка загрузки поездок. Попробуйте позже.");
         });
     };
+
+    function loadAllTripsData(vehicleId, fromDate, toDate) {
+        axios.get(`/api/managers/getOnlyTripsUI`, {
+            params: { vehicleId, startTripDate: fromDate, endTripDate: toDate }
+        }).then(responseTrips => {
+            let trips = responseTrips.data;
+            if (trips.length === 0) {
+                console.warn("Нет поездок за выбранный период.");
+                return;
+            }
+
+            axios.get(`/api/managers/trips`, {
+                params: { vehicleId, startTripDate: fromDate, endTripDate: toDate }
+            }).then(responseGps => {
+                let trackPoints = responseGps.data;
+
+                if (trackPoints.length === 0) {
+                    console.warn("Нет GPS-данных для поездок.");
+                    return;
+                }
+
+                let groupedTracks = {};
+
+                trips.forEach(trip => {
+                    groupedTracks[trip.id] = trackPoints.filter(point => {
+                        let pointTime = new Date(point.timestamp).getTime();
+                        let tripStartTime = new Date(trip.startDate).getTime();
+                        let tripEndTime = new Date(trip.endDate).getTime();
+                        return pointTime >= tripStartTime && pointTime <= tripEndTime;
+                    }).map(p => [p.latitude, p.longitude]);
+                });
+
+                window.allTracksData = groupedTracks;
+
+                // Показываем кнопку "Показать все треки"
+                document.getElementById("showAllTracksButton").style.display = "block";
+            }).catch(error => {
+                console.error("Ошибка загрузки GPS-данных:", error);
+                alert("Ошибка загрузки GPS-данных.");
+            });
+        }).catch(error => {
+            console.error("Ошибка загрузки поездок:", error);
+            alert("Ошибка загрузки поездок.");
+        });
+    }
+
+
+
+    window.loadAllTracks = function () {
+        if (!window.allTracksData) {
+            alert("Сначала загрузите поездки!");
+            return;
+        }
+
+        if (window.currentTracks) {
+            window.currentTracks.forEach(track => track.remove());
+        }
+        window.currentTracks = [];
+
+        let colors = ["red", "blue", "green", "purple", "orange", "brown"];
+        let colorIndex = 0;
+
+        for (let tripId in window.allTracksData) {
+            let coordinates = window.allTracksData[tripId];
+
+            if (coordinates.length > 1) {
+                let color = colors[colorIndex % colors.length];
+
+                let polyline = L.polyline(coordinates, { color: color, weight: 4 }).addTo(map);
+                window.currentTracks.push(polyline);
+
+                // Ставим маркер в центр маршрута с ID поездки
+                let midPoint = coordinates[Math.floor(coordinates.length / 2)];
+                let marker = L.marker(midPoint).addTo(map)
+                    .bindPopup(`Поездка ID: ${tripId}`)
+                    .openPopup();
+
+                colorIndex++;
+            }
+        }
+
+        if (window.currentTracks.length > 0) {
+            let group = new L.featureGroup(window.currentTracks);
+            map.fitBounds(group.getBounds());
+        }
+    };
+
+
+
+
 
     // Функция загрузки трека
     window.loadTrack = function (tripId) {
@@ -96,57 +189,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 alert("Ошибка загрузки трека.");
             });
     };
-
-    window.loadAllTracks = function () {
-        let vehicleId = document.body.dataset.vehicleId;
-        let fromDate = document.getElementById("fromDate").value;
-        let toDate = document.getElementById("toDate").value;
-
-        axios.get(`/api/managers/all-trip-tracksUI`, {
-            params: { vehicleId, startTripDate: fromDate, endTripDate: toDate }
-        }).then(response => {
-            let allTracks = response.data;
-
-            if (Object.keys(allTracks).length === 0) {
-                alert("Нет треков для выбранного диапазона.");
-                return;
-            }
-
-            // Очищаем карту перед отрисовкой новых треков
-            if (window.currentTracks) {
-                window.currentTracks.forEach(track => track.remove());
-            }
-            window.currentTracks = [];
-
-            let colors = ["red", "blue", "green", "purple", "orange", "brown"]; // Разные цвета для треков
-            let colorIndex = 0;
-
-            // Проходим по каждому треку и рисуем его
-            for (let tripId in allTracks) {
-                let trackPoints = allTracks[tripId];
-
-                let coordinates = trackPoints.map(p => [p.latitude, p.longitude]);
-
-                if (coordinates.length > 1) {
-                    let color = colors[colorIndex % colors.length];
-                    let polyline = L.polyline(coordinates, { color: color }).addTo(map);
-                    window.currentTracks.push(polyline);
-                    colorIndex++;
-                }
-            }
-
-            // Подгоняем масштаб карты под все треки
-            let allBounds = window.currentTracks.map(track => track.getBounds());
-            if (allBounds.length > 0) {
-                let fullBounds = allBounds.reduce((acc, bounds) => acc.extend(bounds));
-                map.fitBounds(fullBounds);
-            }
-        }).catch(error => {
-            console.error("Ошибка загрузки всех треков:", error);
-            alert("Ошибка загрузки всех треков.");
-        });
-    };
-
 
     function formatDate(dateTimeString) {
         let date = new Date(dateTimeString);

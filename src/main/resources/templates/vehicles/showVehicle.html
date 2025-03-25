@@ -13,6 +13,7 @@
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
     <link rel="stylesheet" th:href="@{/css/map.css}">
+    <script th:src="@{/js/timezone-converter.js}"></script>
 </head>
 <body th:data-vehicle-id="${vehicle.vehicleId}">
 
@@ -30,7 +31,9 @@
             <button class="btn btn-primary" onclick="loadTrips()">Загрузить поездки</button>
         </div>
         <div class="col-md-2">
-            <button class="btn btn-success" onclick="loadAllTracks()">Показать все треки</button>
+            <button id="showAllTracksButton" class="btn btn-success" onclick="loadAllTracks()" style="display: none;">
+                Показать все треки
+            </button>
         </div>
     </div>
 

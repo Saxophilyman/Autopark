@@ -126,7 +126,7 @@ public class TrackGenService {
 
     public List<GpsPointCoord> getRouting(double startLong, double startLat, double endLong, double endLat) {
         List<GpsPointCoord> points = new ArrayList<>();
-        String requestUrl = openRouteUrl + "&start=" +  startLat + "," + startLong + "&end=" + endLat + "," + endLong;
+        String requestUrl = openRouteUrl + "&start=" + startLong  + "," + startLat + "&end=" + endLong + "," + endLat;
         System.out.println(requestUrl);
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpGet request = new HttpGet(requestUrl);
