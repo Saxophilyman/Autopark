@@ -104,6 +104,56 @@
         </p>
     </table>
 
+    <h3>Экспорт поездок по машине</h3>
+
+    <form method="GET" th:action="@{/api/managers/export/vehicle/{vehicleId}(vehicleId=${vehicle.vehicleId})}">
+        <label for="fromDateT">С:</label>
+        <input type="date" id="fromDateT" name="fromDate" required>
+
+        <label for="toDateT">По:</label>
+        <input type="date" id="toDateT" name="toDate" required>
+
+        <label for="format">Формат:</label>
+        <select id="format" name="format">
+            <option value="csv">CSV (Excel)</option>
+            <option value="json">JSON</option>
+        </select>
+
+        <button type="submit">Экспортировать</button>
+    </form>
+
+
+    <h3>Просмотр поездок (JSON)</h3>
+
+    <form id="previewForm">
+        <label for="fromPreview">С:</label>
+        <input type="date" id="fromPreview" name="fromDate" required>
+
+        <label for="toPreview">По:</label>
+        <input type="date" id="toPreview" name="toDate" required>
+
+        <input type="hidden" id="vehicleId" th:value="${vehicle.vehicleId}" />
+
+        <button type="submit">Посмотреть JSON</button>
+    </form>
+
+
+    <!-- Модальное окно -->
+    <div id="jsonModal" style="display: none; border: 1px solid #ccc; padding: 1rem; margin-top: 1rem; background: #f9f9f9; max-height: 300px; overflow: auto;">
+        <h4>Экспортированные данные</h4>
+        <pre id="jsonContent" style="white-space: pre-wrap;"></pre>
+    </div>
+
+    <script src="/js/vehicle-export-preview.js"></script>
+
+    <h3>Импорт из файла</h3>
+    <form id="importForm" enctype="multipart/form-data" method="post" th:action="@{/api/managers/import}">
+        <label for="fileInput">Выберите файл (JSON или CSV):</label>
+        <input type="file" name="file" id="fileInput" accept=".json,.csv" required />
+
+        <button type="submit" class="btn btn-primary mt-2">Импортировать</button>
+    </form>
+
     <div class="d-flex gap-2">
         <a th:href="@{/managers/enterprises/{enterpriseId}/vehicles(enterpriseId=${enterpriseId})}"
            class="btn btn-secondary">Назад</a>

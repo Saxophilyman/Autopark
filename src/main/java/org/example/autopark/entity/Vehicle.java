@@ -37,7 +37,7 @@ public class Vehicle {
 
     @NotNull
     @Min(value = 1900)
-    @Max(value = 2024)
+    @Max(value = 2026)
     @Column(name = "vehicle_year_of_release")
     private int vehicleYearOfRelease;
 

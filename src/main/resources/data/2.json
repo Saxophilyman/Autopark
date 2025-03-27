@@ -1,0 +1,32 @@
+{
+  "enterprise": {
+    "id": 1,
+    "name": "Автоваз",
+    "city": "Москва",
+    "timeZone": "Europe/Moscow"
+  },
+  "vehicle": {
+    "id": 9,
+    "name": "Car9",
+    "cost": 10000,
+    "yearOfRelease": 2024
+  },
+  "trips": [
+    {
+      "id": 7,
+      "vehicleId": "9",
+      "startDate": "2025-03-25T10:00:00",
+      "endDate": "2025-03-25T11:00:00",
+      "startLocationInString": "Москва, ВДНХ",
+      "endLocationInString": "Москва, Арбат"
+    },
+    {
+      "id": 8,
+      "vehicleId": "9",
+      "startDate": "2025-03-26T08:00:00",
+      "endDate": "2025-03-26T09:30:00",
+      "startLocationInString": "Москва, Ленинградский вокзал",
+      "endLocationInString": "Москва, Красная площадь"
+    }
+  ]
+}

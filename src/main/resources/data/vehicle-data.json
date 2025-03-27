@@ -1,0 +1,15 @@
+{
+  "enterprise": { "id": 1, "name": "ООО Весна", "city": "Самара", "timeZone": "Europe/Samara" },
+  "vehicle": { "id": 101, "name": "Лада", "cost": 900000, "yearOfRelease": 2021 },
+  "trips": [
+    {
+      "startDate": "2023-05-01T08:00:00Z",
+      "endDate": "2023-05-01T09:00:00Z",
+      "startLocationInString": "ул. Ленина, 10",
+      "endLocationInString": "пр-т Мира, 42",
+      "duration": "01:00:00"
+    }
+  ]
+}
+
+
