@@ -29,32 +29,12 @@ public class TripMapper {
         this.gpsPointMapper = gpsPointMapper;
     }
 
-//    public TripDTO toDTO(Trip trip, String timeZone, GpsPoint gpsPointStart, GpsPoint gpsPointEnd) {
-//        TripDTO tripDTO = modelMapper.map(trip, TripDTO.class);
-//
-//        if (gpsPointStart != null && gpsPointEnd != null) {
-//            tripDTO.setStartLocationInString(reverseGeocodeAddressOfPointGps(gpsPointStart));
-//            tripDTO.setEndLocationInString(reverseGeocodeAddressOfPointGps(gpsPointEnd));
-//
-//            ZoneId zoneId = ZoneId.of(timeZone);
-//            ZonedDateTime localTimeStart = ZonedDateTime.ofInstant(gpsPointStart.getTimestamp(), zoneId);
-//            ZonedDateTime localTimeEnd = ZonedDateTime.ofInstant(gpsPointEnd.getTimestamp(), zoneId);
-//
-//            tripDTO.setStartDate(localTimeStart.toLocalDateTime());
-//            tripDTO.setEndDate(localTimeEnd.toLocalDateTime());
-//        } else {
-//            System.out.println("GPS-точки отсутствуют для поездки id=" + trip.getId());
-//        }
-//
-//        return tripDTO;
-//    }
-
     public TripDTO toDTO(Trip trip, String timeZone, GpsPoint gpsPointStart, GpsPoint gpsPointEnd) {
         TripDTO tripDTO = modelMapper.map(trip, TripDTO.class);
+        ZoneId zoneId = ZoneId.of(timeZone);
 
         if (gpsPointStart != null) {
             tripDTO.setStartLocationInString(reverseGeocodeAddressOfPointGps(gpsPointStart));
-            ZoneId zoneId = ZoneId.of(timeZone);
             ZonedDateTime localTimeStart = ZonedDateTime.ofInstant(gpsPointStart.getTimestamp(), zoneId);
             tripDTO.setStartDate(localTimeStart.toLocalDateTime());
         } else {
@@ -64,7 +44,6 @@ public class TripMapper {
 
         if (gpsPointEnd != null) {
             tripDTO.setEndLocationInString(reverseGeocodeAddressOfPointGps(gpsPointEnd));
-            ZoneId zoneId = ZoneId.of(timeZone);
             ZonedDateTime localTimeEnd = ZonedDateTime.ofInstant(gpsPointEnd.getTimestamp(), zoneId);
             tripDTO.setEndDate(localTimeEnd.toLocalDateTime());
         } else {

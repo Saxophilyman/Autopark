@@ -9,11 +9,13 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import org.example.autopark.GPS.GpsPoint;
 import org.example.autopark.trip.Trip;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Data
@@ -25,6 +27,10 @@ public class Vehicle {
     @Column(name = "vehicle_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long vehicleId;
+
+    @NonNull
+    @Column(name = "guid", nullable = false, unique = true, updatable = false)
+    private UUID guid = UUID.randomUUID();
 
     @NotBlank
     @Column(name = "vehicle_name")

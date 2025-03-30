@@ -1,4 +1,4 @@
-package org.example.autopark.exportAndImport;
+package org.example.autopark.exportAndImport.byID.idDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,17 +7,16 @@ import org.example.autopark.entity.Enterprise;
 import org.example.autopark.entity.Vehicle;
 import org.example.autopark.trip.TripDTO;
 
-import java.time.Instant;
 import java.util.List;
 
 @Data
-public class VehicleExportDto {
+public class VehicleExportDtoById {
     private EnterpriseShortDTO enterprise;
     private VehicleShortDTO vehicle;
     private List<TripDTO> trips;
 
-    public static VehicleExportDto fromEntities(Vehicle vehicle, Enterprise enterprise, List<TripDTO> trips) {
-        VehicleExportDto dto = new VehicleExportDto();
+    public static VehicleExportDtoById fromEntities(Vehicle vehicle, Enterprise enterprise, List<TripDTO> trips) {
+        VehicleExportDtoById dto = new VehicleExportDtoById();
 
         dto.enterprise = new EnterpriseShortDTO(
                 enterprise.getEnterpriseId(),
@@ -30,7 +29,8 @@ public class VehicleExportDto {
                 vehicle.getVehicleId(),
                 vehicle.getVehicleName(),
                 vehicle.getVehicleCost(),
-                vehicle.getVehicleYearOfRelease()
+                vehicle.getVehicleYearOfRelease(),
+                vehicle.getBrandOwner().getBrandName()
         );
 
         dto.trips = trips;
@@ -55,5 +55,6 @@ public class VehicleExportDto {
         private  String name;
         private  int cost;
         private  int yearOfRelease;
+        private String brand;
     }
 }

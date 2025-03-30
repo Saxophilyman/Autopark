@@ -122,6 +122,25 @@
         <button type="submit">Экспортировать</button>
     </form>
 
+    <h3>Экспорт поездок по машине (по GUID)</h3>
+
+    <form method="GET"
+          th:action="@{/api/managers/export-guid/vehicle/{guid}(guid=${vehicle.guid})}">
+        <label for="fromDateGuid">С:</label>
+        <input type="date" id="fromDateGuid" name="fromDate" required>
+
+        <label for="toDateGuid">По:</label>
+        <input type="date" id="toDateGuid" name="toDate" required>
+
+        <label for="formatGuid">Формат:</label>
+        <select id="formatGuid" name="format">
+            <option value="csv">CSV (по GUID)</option>
+            <option value="json">JSON (по GUID)</option>
+        </select>
+
+        <button type="submit" class="btn btn-success mt-2">Экспортировать по GUID</button>
+    </form>
+
 
     <h3>Просмотр поездок (JSON)</h3>
 
@@ -154,6 +173,16 @@
         <button type="submit" class="btn btn-primary mt-2">Импортировать</button>
     </form>
 
+    <h3>Импорт из файла (по GUID)</h3>
+    <form id="importGuidForm" enctype="multipart/form-data" method="post" th:action="@{/api/managers/import-guid}">
+        <label for="fileInputGuid">Выберите файл (JSON или CSV):</label>
+        <input type="file" name="file" id="fileInputGuid" accept=".json,.csv" required />
+
+        <button type="submit" class="btn btn-primary mt-2">Импортировать по GUID</button>
+    </form>
+
+
+<!--   кнопки для возврата и прочее-->
     <div class="d-flex gap-2">
         <a th:href="@{/managers/enterprises/{enterpriseId}/vehicles(enterpriseId=${enterpriseId})}"
            class="btn btn-secondary">Назад</a>

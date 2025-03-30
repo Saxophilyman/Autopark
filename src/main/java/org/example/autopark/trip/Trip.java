@@ -5,9 +5,11 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import org.example.autopark.entity.Vehicle;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Entity
 @Data
@@ -19,6 +21,10 @@ public class Trip {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "trips_id")
     private Long id;
+
+    @NonNull
+    @Column(name = "guid", nullable = false, unique = true, updatable = false)
+    private UUID guid = UUID.randomUUID();
 
     //связь с vihicle - м.б. много поездок у 1 автомобиля
     @ManyToOne

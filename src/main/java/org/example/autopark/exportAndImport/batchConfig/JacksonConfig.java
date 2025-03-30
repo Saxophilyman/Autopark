@@ -1,4 +1,4 @@
-package org.example.autopark.exportAndImport;
+package org.example.autopark.exportAndImport.batchConfig;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;

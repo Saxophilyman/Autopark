@@ -1,0 +1,35 @@
+{
+  "enterprise": {
+    "id": 1,
+    "name": "Автоваз",
+    "city": "Москва",
+    "timeZone": "Europe/Moscow"
+  },
+  "vehicle": {
+    "id": 8,
+    "name": "Car",
+    "cost": 100001,
+    "yearOfRelease": 2019,
+    "brand": "Lada"
+  },
+  "trips": [
+    {
+      "id": 5,
+      "vehicleId": "8",
+      "startDate": "2025-01-20T13:31:27",
+      "endDate": "2025-01-20T14:02:47",
+      "startLocationInString": "14 с1 Бумажный проезд, Moscow, MS, Russia",
+      "endLocationInString": "12 с1 Берсеневская набережная, Moscow, MS, Russia",
+      "duration": "00:31:20"
+    },
+    {
+      "id": 6,
+      "vehicleId": "8",
+      "startDate": "2025-02-23T17:36:37",
+      "endDate": "2025-02-23T18:09:37",
+      "startLocationInString": "дом 9 Улица Коровий Вал, Moscow, MS, Russia",
+      "endLocationInString": "Русская Усадьба, MS, Russia",
+      "duration": "00:33:00"
+    }
+  ]
+}

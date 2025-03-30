@@ -8,12 +8,12 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface VehicleRepository extends JpaRepository<Vehicle, Long>, JpaSpecificationExecutor<Vehicle> {
-    // List<Vehicle> findVehiclesByEnterpriseOwnerOfVehicle_VehicleId(Long id);
-    Page<Vehicle> findVehiclesByEnterpriseOwnerOfVehicle_EnterpriseId(Long id, Pageable pageable);
-    List<Vehicle> findVehiclesByEnterpriseOwnerOfVehicle_EnterpriseId(Long id);
+    Optional<Vehicle> findByGuid(UUID guid);
 
-    Page<Vehicle> findAllByEnterpriseOwnerOfVehicle_EnterpriseIdIn(List<Long> enterpriseIds, Pageable pageable);
+    List<Vehicle> findVehiclesByEnterpriseOwnerOfVehicle_EnterpriseId(Long id);
 }

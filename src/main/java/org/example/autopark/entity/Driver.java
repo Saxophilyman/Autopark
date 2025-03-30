@@ -8,8 +8,11 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 import java.util.List;
+import java.util.UUID;
+
 @Entity
 @Data
 @AllArgsConstructor
@@ -20,6 +23,10 @@ public class Driver {
     @Column(name = "driver_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long driverId;
+
+    @NonNull
+    @Column(name = "guid", nullable = false, unique = true, updatable = false)
+    private UUID guid = UUID.randomUUID();
 
     @Column(name = "driver_name")
     @NotBlank

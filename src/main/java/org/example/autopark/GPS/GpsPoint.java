@@ -4,10 +4,12 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import org.example.autopark.entity.Vehicle;
 import org.locationtech.jts.geom.Point;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Entity
 @Data
@@ -20,6 +22,10 @@ public class GpsPoint {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "point_gps_id")
     private Long GpsPointId;
+
+    @NonNull
+    @Column(name = "guid", nullable = false, unique = true, updatable = false)
+    private UUID guid = UUID.randomUUID();
 
     @ManyToOne
     @JoinColumn(name = "vehicle_id_for_gps", referencedColumnName = "vehicle_id", nullable = false)
