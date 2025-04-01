@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.List;
 
 @Component
 public class TripGuidExportMapper {
@@ -46,4 +47,22 @@ public class TripGuidExportMapper {
 
         return dto;
     }
+
+    public TripGuidExportDto toDtoWithGps(Trip trip, List<GpsPoint> gpsPoints, String timeZone) {
+        TripGuidExportDto dto = toDto(trip, gpsPoints.get(0), gpsPoints.get(gpsPoints.size() - 1), timeZone);
+
+        List<VehicleExportDtoByGuid.GpsPointGuidDto> gpsPointDtos = gpsPoints.stream().map(point -> {
+            VehicleExportDtoByGuid.GpsPointGuidDto d = new VehicleExportDtoByGuid.GpsPointGuidDto();
+            d.setGuid(point.getGuid());
+            d.setLatitude(point.getLocation().getY());
+            d.setLongitude(point.getLocation().getX());
+            d.setTimestamp(point.getTimestamp().toString());
+            //d.setAddress(null); // можно добавить геокодер
+            return d;
+        }).toList();
+
+        dto.setGpsPoints(gpsPointDtos);
+        return dto;
+    }
+
 }

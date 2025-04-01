@@ -139,6 +139,16 @@ public class TripService {
     }
 
 
+    public List<GpsPoint> getFullTrackEntitiesByTripId(Long tripId) {
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new RuntimeException("Trip not found"));
+
+        return gpsPointsRepository.findByVehicleAndTimeRange(
+                trip.getVehicleOfTrip().getVehicleId(),
+                trip.getStartDate(),
+                trip.getEndDate()
+        );
+    }
 
 
     @Transactional

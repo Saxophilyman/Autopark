@@ -18,5 +18,6 @@ public class TripGuidExportDto {
     private String startLocationInString;
     private String endLocationInString;
     private String duration;
-    //private List<VehicleExportDtoByGuid.GpsPointGuidDto> gpsPoints;
+    private List<VehicleExportDtoByGuid.GpsPointGuidDto> gpsPoints;
+
 }

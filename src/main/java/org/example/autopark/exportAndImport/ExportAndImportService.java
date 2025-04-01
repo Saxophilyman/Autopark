@@ -63,9 +63,18 @@ public class ExportAndImportService {
         return exportServiceById.getVehicleExportDataById(vehicleId, fromDate, toDate);
     }
 
-    public VehicleExportDtoByGuid exportDataByGuid(UUID vehicleGuid, LocalDate fromDate, LocalDate toDate) {
-        return exportServiceByGuid.getVehicleExportDataByGuid(vehicleGuid, fromDate, toDate);
+//    public VehicleExportDtoByGuid exportDataByGuid(UUID vehicleGuid, LocalDate fromDate, LocalDate toDate) {
+//        return exportServiceByGuid.getVehicleExportDataByGuid(vehicleGuid, fromDate, toDate);
+//    }
+
+    public VehicleExportDtoByGuid exportDataByGuid(UUID vehicleGuid,
+                                                   LocalDate fromDate,
+                                                   LocalDate toDate,
+                                                   boolean withTrack) {
+        return exportServiceByGuid.exportDataByGuid
+                (vehicleGuid, fromDate, toDate, withTrack);
     }
+
 
     @Transactional
     public void importFromDtoById(VehicleExportDtoById dto) {

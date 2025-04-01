@@ -21,6 +21,7 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,8 +33,44 @@ public class ExportServiceByGuid {
     private final GeometryFactory geometryFactory = new GeometryFactory();
     private final TripGuidExportMapper tripGuidExportMapper;
 
-    public VehicleExportDtoByGuid getVehicleExportDataByGuid(UUID vehicleGuid, LocalDate fromDate, LocalDate toDate) {
+//    public VehicleExportDtoByGuid getVehicleExportDataByGuid(UUID vehicleGuid, LocalDate fromDate, LocalDate toDate) {
+//
+//        Vehicle vehicle = vehicleRepository.findByGuid(vehicleGuid)
+//                .orElseThrow(() -> new RuntimeException("Vehicle not found by GUID"));
+//
+//        Enterprise enterprise = vehicle.getEnterpriseOwnerOfVehicle();
+//
+//        Instant from = fromDate.atStartOfDay().toInstant(ZoneOffset.UTC);
+//        Instant to = toDate.plusDays(1).atStartOfDay().toInstant(ZoneOffset.UTC);
+//
+//        List<Trip> tripsList = tripRepository.findTripsWithinRange(vehicle.getVehicleId(), from, to);
+//        List<TripGuidExportDto> tripsDTOList = new ArrayList<>();
+//        for (Trip trip : tripsList) {
+//            List<GpsPointDto> gpsPoints = tripService.getTrackByTripId(trip.getId());
+//            if (gpsPoints.size() >= 2) {
+//                GpsPointDto startDto = gpsPoints.get(0);
+//                GpsPointDto endDto = gpsPoints.get(gpsPoints.size() - 1);
+//
+//                // Временные GpsPoint для передачи в маппер
+//                GpsPoint start = new GpsPoint();
+//                start.setTimestamp(startDto.getTimestamp().atZone(ZoneOffset.UTC).toInstant());
+//                Point startPoint = geometryFactory.createPoint(new Coordinate(startDto.getLongitude(), startDto.getLatitude()));
+//                start.setLocation(startPoint);
+//
+//                GpsPoint end = new GpsPoint();
+//                end.setTimestamp(endDto.getTimestamp().atZone(ZoneOffset.UTC).toInstant());
+//                Point endPoint = geometryFactory.createPoint(new Coordinate(endDto.getLongitude(), endDto.getLatitude()));
+//                end.setLocation(endPoint);
+//
+//                TripGuidExportDto dto = tripGuidExportMapper.toDto(trip, start, end, enterprise.getTimeZone());
+//                tripsDTOList.add(dto);
+//            }
+//        }
+//
+//        return VehicleExportDtoByGuid.fromEntities(vehicle,enterprise,tripsDTOList);
+//    }
 
+    public VehicleExportDtoByGuid exportDataByGuid(UUID vehicleGuid, LocalDate fromDate, LocalDate toDate, boolean withTrack) {
         Vehicle vehicle = vehicleRepository.findByGuid(vehicleGuid)
                 .orElseThrow(() -> new RuntimeException("Vehicle not found by GUID"));
 
@@ -42,33 +79,42 @@ public class ExportServiceByGuid {
         Instant from = fromDate.atStartOfDay().toInstant(ZoneOffset.UTC);
         Instant to = toDate.plusDays(1).atStartOfDay().toInstant(ZoneOffset.UTC);
 
+        List<Trip> trips = tripRepository.findTripsWithinRange(vehicle.getVehicleId(), from, to);
+        List<TripGuidExportDto> tripDtos = new ArrayList<>();
 
+        for (Trip trip : trips) {
+            if (withTrack) {
+                List<GpsPoint> gpsPoints = tripService.getFullTrackEntitiesByTripId(trip.getId());
+                if (gpsPoints.size() < 2) continue;
+                TripGuidExportDto dto = tripGuidExportMapper.toDtoWithGps(trip, gpsPoints, enterprise.getTimeZone());
+                tripDtos.add(dto);
+            } else {
+                List<GpsPointDto> gpsPoints = tripService.getTrackByTripId(trip.getId());
+                if (gpsPoints.size() < 2) continue;
 
-        List<Trip> tripsList = tripRepository.findTripsWithinRange(vehicle.getVehicleId(), from, to);
-        List<TripGuidExportDto> tripsDTOList = new ArrayList<>();
-        for (Trip trip : tripsList) {
-            List<GpsPointDto> gpsPoints = tripService.getTrackByTripId(trip.getId());
-            if (gpsPoints.size() >= 2) {
-                GpsPointDto startDto = gpsPoints.get(0);
-                GpsPointDto endDto = gpsPoints.get(gpsPoints.size() - 1);
-
-                // Временные GpsPoint для передачи в маппер
-                GpsPoint start = new GpsPoint();
-                start.setTimestamp(startDto.getTimestamp().atZone(ZoneOffset.UTC).toInstant());
-                Point startPoint = geometryFactory.createPoint(new Coordinate(startDto.getLongitude(), startDto.getLatitude()));
-                start.setLocation(startPoint);
-
-                GpsPoint end = new GpsPoint();
-                end.setTimestamp(endDto.getTimestamp().atZone(ZoneOffset.UTC).toInstant());
-                Point endPoint = geometryFactory.createPoint(new Coordinate(endDto.getLongitude(), endDto.getLatitude()));
-                end.setLocation(endPoint);
+                GpsPoint start = gpsPointDtoToEntity(gpsPoints.get(0));
+                GpsPoint end = gpsPointDtoToEntity(gpsPoints.get(gpsPoints.size() - 1));
 
                 TripGuidExportDto dto = tripGuidExportMapper.toDto(trip, start, end, enterprise.getTimeZone());
-                tripsDTOList.add(dto);
+                tripDtos.add(dto);
             }
+
         }
 
-        return VehicleExportDtoByGuid.fromEntities(vehicle,enterprise,tripsDTOList);
-
+        VehicleExportDtoByGuid dto = VehicleExportDtoByGuid.fromEntities(vehicle, enterprise, tripDtos);
+        return dto;
     }
+    private GpsPoint gpsPointDtoToEntity(GpsPointDto dto) {
+        GpsPoint gpsPoint = new GpsPoint();
+        gpsPoint.setTimestamp(dto.getTimestamp().atZone(ZoneOffset.UTC).toInstant());
+
+        Point point = geometryFactory.createPoint(new Coordinate(dto.getLongitude(), dto.getLatitude()));
+        point.setSRID(4326);
+        gpsPoint.setLocation(point);
+
+        return gpsPoint;
+    }
+
+    // ... остальные методы импорта и экспорта ...
 }
+

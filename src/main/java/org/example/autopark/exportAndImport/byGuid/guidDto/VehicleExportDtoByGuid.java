@@ -65,11 +65,11 @@ public class VehicleExportDtoByGuid {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public class GpsPointGuidDto {
+    public static class GpsPointGuidDto {
         private UUID guid;
         private double latitude;
         private double longitude;
-        private String address; // опционально, если сохраняешь
+//        private String address; // опционально, если сохраняешь
         private String timestamp;
     }
 }

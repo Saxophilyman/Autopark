@@ -23,6 +23,11 @@ public interface GpsPointsRepository extends JpaRepository<GpsPoint, Long> {
             @Param("end") Instant end
     );
 
+    @Query("SELECT g FROM GpsPoint g WHERE g.vehicleIdForGps.vehicleId = :vehicleId AND g.timestamp BETWEEN :start AND :end ORDER BY g.timestamp ASC")
+    List<GpsPoint> findByVehicleAndTimeRange(@Param("vehicleId") Long vehicleId,
+                                             @Param("start") Instant start,
+                                             @Param("end") Instant end);
+
     @Query("""
     SELECT g FROM GpsPoint g 
     WHERE g.vehicleIdForGps.vehicleId = :vehicleId 

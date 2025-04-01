@@ -10,6 +10,7 @@ import org.example.autopark.exportAndImport.byID.CsvExportUtil;
 import org.example.autopark.exportAndImport.byID.idDto.VehicleExportDtoById;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,11 +28,11 @@ public class ExportAndImportControllers {
 
     @GetMapping("/export/vehicle/{vehicleId}")
     public void exportVehicleData(@CurrentManagerId
-                                    @PathVariable Long vehicleId,
-                                    @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
-                                    @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
-                                    @RequestParam(defaultValue = "json") String format,
-                                    HttpServletResponse response) throws Exception {
+                                  @PathVariable Long vehicleId,
+                                  @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+                                  @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
+                                  @RequestParam(defaultValue = "json") String format,
+                                  HttpServletResponse response) throws Exception {
 
         VehicleExportDtoById dto = exportAndImportService.exportDataById(vehicleId, fromDate, toDate);
 
@@ -69,14 +70,35 @@ public class ExportAndImportControllers {
         }
     }
 
+    //    @GetMapping("/export-guid/vehicle/{guid}")
+//    public void exportVehicleByGuid(@CurrentManagerId @PathVariable UUID guid,
+//                                    @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+//                                    @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
+//                                    @RequestParam(defaultValue = "json") String format,
+//                                    HttpServletResponse response) throws IOException {
+//
+//        VehicleExportDtoByGuid dto = exportAndImportService.exportDataByGuid(guid, fromDate, toDate);
+//
+//        if ("csv".equalsIgnoreCase(format)) {
+//            response.setContentType("text/csv");
+//            response.setHeader("Content-Disposition", "attachment; filename=vehicle_" + guid + ".csv");
+//            CsvGuidExportUtil.writeVehicleExportToCsvGuid(dto, response.getOutputStream());
+//        } else {
+//            response.setContentType("application/json");
+//            response.setHeader("Content-Disposition", "attachment; filename=vehicle_" + guid + ".json");
+//            objectMapper.writeValue(response.getOutputStream(), dto);
+//        }
+//    }
+
     @GetMapping("/export-guid/vehicle/{guid}")
     public void exportVehicleByGuid(@CurrentManagerId @PathVariable UUID guid,
                                     @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
                                     @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
                                     @RequestParam(defaultValue = "json") String format,
+                                    @RequestParam(defaultValue = "false") boolean withTrack,
                                     HttpServletResponse response) throws IOException {
 
-        VehicleExportDtoByGuid dto = exportAndImportService.exportDataByGuid(guid, fromDate, toDate);
+        VehicleExportDtoByGuid dto = exportAndImportService.exportDataByGuid(guid, fromDate, toDate, withTrack);
 
         if ("csv".equalsIgnoreCase(format)) {
             response.setContentType("text/csv");
@@ -88,7 +110,6 @@ public class ExportAndImportControllers {
             objectMapper.writeValue(response.getOutputStream(), dto);
         }
     }
-
 
     @PostMapping("/import-guid")
     public String importVehicleFromGuid(@CurrentManagerId @RequestParam("file") MultipartFile file) {
@@ -112,6 +133,14 @@ public class ExportAndImportControllers {
         }
     }
 
+    @GetMapping("/export-guid/json")
+    public ResponseEntity<VehicleExportDtoByGuid> exportGuidJsonResponse(
+            @RequestParam UUID vehicleGuid,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
+            @RequestParam(defaultValue = "false") boolean withTrack) {
 
-
+        VehicleExportDtoByGuid dto = exportAndImportService.exportDataByGuid(vehicleGuid, fromDate, toDate, withTrack);
+        return ResponseEntity.ok(dto);
+    }
 }
