@@ -7,9 +7,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let map = L.map("map").setView([55.751244, 37.618423], 12);
 
-    L.tileLayer("https://api.maptiler.com/maps/streets/{z}/{x}/{y}.png?key=V2pOsG04veMYkRuJR4aP", {
-        attribution: '&copy; <a href="https://www.maptiler.com/">MapTiler</a> contributors'
+    // L.tileLayer("https://api.maptiler.com/maps/streets/{z}/{x}/{y}.png?key=V2pOsG04veMYkRuJR4aP", {
+    //     attribution: '&copy; <a href="https://www.maptiler.com/">MapTiler</a> contributors'
+    // }).addTo(map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
+
 
     setTimeout(() => {
         map.invalidateSize();

@@ -36,7 +36,7 @@ public class UIManagerEnterprisesController {
     }
 
     @GetMapping("/enterprises/{enterpriseId}")
-    public String showEnterprise(@CurrentManagerId Long managerId,@PathVariable Long enterpriseId, Model model) {
+    public String showEnterprise(@CurrentManagerId Long managerId, @PathVariable Long enterpriseId, Model model) {
         // Проверяем, принадлежит ли предприятие текущему менеджеру
         boolean hasAccess = enterpriseService.managerHasEnterprise(managerId, enterpriseId);
         if (!hasAccess) {

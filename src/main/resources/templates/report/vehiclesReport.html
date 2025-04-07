@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Создание отчёта для ТС</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container mt-4">
+
+
+    <!-- Форма для создания отчёта -->
+    <h3 class="text-center mt-4">Создание отчёта</h3>
+    <form th:action="@{/managers/report/generateVehicleReport}"
+          method="POST" class="mx-auto" style="max-width: 600px;">
+        <!-- CSRF token -->
+        <input type="hidden" name="_csrf" value="${_csrf.token}"/>
+
+        <!-- Поле для ввода ID автомобиля -->
+        <div class="form-group">
+            <label for="vehicleId">ID автомобиля:</label>
+            <input type="text" id="vehicleId" name="vehicleId" class="form-control" required placeholder="Введите ID автомобиля">
+        </div>
+
+        <!-- Календарь для выбора начальной и конечной даты -->
+        <div class="form-group">
+            <label for="fromDate">С:</label>
+            <input type="date" id="fromDate" name="fromDate" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <label for="toDate">По:</label>
+            <input type="date" id="toDate" name="toDate" class="form-control" required>
+        </div>
+
+        <!-- Выпадающий список для выбора периода (день, месяц, год) -->
+        <div class="form-group">
+            <label for="period">Период:</label>
+            <select id="period" name="period" class="form-control" required>
+                <option value="DAY">День</option>
+                <option value="MONTH">Месяц</option>
+                <option value="YEAR">Год</option>
+            </select>
+        </div>
+
+        <!-- Выпадающий список для выбора типа отчёта -->
+        <div class="form-group">
+            <label for="reportType">Тип отчёта:</label>
+            <select id="reportType" name="reportType" class="form-control" required>
+                <option value="MILEAGE">Пробег</option>
+                <option value="FUEL">Топливо</option>
+                <option value="IDLE_TIME">Время простоя</option>
+            </select>
+        </div>
+
+        <!-- Кнопка для создания отчёта -->
+        <button type="submit" class="btn btn-primary mt-3 w-100">Создать отчёт</button>
+    </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<!-- Скрипт для ограничения выбора в календаре в зависимости от периода -->
+<script>
+    document.getElementById('period').addEventListener('change', function () {
+        const period = this.value;
+        const fromDate = document.getElementById('fromDate');
+        const toDate = document.getElementById('toDate');
+
+        if (period === 'MONTH') {
+            // Для периода "Месяц" разрешаем выбирать только месяц и год
+            fromDate.setAttribute('type', 'month');
+            toDate.setAttribute('type', 'month');
+        } else if (period === 'YEAR') {
+            // Для периода "Год" разрешаем выбирать только год
+            fromDate.setAttribute('type', 'year');
+            toDate.setAttribute('type', 'year');
+        } else {
+            // Для периода "День" возвращаем обычный календарь
+            fromDate.setAttribute('type', 'date');
+            toDate.setAttribute('type', 'date');
+        }
+    });
+</script>
+
+</body>
+</html>

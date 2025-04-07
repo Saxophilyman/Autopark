@@ -61,6 +61,7 @@ public class TripService {
 //        return localDateTime.atZone(enterpriseZone).toInstant();
 //    }
 
+    //можно вынести в отдельный класс ка утилиту
     private Instant convertToUTC(String localDateTimeStr, String timezone) {
         ZoneId enterpriseZone = ZoneId.of(timezone);
 
