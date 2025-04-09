@@ -42,7 +42,7 @@ public class ReportController {
                                     Model model) {
         // Добавляем доступные типы отчётов в модель
         // позже можно будет перенести в enum
-        List<String> reportTypes = Arrays.asList("По набору автомобилей", "По предприятию", "По водителю", "По поездкам", "По трекам");
+        List<String> reportTypes = Arrays.asList("Пробег автомобиля", "Отчёт 2", "Отчёт 3");
         model.addAttribute("reportTypes", reportTypes);
         return "/report/typeOfReport";
     }
@@ -51,16 +51,16 @@ public class ReportController {
     public String typeOfGenerate(@RequestParam("reportType") String reportType, Model model) {
         // В зависимости от типа отчёта, перенаправляем на нужный метод
         switch (reportType) {
-            case "По набору автомобилей":
+            case "Пробег автомобиля":
                 return "/report/vehiclesReport";  // Путь для отчёта по автомобилям
-            case "По предприятию":
+            case "Отчёт 2":
                 return "redirect:/managers/report/enterpriseReport";  // Путь для отчёта по предприятию
-            case "По водителю":
+            case "Отчёт 3":
                 return "redirect:/managers/report/driverReport";  // Путь для отчёта по водителю
-            case "По поездкам":
-                return "redirect:/managers/report/tripReport";  // Путь для отчёта по поездкам
-            case "По трекам":
-                return "redirect:/managers/report/tracksReport";  // Путь для отчёта по трекам
+//            case "По поездкам":
+//                return "redirect:/managers/report/tripReport";  // Путь для отчёта по поездкам
+//            case "По трекам":
+//                return "redirect:/managers/report/tracksReport";  // Путь для отчёта по трекам
             default:
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Неверный тип отчёта");
         }
@@ -86,7 +86,7 @@ public class ReportController {
                                  @RequestParam("fromDate") String fromDate,
                                  @RequestParam("toDate") String toDate,
                                  @RequestParam("period") String period,
-                                 @RequestParam("reportType") String reportType,
+//                                 @RequestParam("reportType") String reportType,
                                  Model model, HttpSession session) {
         // Проверка наличия транспортного средства
         Vehicle vehicle = vehicleService.findOne(vehicleId);

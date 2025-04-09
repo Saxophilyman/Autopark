@@ -17,7 +17,7 @@ import java.util.List;
 public class ModelReport {
     private String reportName;
     private PeriodType periodType;
-    private ReportType reportType;
+//    private ReportType reportType;
     private LocalDate startDate;
     private LocalDate endDate;
     private Double mileage;

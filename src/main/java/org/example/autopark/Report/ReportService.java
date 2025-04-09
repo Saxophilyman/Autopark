@@ -52,7 +52,7 @@ public class ReportService {
         return ModelReport.builder()
                 .reportName("Пробег автомобиля")
                 .periodType(period)
-                .reportType(ReportType.VEHICLE_MILEAGE)
+//                .reportType(ReportType.VEHICLE_MILEAGE)
                 .startDate(startDate)
                 .endDate(endDate)
                 .mileage(totalMileage)
