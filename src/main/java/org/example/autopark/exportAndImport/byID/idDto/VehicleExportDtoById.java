@@ -28,6 +28,7 @@ public class VehicleExportDtoById {
         dto.vehicle = new VehicleShortDTO(
                 vehicle.getVehicleId(),
                 vehicle.getVehicleName(),
+                vehicle.getLicensePlate(),
                 vehicle.getVehicleCost(),
                 vehicle.getVehicleYearOfRelease(),
                 vehicle.getBrandOwner().getBrandName()
@@ -53,6 +54,7 @@ public class VehicleExportDtoById {
     public static class VehicleShortDTO {
         private  Long id;
         private  String name;
+        private String licensePlate;
         private  int cost;
         private  int yearOfRelease;
         private String brand;

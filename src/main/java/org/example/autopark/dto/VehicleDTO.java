@@ -18,6 +18,9 @@ public class VehicleDTO {
     @NotEmpty(message = "Обязательное поле")
     private String vehicleName;
 
+    @NotEmpty(message = "Госномер обязателен")
+    private String licensePlate;
+
     @NotNull
     @Min(value = 0)
     private int vehicleCost;

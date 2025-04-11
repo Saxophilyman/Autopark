@@ -81,6 +81,7 @@ public class ImportServiceById {
         // Устанавливаем поля из DTO
         vehicle.setVehicleId(dto.getId());
         vehicle.setVehicleName(dto.getName());
+        vehicle.setLicensePlate(dto.getLicensePlate());
         vehicle.setVehicleCost(dto.getCost());
         vehicle.setVehicleYearOfRelease(dto.getYearOfRelease());
         vehicle.setEnterpriseOwnerOfVehicle(enterprise);

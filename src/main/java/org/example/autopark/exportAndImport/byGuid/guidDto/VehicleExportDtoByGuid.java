@@ -31,6 +31,7 @@ public class VehicleExportDtoByGuid {
         dto.vehicle = new VehicleShortDTOByGuid(
                 vehicle.getGuid(),
                 vehicle.getVehicleName(),
+                vehicle.getLicensePlate(),
                 vehicle.getVehicleCost(),
                 vehicle.getVehicleYearOfRelease(),
                 vehicle.getBrandOwner().getBrandName()
@@ -56,9 +57,11 @@ public class VehicleExportDtoByGuid {
     public static class VehicleShortDTOByGuid {
         private UUID guid;
         private  String name;
+        private String licensePlate;
         private  int cost;
         private  int yearOfRelease;
         private String brand;
+
     }
 
     //пока просто для наличия

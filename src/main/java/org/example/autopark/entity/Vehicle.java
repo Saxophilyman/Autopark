@@ -2,10 +2,7 @@ package org.example.autopark.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -36,6 +33,12 @@ public class Vehicle {
     @Column(name = "vehicle_name")
     private String vehicleName;
 
+    @NotBlank
+    @Pattern(regexp = "^[А-Я]\\d{3}[А-Я]{2}$", message = "Формат номера должен быть А123БВ")
+    @Column(name = "license_plate", unique = true)
+    private String licensePlate;
+
+
     @NotNull
     @Column(name = "vehicle_cost")
     @Min(value = 0)
@@ -58,9 +61,10 @@ public class Vehicle {
     private Enterprise enterpriseOwnerOfVehicle;
     //Предприятию могут принадлежать несколько автомобилей (один ко многим).
 
-    @OneToOne(mappedBy = "activeVehicle")
     @JsonIgnore
+    @OneToOne(mappedBy = "activeVehicle", fetch = FetchType.LAZY)
     private Driver activeDriver;
+
 
     @ManyToMany(mappedBy = "vehicleList")
     @JsonIgnore

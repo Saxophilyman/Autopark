@@ -16,4 +16,10 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long>, JpaSpec
     Optional<Vehicle> findByGuid(UUID guid);
 
     List<Vehicle> findVehiclesByEnterpriseOwnerOfVehicle_EnterpriseId(Long id);
+
+    boolean existsByLicensePlate(String licensePlate);
+    boolean existsByLicensePlateAndVehicleIdNot(String licensePlate, Long vehicleId);
+    Optional<Vehicle> findByLicensePlate(String licensePlate);
+    List<Vehicle> findByLicensePlateContainingIgnoreCase(String licensePlatePart);
+
 }

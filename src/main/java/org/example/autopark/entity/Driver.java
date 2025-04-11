@@ -47,9 +47,11 @@ public class Driver {
     //Предприятию могут принадлежать несколько водителей (один ко многим).
 
 
-    @OneToOne
+    @JsonIgnore
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "active_vehicle", referencedColumnName = "vehicle_id")
     private Vehicle activeVehicle;
+
     //Активный водитель может работать только на одной машине (не может быть назначен активным на второй автомобиль).
 
 

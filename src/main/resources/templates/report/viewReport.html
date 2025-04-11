@@ -16,6 +16,8 @@
     <!-- Информация о отчёте -->
     <h4>Тип отчёта: <span th:text="${report.reportName}"></span></h4>
     <p>Период: <span th:text="${report.periodType.getDisplayName()}"></span></p>
+    <p>ID машины: <span th:text="${vehicle.getVehicleId()}"></span></p>
+    <p>Номер машины: <span th:text="${vehicle.licensePlate}"></span></p>
     <p>Дата начала: <span th:text="${report.startDate}"></span></p>
     <p>Дата окончания: <span th:text="${report.endDate}"></span></p>
     <p>Общий пробег: <span th:text="${report.mileage}"></span> км</p>
@@ -38,5 +40,12 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<!--   кнопки для возврата и прочее-->
+<div class="d-flex justify-content-center mt-4">
+    <a th:href="@{/managers/enterprises/{enterpriseId}/vehicles/{id}(enterpriseId=${vehicle.getEnterpriseOwnerOfVehicle().getEnterpriseId()}, id=${vehicle.getVehicleId()})}"
+       class="btn btn-secondary">Назад</a>
+    </form>
+</div>
 </body>
 </html>

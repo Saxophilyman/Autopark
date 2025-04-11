@@ -21,13 +21,14 @@ public class CsvGuidExportUtil {
             PrintWriter writer = new PrintWriter(writerWithBom);
             // Шапка по предприятию и машине
             writer.println("Enterprise ID;Enterprise Name;City;TimeZone;Vehicle ID;Vehicle Name;Cost;Year;Brand");
-            writer.printf("%s;%s;%s;%s;%s;%s;%d;%d;%s\n",
+            writer.printf("%s;%s;%s;%s;%s;%s;%s;%d;%d;%s\n",
                     dto.getEnterprise().getGuid(),
                     dto.getEnterprise().getName(),
                     dto.getEnterprise().getCity(),
                     dto.getEnterprise().getTimeZone(),
                     dto.getVehicle().getGuid(),
                     dto.getVehicle().getName(),
+                    dto.getVehicle().getLicensePlate(),
                     dto.getVehicle().getCost(),
                     dto.getVehicle().getYearOfRelease(),
                     dto.getVehicle().getBrand()

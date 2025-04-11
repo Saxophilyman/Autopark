@@ -40,8 +40,8 @@ public class CsvGuidImportUtil {
                         UUID.fromString(parts[0]), parts[1], parts[2], parts[3]
                 ));
                 dto.setVehicle(new VehicleExportDtoByGuid.VehicleShortDTOByGuid(
-                        UUID.fromString(parts[3]), parts[4], Integer.parseInt(parts[5]),
-                        Integer.parseInt(parts[6]), parts[7]
+                        UUID.fromString(parts[3]), parts[4], parts[5], Integer.parseInt(parts[6]),
+                        Integer.parseInt(parts[7]), parts[8]
                 ));
             } else if (line.startsWith("Trip GUID")) {
                 readingTrips = true;
