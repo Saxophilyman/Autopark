@@ -38,8 +38,8 @@ public class CsvImportUtil {
                         Long.parseLong(parts[0]), parts[1], parts[2], parts[3]
                 ));
                 dto.setVehicle(new VehicleExportDtoById.VehicleShortDTO(
-                        Long.parseLong(parts[4]), parts[5], Integer.parseInt(parts[6]),
-                        Integer.parseInt(parts[7]), parts[8]
+                        Long.parseLong(parts[4]), parts[5], parts[6], Integer.parseInt(parts[7]),
+                        Integer.parseInt(parts[8]), parts[9]
                 ));
             } else if (line.startsWith("Trip Start")) {
                 readingTrips = true;

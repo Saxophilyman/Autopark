@@ -2,7 +2,6 @@ package org.example.autopark.controllers.managers.APIControllers;
 
 import jakarta.validation.Valid;
 import org.example.autopark.appUtil.ValidationBindingUtil;
-import org.example.autopark.customAnnotation.currentManagerId.CurrentManagerId;
 import org.example.autopark.dto.DriverDTO;
 import org.example.autopark.dto.VehicleDTO;
 import org.example.autopark.dto.mapper.VehicleMapper;
@@ -19,10 +18,6 @@ import org.example.autopark.service.VehicleService;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -32,7 +27,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -104,47 +98,6 @@ public class ApiManagerController {
     //UPDATE
 //----------------------//
 
-
-    //GET бывший рабочий контроллер
-//    @GetMapping("/enterprises/{enterpriseId}/vehicles")
-//    public List<VehicleDTO> indexVehicles(
-//            @CurrentManagerId Long managerId,
-//            @PathVariable Long enterpriseId,
-//            @RequestParam(required = false) Long brandId,
-//            @RequestParam(required = false) Integer minPrice,
-//            @RequestParam(required = false) Integer maxPrice,
-//            @RequestParam(required = false) Integer year,
-//            @RequestParam(defaultValue = "vehicleName,vehicleId") String sortField,  // Теперь стабильная сортировка
-//            @RequestParam(defaultValue = "ASC") String sortDir,
-//            @RequestParam(defaultValue = "0") int page,
-//            @RequestParam(defaultValue = "10") int size) {
-//
-//        // Получаем предприятие и его таймзону
-//        Enterprise enterprise = enterprisesService.findOne(enterpriseId);
-//        String enterpriseTimezone = enterprise.getTimeZone();
-//
-//        // Создаём `PageRequest` для сортировки и пагинации
-//        String[] sortFields = sortField.split(",");
-//        Pageable pageRequest = PageRequest.of(
-//                page, size, Sort.by(
-//                        Arrays.stream(sortFields)
-//                                .map(field -> Sort.Order.by(field)
-//                                        .with(Sort.Direction.fromString(sortDir)))
-//                                .toList()
-//                )
-//        );
-//
-//        // Получаем данные с пагинацией
-//        Page<Vehicle> vehiclesPage = vehicleService.findVehiclesForManager(
-//                managerId, enterpriseId, brandId, minPrice, maxPrice, year, pageRequest);
-//
-//        List<VehicleDTO> vehicleDTOList = vehiclesPage.getContent()
-//                .stream()
-//                .map(vehicle -> vehicleMapper.convertToVehicleDTO(vehicle, enterpriseTimezone))
-//                .collect(Collectors.toList());
-//
-//        return vehicleDTOList;
-//    }
 
         //PUT
     @PutMapping("/{id}/vehicles/{idVehicle}")
@@ -220,6 +173,8 @@ public class ApiManagerController {
 
 
     //внутренние методы
+
+
     private Vehicle convertToVehicle(VehicleDTO vehicleDTO) {
         return modelMapper.map(vehicleDTO, Vehicle.class);
     }

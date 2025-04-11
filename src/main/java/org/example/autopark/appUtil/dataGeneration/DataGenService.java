@@ -14,17 +14,20 @@ import org.example.autopark.service.VehicleService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
 public class DataGenService {
+//    private final Set<String> existingLicensePlates;
+//    private final Set<String> generatedLicensePlates = new HashSet<>();
+
     private final EnterpriseService enterpriseService;
     private final BrandsService brandService;
     private final DriverService driverService;
     private final VehicleService vehicleService;
+
 
     public DataGenService(EnterpriseService enterprisesService, BrandsService brandsService,
                           DriverService driversService, VehicleService vehiclesService) {
@@ -32,6 +35,12 @@ public class DataGenService {
         this.brandService = brandsService;
         this.driverService = driversService;
         this.vehicleService = vehiclesService;
+//        this.existingLicensePlates = new HashSet<>(
+//                vehicleService.findAll().stream()
+//                        .map(Vehicle::getLicensePlate)
+//                        .filter(Objects::nonNull)
+//                        .collect(Collectors.toSet())
+//        );
     }
     @Transactional
     public void generate(DataGenDTO request) {
@@ -58,6 +67,7 @@ public class DataGenService {
             newRandomVehicle.setBrandOwner(genBrandOwner(enterprise.getName()));
             //тоже набросок, который впоследствии нужно оптимизировать
             newRandomVehicle.setVehicleName(generateVehicleName(newRandomVehicle.getBrandOwner().getBrandName()));//Генерация имени. Если принадлежит данному брэнду, то имена следующие
+//            newRandomVehicle.setLicensePlate(generateUniqueVehicleLicensePlate());
             newRandomVehicle.setVehicleCost(generateVehicleCost());//цена не менее 0
             newRandomVehicle.setVehicleYearOfRelease(generateVehicleYearOfRelease());
 
@@ -101,6 +111,33 @@ public class DataGenService {
                 throw new IllegalArgumentException("Unknown brand name: " + brandName);
             }
         }
+    }
+
+//    private String generateUniqueVehicleLicensePlate() {
+//        String plate;
+//        int attempts = 0;
+//        do {
+//            plate = generateVehicleLicensePlate();
+//            attempts++;
+//            if (attempts > 1000) {
+//                throw new RuntimeException("Не удалось сгенерировать уникальный номер автомобиля");
+//            }
+//        } while (existingLicensePlates.contains(plate) || generatedLicensePlates.contains(plate));
+//
+//        generatedLicensePlates.add(plate);
+//        return plate;
+//    }
+
+    private String generateVehicleLicensePlate() {
+        String letters = "АБВГДЕЖЗИКЛМНОПРСТУФХЦЧШЩЭЮЯ";
+        Random random = new Random();
+
+        char firstLetter = letters.charAt(random.nextInt(letters.length()));
+        String digits = String.format("%03d", random.nextInt(1000));
+        char secondLetter = letters.charAt(random.nextInt(letters.length()));
+        char thirdLetter = letters.charAt(random.nextInt(letters.length()));
+
+        return "" + firstLetter + digits + secondLetter + thirdLetter;
     }
 
     private String getRandomElement(String[] array) {

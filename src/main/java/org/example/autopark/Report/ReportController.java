@@ -66,32 +66,18 @@ public class ReportController {
         }
     }
 
-
-//    //кнопка-ссылка на страницу
-//    @GetMapping("/managers/report/vehiclesReport")
-//    public String showFormForReport(@CurrentManagerId
-//                                    @PathVariable("vehicleId") Long vehicleId,
-//                                    Model model, @PathVariable String enterpriseId) {
-//
-//        // Загружаем транспортное средство
-//        Vehicle vehicle = vehicleService.findOne(vehicleId);
-//        model.addAttribute("vehicle", vehicle);
-//
-//        return "/report/showFormForReport";
-//    }
-
     @PostMapping("managers/report/generateVehicleReport")
     public String generateReport(@CurrentManagerId Long managerId,
-                                 @RequestParam("vehicleId") Long vehicleId,
+                                 @RequestParam("licensePlate") String licensePlate,
                                  @RequestParam("fromDate") String fromDate,
                                  @RequestParam("toDate") String toDate,
                                  @RequestParam("period") String period,
 //                                 @RequestParam("reportType") String reportType,
                                  Model model, HttpSession session) {
-        // Проверка наличия транспортного средства
-        Vehicle vehicle = vehicleService.findOne(vehicleId);
+        // Получаем Vehicle по licensePlate
+        Vehicle vehicle = vehicleService.findByLicensePlate(licensePlate);
         if (vehicle == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Транспортное средство не найдено");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "ТС с номером " + licensePlate + " не найдено");
         }
 
         // Проверка принадлежности автомобиля предприятию
@@ -124,10 +110,11 @@ public class ReportController {
         }
 
         // Генерация отчёта на основе выбранных параметров
-        ModelReport report = reportService.generateMileageReport(vehicleId, startDate, endDate, PeriodType.valueOf(period.toUpperCase()));
+        ModelReport report = reportService.generateMileageReport(vehicle.getVehicleId(), startDate, endDate, PeriodType.valueOf(period.toUpperCase()));
 
         // Сохраняем отчёт в сессии
         session.setAttribute("report", report);
+        session.setAttribute("vehicle", vehicle);
 
         // Перенаправляем на страницу с результатом
         return "redirect:/managers/report/view";
@@ -142,6 +129,7 @@ public class ReportController {
 
         // Получаем отчёт из сессии
         ModelReport report = (ModelReport) session.getAttribute("report");
+        Vehicle vehicle = (Vehicle) session.getAttribute("vehicle");
 
         // Если отчёт не был передан, перенаправляем обратно на форму для отчёта
         if (report == null) {
@@ -150,9 +138,11 @@ public class ReportController {
 
         // Добавляем отчёт в модель для отображения
         model.addAttribute("report", report);
+        model.addAttribute("vehicle", vehicle);
 
         // Удаляем отчёт из сессии после отображения
         session.removeAttribute("report");
+        session.removeAttribute("vehicle");
         return "/report/viewReport";  // Страница для отображения отчёта
     }
 
@@ -206,4 +196,19 @@ public class ReportController {
 
         return ResponseEntity.ok(report);
     }
+
+    /**
+     * API: Поиск госномеров по подстроке для выпадающего списка (autocomplete)
+     * Пример: GET /api/managers/vehicles/license-plates?q=а123
+     */
+    @GetMapping("/api/managers/vehicles/license-plates")
+    @ResponseBody
+    public List<String> getLicensePlates(@RequestParam("q") String query) {
+        return vehicleService.findByLicensePlateContaining(query)
+                .stream()
+                .map(Vehicle::getLicensePlate)
+                .distinct()
+                .toList();
+    }
+
 }

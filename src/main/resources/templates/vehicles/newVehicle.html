@@ -34,6 +34,13 @@
             <div class="invalid-feedback">Введите название транспорта.</div>
         </div>
 
+        <!-- Регистрационный номер -->
+        <div class="mb-3">
+            <label for="licensePlate" class="form-label">Название транспорта:</label>
+            <input type="text" th:field="*{licensePlate}" id="licensePlate" class="form-control" required/>
+            <div class="invalid-feedback">Введите корректный номер.</div>
+        </div>
+
         <!-- Цена -->
         <div class="mb-3">
             <label for="vehicleCost" class="form-label">Цена транспорта:</label>

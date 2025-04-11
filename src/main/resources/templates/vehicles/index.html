@@ -23,6 +23,7 @@
                 <th>ID</th>
                 <th>Марка</th>
                 <th>Модель</th>
+                <th>Номер</th>
                 <th>Цена</th>
                 <th>Год выпуска</th>
                 <th>Дата покупки</th>
@@ -34,12 +35,14 @@
                 th:with="vehicleId=${vehicle.getVehicleId()},
                              brandName=${(vehicle.getBrand() != null and vehicle.getBrand().getBrandName() != null) ? vehicle.getBrand().getBrandName() : 'Неизвестно'},
                              vehicleName=${vehicle.getVehicleName()},
+                             licensePlate=${vehicle.getLicensePlate()},
                              vehicleCost=${vehicle.getVehicleCost()},
                              vehicleYear=${vehicle.getVehicleYearOfRelease()},
                              purchaseDateUtc=${vehicle.getPurchaseDateUtc()}">
                 <td th:text="${vehicleId}"></td>
                 <td th:text="${brandName}"></td>
                 <td th:text="${vehicleName}"></td>
+                <td th:text="${licensePlate}"></td>
                 <td th:text="${vehicleCost}"></td>
                 <td th:text="${vehicleYear}"></td>
                 <!-- Дата покупки в data-атрибутах -->

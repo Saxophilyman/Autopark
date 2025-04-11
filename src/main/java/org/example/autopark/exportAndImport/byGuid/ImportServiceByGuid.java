@@ -83,6 +83,7 @@ public class ImportServiceByGuid {
 
         // Обновляем поля
         vehicle.setVehicleName(dto.getName());
+        vehicle.setLicensePlate(dto.getLicensePlate());
         vehicle.setVehicleCost(dto.getCost());
         vehicle.setVehicleYearOfRelease(dto.getYearOfRelease());
         vehicle.setEnterpriseOwnerOfVehicle(enterprise);
