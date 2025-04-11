@@ -5,8 +5,10 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Data
@@ -19,6 +21,10 @@ public class Enterprise {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "enterprise_id")
     private Long enterpriseId;
+
+    @NonNull
+    @Column(name = "guid", nullable = false, unique = true, updatable = false)
+    private UUID guid = UUID.randomUUID();
 
     @Column(name = "name")
     private String name;

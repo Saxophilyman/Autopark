@@ -2,17 +2,17 @@ package org.example.autopark.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import org.example.autopark.GPS.GpsPoint;
+import org.example.autopark.trip.Trip;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Data
@@ -25,9 +25,19 @@ public class Vehicle {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long vehicleId;
 
+    @NonNull
+    @Column(name = "guid", nullable = false, unique = true, updatable = false)
+    private UUID guid = UUID.randomUUID();
+
     @NotBlank
     @Column(name = "vehicle_name")
     private String vehicleName;
+
+    @NotBlank
+    @Pattern(regexp = "^[А-Я]\\d{3}[А-Я]{2}$", message = "Формат номера должен быть А123БВ")
+    @Column(name = "license_plate", unique = true)
+    private String licensePlate;
+
 
     @NotNull
     @Column(name = "vehicle_cost")
@@ -36,7 +46,7 @@ public class Vehicle {
 
     @NotNull
     @Min(value = 1900)
-    @Max(value = 2024)
+    @Max(value = 2026)
     @Column(name = "vehicle_year_of_release")
     private int vehicleYearOfRelease;
 
@@ -51,9 +61,10 @@ public class Vehicle {
     private Enterprise enterpriseOwnerOfVehicle;
     //Предприятию могут принадлежать несколько автомобилей (один ко многим).
 
-    @OneToOne(mappedBy = "activeVehicle")
     @JsonIgnore
+    @OneToOne(mappedBy = "activeVehicle", fetch = FetchType.LAZY)
     private Driver activeDriver;
+
 
     @ManyToMany(mappedBy = "vehicleList")
     @JsonIgnore
@@ -70,8 +81,12 @@ public class Vehicle {
         }
     }
 
-    // new
     @OneToMany(mappedBy = "vehicleIdForGps")
     @JsonIgnore
     private List<GpsPoint> PointsGPS;
+
+    //new
+    @OneToMany(mappedBy = "vehicleOfTrip" )
+    @JsonIgnore
+    private List<Trip> tripList;
 }

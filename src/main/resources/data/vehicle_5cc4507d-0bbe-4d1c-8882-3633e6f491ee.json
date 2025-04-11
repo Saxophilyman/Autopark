@@ -1,0 +1,17 @@
+{
+  "guid": "5cc4507d-0bbe-4d1c-8882-3633e6f491ee",
+  "enterpriseGuid": "cbf87fa2-16de-4d5f-a498-5c2671056205",
+  "name": "Car",
+  "trips": [
+    {
+      "guid": "fe159a9e-6710-4113-aa67-f92497c4d4ff",
+      "startTime": "2025-01-20T07:31:27",
+      "endTime": "2025-01-20T08:02:47"
+    },
+    {
+      "guid": "99d229f9-3dc0-45d4-a4e7-c27fe6fc41bc",
+      "startTime": "2025-02-23T11:36:37",
+      "endTime": "2025-02-23T12:09:37"
+    }
+  ]
+}

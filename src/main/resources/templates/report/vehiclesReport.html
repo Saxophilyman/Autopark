@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Создание отчёта для ТС</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
+
+</head>
+<body>
+
+<div class="container mt-4">
+
+
+    <!-- Форма для создания отчёта -->
+    <h3 class="text-center mt-4">Создание отчёта</h3>
+    <form th:action="@{/managers/report/generateVehicleReport}"
+          method="POST" class="mx-auto" style="max-width: 600px;">
+        <!-- CSRF token -->
+        <input type="hidden" name="_csrf" value="${_csrf.token}"/>
+
+        <!-- Поле для ввода Госномера автомобиля -->
+        <div class="form-group mb-3">
+            <label for="licensePlate">Госномер автомобиля:</label>
+            <select id="licensePlate" name="licensePlate" class="form-control" required style="width: 100%;"></select>
+        </div>
+
+
+
+        <!-- Календарь для выбора начальной и конечной даты -->
+        <div class="form-group">
+            <label for="fromDate">С:</label>
+            <input type="date" id="fromDate" name="fromDate" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <label for="toDate">По:</label>
+            <input type="date" id="toDate" name="toDate" class="form-control" required>
+        </div>
+
+        <!-- Выпадающий список для выбора периода (день, месяц, год) -->
+        <div class="form-group">
+            <label for="period">Период:</label>
+            <select id="period" name="period" class="form-control" required>
+                <option value="DAY">День</option>
+                <option value="MONTH">Месяц</option>
+                <option value="YEAR">Год</option>
+            </select>
+        </div>
+
+        <!--        &lt;!&ndash; Выпадающий список для выбора типа отчёта &ndash;&gt;-->
+        <!--        <div class="form-group">-->
+        <!--            <label for="reportType">Тип отчёта:</label>-->
+        <!--            <select id="reportType" name="reportType" class="form-control" required>-->
+        <!--                <option value="MILEAGE">Пробег</option>-->
+        <!--                <option value="FUEL">Топливо</option>-->
+        <!--                <option value="IDLE_TIME">Время простоя</option>-->
+        <!--            </select>-->
+        <!--        </div>-->
+
+        <!-- Кнопка для создания отчёта -->
+        <button type="submit" class="btn btn-primary mt-3 w-100">Создать отчёт</button>
+    </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<!-- Скрипт для ограничения выбора в календаре в зависимости от периода -->
+<script>
+    document.getElementById('period').addEventListener('change', function () {
+        const period = this.value;
+        const fromDate = document.getElementById('fromDate');
+        const toDate = document.getElementById('toDate');
+
+        if (period === 'MONTH') {
+            // Для периода "Месяц" разрешаем выбирать только месяц и год
+            fromDate.setAttribute('type', 'month');
+            toDate.setAttribute('type', 'month');
+        } else if (period === 'YEAR') {
+            // Для периода "Год" разрешаем выбирать только год
+            fromDate.setAttribute('type', 'year');
+            toDate.setAttribute('type', 'year');
+        } else {
+            // Для периода "День" возвращаем обычный календарь
+            fromDate.setAttribute('type', 'date');
+            toDate.setAttribute('type', 'date');
+        }
+    });
+</script>
+
+<!--&lt;!&ndash; JS: автоподстановка номеров &ndash;&gt;-->
+<!--<script>-->
+<!--    async function fetchPlates(query) {-->
+<!--        if (!query || query.length < 2) return;-->
+
+<!--        const response = await fetch(`/api/managers/vehicles/license-plates?q=${encodeURIComponent(query)}`);-->
+<!--        const data = await response.json();-->
+
+<!--        const list = document.getElementById('licensePlateList');-->
+<!--        list.innerHTML = '';-->
+
+<!--        data.forEach(plate => {-->
+<!--            const option = document.createElement('option');-->
+<!--            option.value = plate;-->
+<!--            list.appendChild(option);-->
+<!--        });-->
+<!--    }-->
+
+<!--    document.getElementById('licensePlate').addEventListener('input', function () {-->
+<!--        fetchPlates(this.value);-->
+<!--    });-->
+
+</script>
+<!-- jQuery (для Select2) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<!-- Select2 инициализация -->
+<script>
+    $(document).ready(function () {
+        $('#licensePlate').select2({
+            placeholder: 'Введите номер автомобиля',
+            minimumInputLength: 2,
+            language: {
+                inputTooShort: function () {
+                    return 'Введите минимум 2 символа';
+                },
+                noResults: function () {
+                    return 'Ничего не найдено';
+                },
+                searching: function () {
+                    return 'Поиск...';
+                }
+            },
+            ajax: {
+                url: '/api/managers/vehicles/license-plates',
+                dataType: 'json',
+                delay: 300,
+                data: function (params) {
+                    return {
+                        q: params.term
+                    };
+                },
+                processResults: function (data) {
+                    return {
+                        results: data.map(function (plate) {
+                            return { id: plate, text: plate };
+                        })
+                    };
+                },
+                cache: true
+            }
+        });
+    });
+</script>
+
+
+</body>
+</html>

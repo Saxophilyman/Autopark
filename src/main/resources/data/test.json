@@ -1,0 +1,33 @@
+{
+  "enterprise": {
+    "guid": "cbf87fa2-16de-4d5f-a498-5c2671056205",
+    "name": "Автоваз",
+    "city": "Москва",
+    "timeZone": "Europe/Moscow"
+  },
+  "vehicle": {
+    "guid": "a83fd274-3c3f-4d93-8888-1ea52a1d3ac0",
+    "name": "Car10",
+    "cost": 111111,
+    "yearOfRelease": 2010,
+    "brand": "Lada"
+  },
+  "trips": [
+    {
+      "guid": "f202e9d7-71d4-4cc2-b2e7-8733b4cf1a70",
+      "startTime": "2025-03-27T09:00:00",
+      "endTime": "2025-03-27T09:45:00",
+      "startLocationInString": "Ленинградский проспект, д. 39, Москва, Россия",
+      "endLocationInString": "ул. Крымский Вал, д. 9, Москва, Россия",
+      "duration": "00:45:00"
+    },
+    {
+      "guid": "dc7c6e0a-66f1-4c5f-b8c3-8975f84a4b22",
+      "startTime": "2025-03-29T13:15:00",
+      "endTime": "2025-03-29T13:50:00",
+      "startLocationInString": "Новодевичий проезд, д. 1, Москва, Россия",
+      "endLocationInString": "проспект Мира, д. 119, Москва, Россия",
+      "duration": "00:35:00"
+    }
+  ]
+}

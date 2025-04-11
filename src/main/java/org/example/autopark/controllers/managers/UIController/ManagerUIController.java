@@ -46,59 +46,6 @@ public class ManagerUIController {
     }
 
 
-//    @GetMapping("/enterprises")
-//    public ModelAndView indexStart(@CurrentManagerId Long managerId) {
-//
-//        ModelAndView enterprises = new ModelAndView("enterprisesStartPage");
-//        enterprises.addObject("enterprises", enterpriseService.findEnterprisesForManager(managerId));
-//
-//        return enterprises;
-//    }
-
-
-//    @GetMapping("/enterprises/{id}/vehicles")
-//    public String indexVehicles(
-//            @CurrentManagerId Long managerId,
-//            @PathVariable("id") Long enterpriseId,
-//            @RequestParam(required = false) Long brandId,
-//            @RequestParam(required = false) Integer minPrice,
-//            @RequestParam(required = false) Integer maxPrice,
-//            @RequestParam(required = false) Integer year,
-//            @RequestParam(defaultValue = "vehicleName,vehicleId") String sortField,  // Теперь стабильная сортировка
-//            @RequestParam(defaultValue = "ASC") String sortDir,
-//            @RequestParam(defaultValue = "0") int page,
-//            @RequestParam(defaultValue = "10") int size,
-//            Model model) {
-//
-//        // Проверяем, принадлежит ли `enterpriseId` текущему `managerId`
-//        boolean hasAccess = enterpriseService.managerHasEnterprise(managerId, enterpriseId);
-//        if (!hasAccess) {
-//            throw new AccessDeniedException("У вас нет доступа к этому предприятию!");
-//        }
-//
-//        // Создаём `PageRequest` для сортировки и пагинации
-//        String[] sortFields = sortField.split(",");
-//        Pageable pageRequest = PageRequest.of(
-//                page, size, Sort.by(
-//                        Arrays.stream(sortFields)
-//                                .map(field -> Sort.Order.by(field)
-//                                        .with(Sort.Direction.fromString(sortDir)))
-//                                .toList()
-//                )
-//        );
-//
-//        // Получаем данные с пагинацией
-//        Page<Vehicle> vehiclesPage = vehicleService.findVehiclesForManager(
-//                managerId, enterpriseId, brandId, minPrice, maxPrice, year, pageRequest);
-//
-//        model.addAttribute("vehicles", vehiclesPage.getContent().stream().map(this::convertToVehicleDTO).collect(Collectors.toList()));
-//        model.addAttribute("currentPage", vehiclesPage.getNumber() + 1);
-//        model.addAttribute("totalPages", vehiclesPage.getTotalPages());
-//        model.addAttribute("hasNext", vehiclesPage.hasNext());
-//        model.addAttribute("hasPrevious", vehiclesPage.hasPrevious());
-//        model.addAttribute("enterpriseId", enterpriseId);
-//        return "vehicles/index";
-//    }
 
 
     @GetMapping("/enterprises/{id}/vehicles/new")

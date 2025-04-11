@@ -6,12 +6,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("api/managers/tracks")
-public class ApiManControllers {
+@RequestMapping("api/managers")
+public class ApiGpsPointControllers {
     private final GpsPointsService gpsPointsService;
 
     @Autowired
-    public ApiManControllers(GpsPointsService gpsPointsService) {
+    public ApiGpsPointControllers(GpsPointsService gpsPointsService) {
         this.gpsPointsService = gpsPointsService;
     }
 

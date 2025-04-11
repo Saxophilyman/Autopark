@@ -8,6 +8,7 @@ import org.example.autopark.dto.mapper.VehiclePageDTO;
 import org.example.autopark.entity.Driver;
 import org.example.autopark.entity.Enterprise;
 import org.example.autopark.entity.Vehicle;
+import org.example.autopark.exception.VehicleNotCreatedException;
 import org.example.autopark.repository.DriverRepository;
 import org.example.autopark.repository.VehicleRepository;
 import org.example.autopark.specifications.VehicleSpecification;
@@ -56,12 +57,18 @@ public class VehicleService {
 
     @Transactional
     public void save(Vehicle vehicle, Long brandId) {
+        if (vehicleRepository.existsByLicensePlate(vehicle.getLicensePlate())) {
+            throw new VehicleNotCreatedException("Номер уже используется: " + vehicle.getLicensePlate());
+        }
         vehicle.setBrandOwner(brandService.findOne(brandId));
         vehicleRepository.save(vehicle);
     }
 
     @Transactional
     public void save(Vehicle vehicle) {
+        if (vehicleRepository.existsByLicensePlate(vehicle.getLicensePlate())) {
+            throw new VehicleNotCreatedException("Номер уже используется: " + vehicle.getLicensePlate());
+        }
         vehicleRepository.save(vehicle);
     }
 
@@ -79,6 +86,9 @@ public class VehicleService {
     }
     @Transactional
     public void update(Long id, Vehicle updatedVehicle, Long updatedBrandId, Long enterpriseId) {
+        if (vehicleRepository.existsByLicensePlateAndVehicleIdNot(updatedVehicle.getLicensePlate(), id)) {
+            throw new VehicleNotCreatedException("Номер уже используется: " + updatedVehicle.getLicensePlate());
+        }
         updatedVehicle.setVehicleId(id);
         updatedVehicle.setBrandOwner(brandService.findOne(updatedBrandId));
         updatedVehicle.setEnterpriseOwnerOfVehicle(enterpriseService.findOne(enterpriseId));
@@ -87,6 +97,9 @@ public class VehicleService {
 
     @Transactional
     public void update(Long id, Vehicle updatedVehicle) {
+        if (vehicleRepository.existsByLicensePlateAndVehicleIdNot(updatedVehicle.getLicensePlate(), id)) {
+            throw new VehicleNotCreatedException("Номер уже используется: " + updatedVehicle.getLicensePlate());
+        }
         updatedVehicle.setVehicleId(id);
         vehicleRepository.save(updatedVehicle);
     }
@@ -124,55 +137,7 @@ public class VehicleService {
         return vehicles;
     }
 
-//    public Page<Vehicle> getPaginationOfVehicles(Long id, int page, int size, String sortField, String sortDirection) {
-//        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
-//        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortField));
-//        return vehicleRepository.findAll(pageable);
-//    }
-//
-//    public Page<Vehicle> findVehiclesForManager(Long managerId, Pageable pageable) {
-//        List<Enterprise> enterprises = enterpriseService.findEnterprisesForManager(managerId);
-//
-//        List<Long> enterpriseIds = enterprises.stream()
-//                .map(Enterprise::getEnterpriseId)
-//                .collect(Collectors.toList());
-//
-//        if (enterpriseIds.isEmpty()) {
-//            return Page.empty(); // Если у менеджера нет предприятий, возвращаем пустую страницу
-//        }
-//
-//        return vehicleRepository.findAllByEnterpriseOwnerOfVehicle_EnterpriseIdIn(enterpriseIds, pageable);
-//    }
 
-//    public Page<Vehicle> findVehiclesForManager(
-//            Long managerId, Long enterpriseId, Long brandId, Integer minPrice, Integer maxPrice, Integer year,
-//            String sortField, String sortDir, int page, int size) {
-//
-//        // Получаем все предприятия менеджера
-//        List<Long> enterpriseIds = enterpriseService.findEnterprisesForManager(managerId)
-//                .stream()
-//                .map(Enterprise::getEnterpriseId)
-//                .toList();
-//
-//        Specification<Vehicle> spec = Stream.of(
-//                        (enterpriseId != null) ? VehicleSpecification.hasEnterprise(enterpriseId)
-//                                : VehicleSpecification.hasAnyEnterprise(enterpriseIds), // ⬅ Фильтр для всех предприятий
-//                        brandId == null ? null : VehicleSpecification.hasBrand(brandId),
-//                        minPrice == null ? null : VehicleSpecification.hasMinPrice(minPrice),
-//                        maxPrice == null ? null : VehicleSpecification.hasMaxPrice(maxPrice),
-//                        year == null ? null : VehicleSpecification.hasYear(year)
-//                )
-//                .filter(Objects::nonNull)
-//                .reduce(Specification::and)
-//                .orElse(Specification.where(null));
-//
-//        // Настройка сортировки
-//        Sort sort = Sort.by(Sort.Direction.fromString(sortDir == null ? "ASC" : sortDir),
-//                sortField == null ? "vehicleName" : sortField);
-//
-//        Pageable pageable = PageRequest.of(page, size, sort);
-//        return vehicleRepository.findAll(spec, pageable);
-//    }
 
     public Page<Vehicle> findVehiclesForManager(
             Long managerId, Long enterpriseId, Long brandId, Integer minPrice, Integer maxPrice, Integer year,
@@ -256,5 +221,14 @@ public class VehicleService {
                 )
         );
     }
+
+    public Vehicle findByLicensePlate(String licensePlate) {
+        return vehicleRepository.findByLicensePlate(licensePlate)
+                .orElse(null);
+    }
+    public List<Vehicle> findByLicensePlateContaining(String query) {
+        return vehicleRepository.findByLicensePlateContainingIgnoreCase(query);
+    }
+
 
 }

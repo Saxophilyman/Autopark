@@ -118,6 +118,9 @@ public class UIManagerVehiclesController {
         model.addAttribute("vehicle", vehicle);
         model.addAttribute("enterpriseId", enterpriseId);
 
+
         return "vehicles/showVehicle"; // Отображаем страницу просмотра
     }
+
+
 }

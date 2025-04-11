@@ -6,6 +6,7 @@ import lombok.Data;
 public class VehicleApiDto {
     private Long vehicleId;
     private String vehicleName;
+    private String licensePlate;
     private int vehicleCost;
     private int vehicleYearOfRelease;
 
