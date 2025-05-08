@@ -66,11 +66,16 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script th:src="@{/js/trip-loader.js}"></script>
 
-<!-- Центрируем кнопку -->
-<div class="d-flex justify-content-center mt-4">
+<!-- Центрированные кнопки "Создать отчёт" и "Загрузить поездку" -->
+<div class="d-flex justify-content-center gap-2 mt-4">
     <a href="#" class="btn btn-primary"
        th:href="@{/managers/report/showTypeOfReport}">
         Создать отчёт
+    </a>
+
+    <a class="btn btn-success"
+       th:href="@{/managers/uploadTripGpx(vehicleId=${vehicle.vehicleId})}">
+        Загрузить поездку
     </a>
 </div>
 

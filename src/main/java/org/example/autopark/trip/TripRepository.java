@@ -1,6 +1,5 @@
 package org.example.autopark.trip;
 
-import org.example.autopark.GPS.GpsPoint;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -39,6 +38,18 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
                                     @Param("startTripDate") Instant startTripDate,
                                     @Param("endTripDate") Instant endTripDate);
 
+    @Query("""
+    SELECT COUNT(t) > 0 FROM Trip t
+    WHERE t.vehicleOfTrip.vehicleId = :vehicleId
+      AND t.startDate < :end
+      AND t.endDate > :start
+""")
+    boolean existsByVehicleAndPeriodOverlap(@Param("vehicleId") Long vehicleId,
+                                            @Param("start") Instant start,
+                                            @Param("end") Instant end);
+
+}
+
 
 //    @Query(value = """
 //    SELECT t FROM trips t
@@ -52,10 +63,8 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
 //            @Param("startTripDate") Instant startTripDate,
 //            @Param("endTripDate") Instant endTripDate
 //    );
-    // Найти поездки для заданного авто в указанном временном диапазоне
+// Найти поездки для заданного авто в указанном временном диапазоне
 
-
-}
 //@Query("""
 //            SELECT t FROM Trip t WHERE t.vehicleOfTrip.vehicleId = :vehicleId
 //            AND t.startDate >= :startTripDate AND t.endDate <= :endTripDate

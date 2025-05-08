@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: autopark-db
+    environment:
+      POSTGRES_DB: autopark
+      POSTGRES_USER: autopark
+      POSTGRES_PASSWORD: PostGre
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U autopark"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: autopark-app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/autopark
+      SPRING_DATASOURCE_USERNAME: autopark
+      SPRING_DATASOURCE_PASSWORD: PostGre
+    ports:
+      - "8080:8080"
+
+volumes:
+  db-data:
