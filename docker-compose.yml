@@ -48,10 +48,11 @@ services:
 
   certbot:
     image: certbot/certbot
+    command: sleep infinity
     volumes:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
-    entrypoint: ""
+#    entrypoint: ""
     networks:
       - app-network
 
