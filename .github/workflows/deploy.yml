@@ -29,7 +29,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /opt/Vehicle
+            cd /opt/Autopark
             git pull origin main || true
             docker compose down
             docker compose up -d --build
