@@ -10,8 +10,8 @@ public class VehicleApiDto {
     private int vehicleCost;
     private int vehicleYearOfRelease;
 
-    private Long brandId; // 👈 Передаём только ID бренда
-    private Long enterpriseId; // 👈 Передаём только ID предприятия
+    private Long brandId; // Передаём только ID бренда
+    private Long enterpriseId; // Передаём только ID предприятия
 
     private String purchaseDateEnterpriseTime;
 }
