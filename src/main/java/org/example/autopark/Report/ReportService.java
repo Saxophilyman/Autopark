@@ -1,22 +1,20 @@
 package org.example.autopark.Report;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.autopark.GPS.GpsPoint;
 import org.example.autopark.GPS.GpsPointsRepository;
 import org.example.autopark.appUtil.trackGeneration.GpsPointCoord;
 import org.example.autopark.repository.EnterpriseRepository;
-import org.springframework.http.HttpStatus;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class ReportService {
     private final GpsPointsRepository gpsPointsRepository;
@@ -24,12 +22,17 @@ public class ReportService {
 
 
     // Основной метод для генерации отчёта
+    @Cacheable(
+            value = "mileageReports",
+            key = "#vehicleId + '_' + #startDate.toString() + '_' + #endDate.toString() + '_' + #period.name()"
+    )
     public ModelReport generateMileageReport(Long vehicleId, LocalDate startDate, LocalDate endDate, PeriodType period) {
         // Получаем GPS-точки для автомобиля за указанный период
+        log.info("Генерация отчёта: vehicleId={}, period={}, from={}, to={}", vehicleId, period, startDate, endDate);
         List<GpsPoint> gpsPoints = gpsPointsRepository.findByVehicleAndTimeRange(vehicleId,
                 startDate.atStartOfDay(ZoneId.of("UTC")).toInstant(),
                 endDate.atTime(23, 59, 59).atZone(ZoneId.of("UTC")).toInstant());
-
+        log.info("Найдено {} GPS-точек для расчёта пробега", gpsPoints.size());
         List<ReportEntry> result = new ArrayList<>();
         double totalMileage = 0.0;
 

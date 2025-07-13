@@ -1,14 +1,17 @@
 package org.example.autopark.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.autopark.entity.Brand;
 import org.example.autopark.exception.ResourceNotFoundException;
 import org.example.autopark.repository.BrandRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 @Service
+@Slf4j
 public class BrandsService {
     private final BrandRepository brandRepository;
 
@@ -42,4 +45,12 @@ public class BrandsService {
     public void delete(Long id) {
         brandRepository.deleteById(id);
     }
+
+    @Cacheable(value = "brandByName", key = "#brandName")
+    public Brand findByName(String brandName) {
+        log.info("Поиск бренда по имени из базы: {}", brandName);
+        return brandRepository.findByBrandName(brandName)
+                .orElseThrow(() -> new ResourceNotFoundException("Бренд с именем '" + brandName + "' не найден"));
+    }
+
 }

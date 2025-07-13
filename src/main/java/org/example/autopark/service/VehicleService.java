@@ -1,6 +1,8 @@
 package org.example.autopark.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import lombok.extern.slf4j.Slf4j;
+import org.example.autopark.aop.LogExecutionTime;
 import org.example.autopark.dto.VehicleApiDto;
 import org.example.autopark.dto.VehicleDTO;
 import org.example.autopark.dto.mapper.VehicleMapper;
@@ -13,6 +15,7 @@ import org.example.autopark.repository.DriverRepository;
 import org.example.autopark.repository.VehicleRepository;
 import org.example.autopark.specifications.VehicleSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +30,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
+@Slf4j
 @Transactional(readOnly = true)
 public class VehicleService {
     private final VehicleRepository vehicleRepository;
@@ -49,7 +53,10 @@ public class VehicleService {
         return vehicleRepository.findAll();
     }
 
+    @Cacheable(value = "vehicles", key = "#id")
+//    @LogExecutionTime
     public Vehicle findOne(Long id) {
+        log.info("Поиск автомобиля по id: {}", id);
         Optional<Vehicle> foundVehicle = vehicleRepository.findById(id);
 
         return foundVehicle.orElseThrow();
@@ -221,12 +228,15 @@ public class VehicleService {
                 )
         );
     }
-
+    @Cacheable(value = "vehicles", key = "#licensePlate")
     public Vehicle findByLicensePlate(String licensePlate) {
+        log.info("Поиск автомобиля по номеру: {}", licensePlate);
         return vehicleRepository.findByLicensePlate(licensePlate)
                 .orElse(null);
     }
+    @Cacheable(value = "vehicles", key = "#query")
     public List<Vehicle> findByLicensePlateContaining(String query) {
+        log.info("Поиск автомобиля по номеру через запрос: {}", query);
         return vehicleRepository.findByLicensePlateContainingIgnoreCase(query);
     }
 

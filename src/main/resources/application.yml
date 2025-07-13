@@ -12,7 +12,10 @@ spring:
         format_sql: true
     hibernate:
       ddl-auto: none  # Обновление схемы БД автоматически
-
+telegram:
+  bot:
+    token: 7846683098:AAGq8t2Cz1ppxJSTjYc9xA2iQjtomcoUBXI
+    username: SaxophilymanAutoparkBot
 
 #   PostgisDialect
 #   PostgisPG95Dialect

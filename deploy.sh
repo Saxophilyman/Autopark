@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # === НАСТРОЙКИ ===
-HOST="root@5.129.196.59"                      # IP твоего VPS
+HOST="root@89.169.47.147"                      # IP твоего VPS
 PROJECT_DIR="/opt/Autopark"                    # Путь до проекта на сервере
 BRANCH="develop"                                 # Название ветки (или master) ПОКА ЧТО DEVELOP
 REPO_URL="git@github.com:Saxophilyman/Autopark.git"  # SSH-ссылка на репозиторий
