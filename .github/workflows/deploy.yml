@@ -29,6 +29,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            git config --global --add safe.directory /opt/Autopark
             cd /opt/Autopark
             git pull origin main || true
             docker compose down
