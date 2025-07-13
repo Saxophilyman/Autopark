@@ -21,8 +21,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    dns:
-      - 8.8.8.8
     container_name: autopark-app
     depends_on:
       db:
@@ -31,6 +29,8 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/autopark
       SPRING_DATASOURCE_USERNAME: autopark
       SPRING_DATASOURCE_PASSWORD: PostGre
+    dns:
+      - 8.8.8.8
     networks:
       - app-network
 
