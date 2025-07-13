@@ -1,3 +1,7 @@
 Запустить анализ
 goaccess ./nginx-access.log --log-format=COMBINED
 У тебя откроется интерактивный терминал с аналитикой (TUI-интерфейс).
+
+https://saxophilyman-autopark.ru/stats
+
+m1p1
