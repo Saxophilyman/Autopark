@@ -50,7 +50,8 @@ services:
 
   certbot:
     image: certbot/certbot
-    command: tail -f /dev/null
+    command: sleep infinity
+    #    command: tail -f /dev/null
     volumes:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
