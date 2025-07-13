@@ -4,4 +4,5 @@ goaccess ./nginx-access.log --log-format=COMBINED
 
 https://saxophilyman-autopark.ru/stats
 
+statsuser
 m1p1
