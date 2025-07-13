@@ -5,7 +5,7 @@ WORKDIR /app
 
 COPY pom.xml .
 COPY src ./src
-
+RUN echo "nameserver 8.8.8.8" > /etc/resolv.conf
 RUN mvn clean package -DskipTests
 
 # ===== Этап 2: Запуск финального JAR =====
