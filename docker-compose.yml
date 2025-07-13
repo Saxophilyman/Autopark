@@ -29,13 +29,12 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/autopark
       SPRING_DATASOURCE_USERNAME: autopark
       SPRING_DATASOURCE_PASSWORD: PostGre
-    dns:
-      - 8.8.8.8
     networks:
       - app-network
 
   nginx:
     image: nginx:latest
+    container_name: autopark-nginx
     ports:
       - "80:80"
       - "443:443"
@@ -47,21 +46,18 @@ services:
       - app
     networks:
       - app-network
+    restart: unless-stopped
 
   certbot:
     image: certbot/certbot
-    command: sleep infinity
-    #    command: tail -f /dev/null
+    container_name: autopark-certbot
+    command: tail -f /dev/null
     volumes:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
-#    entrypoint: ""
     networks:
       - app-network
-
-
-#Важно: этот том должен существовать заранее. Если он ещё не создан, создай его:
-#  docker volume create db-data
+    restart: unless-stopped
 
 volumes:
   db-data:
@@ -70,3 +66,77 @@ volumes:
 networks:
   app-network:
     driver: bridge
+
+
+#services:
+#  db:
+#    image: postgis/postgis:16-3.4
+#    container_name: autopark-db
+#    environment:
+#      POSTGRES_DB: autopark
+#      POSTGRES_USER: autopark
+#      POSTGRES_PASSWORD: PostGre
+#    volumes:
+#      - db-data:/var/lib/postgresql/data
+#      - ./init:/docker-entrypoint-initdb.d
+#    healthcheck:
+#      test: ["CMD-SHELL", "pg_isready -U autopark"]
+#      interval: 5s
+#      timeout: 5s
+#      retries: 5
+#    networks:
+#      - app-network
+#
+#  app:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    container_name: autopark-app
+#    depends_on:
+#      db:
+#        condition: service_healthy
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/autopark
+#      SPRING_DATASOURCE_USERNAME: autopark
+#      SPRING_DATASOURCE_PASSWORD: PostGre
+#    dns:
+#      - 8.8.8.8
+#    networks:
+#      - app-network
+#
+#  nginx:
+#    image: nginx:latest
+#    ports:
+#      - "80:80"
+#      - "443:443"
+#    volumes:
+#      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+#      - ./certbot/conf:/etc/letsencrypt
+#      - ./certbot/www:/var/www/certbot
+#    depends_on:
+#      - app
+#    networks:
+#      - app-network
+#
+#  certbot:
+#    image: certbot/certbot
+##    command: sleep infinity
+#    command: tail -f /dev/null
+#    volumes:
+#      - ./certbot/conf:/etc/letsencrypt
+#      - ./certbot/www:/var/www/certbot
+##    entrypoint: ""
+#    networks:
+#      - app-network
+#
+#
+##Важно: этот том должен существовать заранее. Если он ещё не создан, создай его:
+##  docker volume create db-data
+#
+#volumes:
+#  db-data:
+#    external: true
+#
+#networks:
+#  app-network:
+#    driver: bridge
