@@ -6,3 +6,6 @@ https://saxophilyman-autopark.ru/stats
 
 statsuser
 m1p1
+
+обновить логи
+/opt/Autopark/update-stats.sh
