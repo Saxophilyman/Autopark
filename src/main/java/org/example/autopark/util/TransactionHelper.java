@@ -1,11 +1,14 @@
 package org.example.autopark.util;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.io.IOException;
 import java.util.function.Supplier;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class TransactionHelper {
@@ -23,7 +26,39 @@ public class TransactionHelper {
      * Выполняет void-логику в транзакции.
      */
     public void runInTransaction(Runnable action) {
-        transactionTemplate.executeWithoutResult(status -> action.run());
+        transactionTemplate.executeWithoutResult(status -> {
+            log.info(">> Транзакция начата");
+            try {
+                action.run();
+                log.info("<< Транзакция завершена успешно");
+            } catch (Exception e) {
+                log.warn("!! Откат транзакции из-за ошибки: {}", e.getMessage());
+                throw e;
+            }
+        });
     }
+
+    public void runInTransactionWithIOException(IOExceptionRunnable action) throws IOException {
+        try {
+            runInTransaction(() -> {
+                try {
+                    action.run();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        } catch (RuntimeException e) {
+            if (e.getCause() instanceof IOException) {
+                throw (IOException) e.getCause();
+            }
+            throw e;
+        }
+    }
+
+    @FunctionalInterface
+    public interface IOExceptionRunnable {
+        void run() throws IOException;
+    }
+
 
 }
