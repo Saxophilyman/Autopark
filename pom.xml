@@ -141,8 +141,8 @@
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
-<!--			<version>20220924</version>-->
-			<version>20230618</version>
+			<version>20220924</version>
+<!--			<version>20230618</version>-->
 		</dependency>
 
 		<dependency>
