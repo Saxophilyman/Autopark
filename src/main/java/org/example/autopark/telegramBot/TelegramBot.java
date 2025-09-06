@@ -5,6 +5,7 @@ import org.example.autopark.Report.*;
 import org.example.autopark.entity.Manager;
 import org.example.autopark.entity.Vehicle;
 import org.example.autopark.service.VehicleService;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
+@Profile("!reactive")
 @RequiredArgsConstructor
 public class TelegramBot extends TelegramLongPollingBot {
 

@@ -181,18 +181,6 @@
 			<version>33.2.0-jre</version>
 		</dependency>
 
-<!--		<dependency>-->
-<!--			<groupId>org.glassfish.jersey.inject</groupId>-->
-<!--			<artifactId>jersey-hk2</artifactId>-->
-<!--			<version>3.1.7</version>-->
-<!--			<exclusions>-->
-<!--				<exclusion>-->
-<!--					<groupId>org.glassfish.jersey.bundles.repackaged</groupId>-->
-<!--					<artifactId>jersey-guava</artifactId>-->
-<!--				</exclusion>-->
-<!--			</exclusions>-->
-<!--		</dependency>-->
-
 		<dependency>
 			<groupId>org.glassfish.jersey.core</groupId>
 			<artifactId>jersey-common</artifactId>
@@ -208,6 +196,28 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-aop</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webflux</artifactId>
+		</dependency>
+
+		<!-- R2DBC + драйвер PostgreSQL -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-r2dbc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>r2dbc-postgresql</artifactId>
+		</dependency>
+
+		<!-- (необязательно, но удобно для тестов реактивных стримов) -->
+		<dependency>
+			<groupId>io.projectreactor</groupId>
+			<artifactId>reactor-test</artifactId>
+			<scope>test</scope>
 		</dependency>
 
 
@@ -255,19 +265,33 @@
 		</plugins>
 	</build>
 
+	<profiles>
+		<profile>
+			<id>reactive</id>
+			<dependencies>
+				<!-- ВКЛЮЧИТЬ -->
+				<dependency>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-webflux</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-data-r2dbc</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>org.postgresql</groupId>
+					<artifactId>r2dbc-postgresql</artifactId>
+				</dependency>
+
+				<!-- ОТКЛЮЧИТЬ servlet web (чтобы не тащился Tomcat) -->
+				<dependency>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-web</artifactId>
+					<scope>provided</scope>
+					<optional>true</optional>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
 </project>
 
-
-
-		<!--			<plugin>-->
-		<!--				<groupId>org.springframework.boot</groupId>-->
-		<!--				<artifactId>spring-boot-maven-plugin</artifactId>-->
-		<!--				<configuration>-->
-		<!--					<excludes>-->
-		<!--						<exclude>-->
-		<!--							<groupId>org.projectlombok</groupId>-->
-		<!--							<artifactId>lombok</artifactId>-->
-		<!--						</exclude>-->
-		<!--					</excludes>-->
-		<!--				</configuration>-->
-		<!--			</plugin>-->

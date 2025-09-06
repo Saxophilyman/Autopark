@@ -10,6 +10,7 @@ import org.example.autopark.entity.Enterprise;
 import org.example.autopark.entity.Vehicle;
 import org.example.autopark.service.EnterpriseService;
 import org.example.autopark.service.VehicleService;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 @Slf4j
 @RestController
+@Profile("!reactive")
 @RequestMapping("/api/managers")
 @RequiredArgsConstructor
 public class ApiManagerVehiclesController {

@@ -20,6 +20,7 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 import static org.aspectj.bridge.Version.getTime;
 
 @Service
+@Profile("!reactive")
 @Transactional(readOnly = true)
 public class TrackGenService {
     private final VehicleService vehicleService;

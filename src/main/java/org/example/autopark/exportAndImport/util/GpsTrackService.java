@@ -6,6 +6,7 @@ import org.example.autopark.GPS.GpsPointsRepository;
 import org.example.autopark.appUtil.trackGeneration.GpsPointCoord;
 import org.example.autopark.entity.Vehicle;
 import org.locationtech.jts.geom.Point;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Profile("!reactive")
 @RequiredArgsConstructor
 public class GpsTrackService {
 

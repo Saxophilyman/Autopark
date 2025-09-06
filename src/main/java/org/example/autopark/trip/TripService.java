@@ -6,6 +6,7 @@ import org.example.autopark.GPS.GpsPointMapper;
 import org.example.autopark.GPS.GpsPointsRepository;
 import org.example.autopark.repository.EnterpriseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
+@Profile("!reactive")
 @Transactional(readOnly = true)
 public class TripService {
     private final TripRepository tripRepository;

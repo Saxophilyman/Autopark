@@ -5,6 +5,7 @@ import org.example.autopark.entity.Driver;
 import org.example.autopark.service.DriverService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
+@Profile("!reactive")
 @RequestMapping("/api/drivers")
 public class ApiDriverController {
 

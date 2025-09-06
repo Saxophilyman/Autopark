@@ -8,6 +8,7 @@ import org.example.autopark.exception.EnterpriseNotUpdatedException;
 import org.example.autopark.repository.EnterpriseRepository;
 import org.example.autopark.repository.ManagerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Profile("!reactive")
 public class EnterpriseService {
     private final EnterpriseRepository enterpriseRepository;
     private final ManagerRepository managersRepository;

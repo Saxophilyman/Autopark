@@ -3,6 +3,7 @@ package org.example.autopark.trip;
 import org.example.autopark.GPS.GpsPointDto;
 import org.example.autopark.customAnnotation.currentManagerId.CurrentManagerId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +15,7 @@ import java.util.Map;
 
 
 @RestController
+@Profile("!reactive")
 @RequestMapping("api/managers")
 public class ApiTripController {
     private final TripService tripService;

@@ -3,12 +3,14 @@ package org.example.autopark.securityConfig.jwt;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
 
 @Component
+@Profile("!reactive")
 public class JwtUtil {
     private final int EXPIRATION_TIME = 1000 * 60 * 60 * 10; // 10 часов
 

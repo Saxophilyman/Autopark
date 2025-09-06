@@ -11,6 +11,7 @@ import org.example.autopark.service.EnterpriseService;
 import org.example.autopark.service.VehicleService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
+@Profile("!reactive")
 @RequestMapping("api/users")
 public class ApiSimpleUserController {
     private final EnterpriseService enterprisesService;

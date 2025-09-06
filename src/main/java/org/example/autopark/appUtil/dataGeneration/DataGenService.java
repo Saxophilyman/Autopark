@@ -11,6 +11,7 @@ import org.example.autopark.service.BrandsService;
 import org.example.autopark.service.DriverService;
 import org.example.autopark.service.EnterpriseService;
 import org.example.autopark.service.VehicleService;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Profile("!reactive")
 @Transactional(readOnly = true)
 public class DataGenService {
 //    private final Set<String> existingLicensePlates;

@@ -9,6 +9,7 @@ import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.locationtech.jts.geom.Point;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 /*
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 **/
 
 @Service
+@Profile("!reactive")
 public class ReverseGeocodingService {
 
     private static final String API_KEY = "5b3ce3597851110001cf6248c3876f54a9c846e7bba824abc9f891f3";

@@ -6,6 +6,7 @@ import org.example.autopark.dto.mapper.EnterpriseMapper;
 import org.example.autopark.entity.Enterprise;
 import org.example.autopark.service.EnterpriseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
+@Profile("!reactive")
 @RequestMapping("managers")
 public class UIManagerEnterprisesController {
     private final EnterpriseService enterpriseService;

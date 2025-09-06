@@ -10,6 +10,7 @@ import org.example.autopark.service.RegistrationService;
 import org.example.autopark.simpleUser.SimpleUser;
 import org.example.autopark.simpleUser.SimpleUserValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @Controller
+@Profile("!reactive")
 @RequestMapping("/auth")
 public class AuthApiController {
 

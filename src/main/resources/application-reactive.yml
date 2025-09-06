@@ -1,0 +1,31 @@
+spring:
+  main:
+    web-application-type: reactive
+
+  # В реактивном профиле гасим JPA/JDBC, чтобы не конфликтовали
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration
+
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/autopark
+    username: postgres
+    password: PostGre
+
+  data:
+    r2dbc:
+      repositories:
+        enabled: true
+
+server:
+  port: 8082
+
+#  mvn -P reactive spring-boot:run "-Dspring-boot.run.profiles=reactive"
+
+logging:
+  level:
+    org.springframework.r2dbc: INFO
+    io.r2dbc.postgresql.QUERY: INFO
+    io.r2dbc.postgresql.PARAM: INFO

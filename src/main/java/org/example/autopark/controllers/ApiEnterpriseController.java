@@ -4,11 +4,13 @@ import org.example.autopark.dto.VehicleDTO;
 import org.example.autopark.entity.Enterprise;
 import org.example.autopark.service.EnterpriseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@Profile("!reactive")
 @RequestMapping("/api/enterprises")
 public class ApiEnterpriseController {
     private final EnterpriseService enterprisesService;

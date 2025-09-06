@@ -3,6 +3,7 @@ package org.example.autopark.exportAndImport.byID;
 import lombok.RequiredArgsConstructor;
 import org.example.autopark.exportAndImport.byID.idDto.VehicleExportDtoById;
 import org.example.autopark.trip.TripDTO;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Profile("!reactive")
 @RequiredArgsConstructor
 public class CsvImportUtil {
     private final ImportServiceById importServiceById;

@@ -9,6 +9,7 @@ import org.example.autopark.entity.Vehicle;
 import org.example.autopark.repository.VehicleRepository;
 import org.example.autopark.trip.Trip;
 import org.example.autopark.trip.TripRepository;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,6 +21,7 @@ import java.time.ZoneOffset;
 import java.util.List;
 
 @Service
+@Profile("!reactive")
 @RequiredArgsConstructor
 public class TripUploadService {
 

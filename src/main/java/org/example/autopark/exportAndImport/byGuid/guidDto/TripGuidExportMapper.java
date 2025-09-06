@@ -3,6 +3,7 @@ package org.example.autopark.exportAndImport.byGuid.guidDto;
 import org.example.autopark.GPS.GpsPoint;
 import org.example.autopark.exportAndImport.util.ReverseGeocodingService;
 import org.example.autopark.trip.Trip;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.time.ZoneId;
@@ -10,6 +11,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 @Component
+@Profile("!reactive")
 public class TripGuidExportMapper {
 
     private final ReverseGeocodingService reverseGeocodingService;

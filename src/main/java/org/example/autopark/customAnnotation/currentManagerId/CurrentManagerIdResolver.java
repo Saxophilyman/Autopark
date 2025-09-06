@@ -1,6 +1,7 @@
 package org.example.autopark.customAnnotation.currentManagerId;
 
 import org.example.autopark.security.ManagerDetails;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
@@ -12,6 +13,7 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 @Component
+@Profile("!reactive")
 public class CurrentManagerIdResolver implements HandlerMethodArgumentResolver {
 
     @Override

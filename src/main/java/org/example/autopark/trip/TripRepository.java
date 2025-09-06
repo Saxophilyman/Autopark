@@ -1,5 +1,6 @@
 package org.example.autopark.trip;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,6 +13,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
+@Profile("!reactive")
 public interface TripRepository extends JpaRepository<Trip, Long> {
     Optional<Trip> findByGuid(UUID guid);
 

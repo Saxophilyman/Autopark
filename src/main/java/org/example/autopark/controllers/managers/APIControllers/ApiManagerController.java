@@ -18,6 +18,7 @@ import org.example.autopark.service.VehicleService;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
+@Profile("!reactive")
 @RequestMapping("/api/managers")
 public class ApiManagerController {
     private final EnterpriseService enterprisesService;

@@ -5,6 +5,7 @@ import org.example.autopark.customAnnotation.currentManagerId.CurrentManagerId;
 import org.example.autopark.entity.Vehicle;
 import org.example.autopark.repository.VehicleRepository;
 import org.example.autopark.trip.TripService;
+import org.springframework.context.annotation.Profile;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,6 +21,7 @@ import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
+@Profile("!reactive")
 @RequestMapping("/managers")
 public class TripUploadController {
 

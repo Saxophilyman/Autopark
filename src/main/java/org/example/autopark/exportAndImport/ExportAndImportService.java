@@ -10,6 +10,7 @@ import org.example.autopark.exportAndImport.byID.ExportServiceById;
 import org.example.autopark.exportAndImport.byID.ImportServiceById;
 import org.example.autopark.exportAndImport.byID.idDto.VehicleExportDtoById;
 import org.example.autopark.util.TransactionHelper;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
@@ -18,6 +19,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 @Service
+@Profile("!reactive")
 @RequiredArgsConstructor
 public class ExportAndImportService {
     private final ExportServiceById exportServiceById;

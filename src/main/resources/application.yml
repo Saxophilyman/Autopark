@@ -4,6 +4,8 @@ spring:
     url: jdbc:postgresql://localhost:5432/autopark
     username: postgres
     password: PostGre
+    hikari:
+      maximum-pool-size: 10
   jpa:
     properties:
       hibernate:
@@ -12,10 +14,34 @@ spring:
         format_sql: true
     hibernate:
       ddl-auto: none  # Обновление схемы БД автоматически
+#  batch:
+#    jdbc:
+#      initialize-schema: always
+  # R2DBC для реактивных репозиториев и DatabaseClient
+
+#  r2dbc:
+#    url: r2dbc:postgresql://localhost:5432/autopark
+#    username: postgres
+#    password: PostGre
+#  data:
+#    r2dbc:
+#      repositories:
+#        enabled: false
+
+  autoconfigure:
+    exclude:
+      # Полностью гасим R2DBC-автоконфиг в обычном режиме
+      - org.springframework.boot.autoconfigure.r2dbc.R2dbcAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.r2dbc.R2dbcDataAutoConfiguration
+      - org.springframework.boot.autoconfigure.r2dbc.R2dbcTransactionManagerAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.r2dbc.R2dbcRepositoriesAutoConfiguration
+      - org.springframework.boot.devtools.autoconfigure.DevToolsR2dbcAutoConfiguration
 telegram:
   bot:
     token: 7846683098:AAGq8t2Cz1ppxJSTjYc9xA2iQjtomcoUBXI
     username: SaxophilymanAutoparkBot
+
+
 
 #   PostgisDialect
 #   PostgisPG95Dialect

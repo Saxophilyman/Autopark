@@ -2,12 +2,14 @@ package org.example.autopark.telegramBot;
 
 import lombok.RequiredArgsConstructor;
 import org.example.autopark.repository.ManagerRepository;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
+@Profile("!reactive")
 @RequiredArgsConstructor
 public class TelegramAuthService {
 

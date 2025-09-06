@@ -2,6 +2,7 @@ package org.example.autopark.repository;
 
 import org.example.autopark.entity.Driver;
 import org.example.autopark.entity.Vehicle;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -11,6 +12,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
+@Profile("!reactive")
 public interface DriverRepository extends JpaRepository<Driver, Long> {
     Optional<Driver> findByGuid(UUID guid);
 

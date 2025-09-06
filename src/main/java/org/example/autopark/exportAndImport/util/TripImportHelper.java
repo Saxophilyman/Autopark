@@ -10,6 +10,7 @@ import org.example.autopark.exportAndImport.byGuid.guidDto.TripGuidExportDto;
 import org.example.autopark.trip.Trip;
 import org.example.autopark.trip.TripDTO;
 import org.example.autopark.trip.TripRepository;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -18,6 +19,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@Profile("!reactive")
 @Slf4j
 public class TripImportHelper {
 

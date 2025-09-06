@@ -1,5 +1,6 @@
 package org.example.autopark.GPS;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,6 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Repository
+@Profile("!reactive")
 public interface GpsPointsRepository extends JpaRepository<GpsPoint, Long> {
 
     @Query("""

@@ -2,6 +2,7 @@ package org.example.autopark.util;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -10,6 +11,7 @@ import java.util.function.Supplier;
 
 @Slf4j
 @Component
+@Profile("!reactive")
 @RequiredArgsConstructor
 public class TransactionHelper {
 

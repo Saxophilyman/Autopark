@@ -5,6 +5,7 @@ import org.example.autopark.service.GeneralDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -16,8 +17,10 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
+
 @EnableWebSecurity
 @Configuration
+@Profile("!reactive")
 public class SecurityConfig {
 
     private final GeneralDetailsService generalDetailsService;
@@ -44,9 +47,8 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(authz -> authz
                         // Разрешаем доступ без аутентификации к указанным ресурсам
-                        .requestMatchers("/auth/login", "/auth/login2","/auth/registration", "/favicon.ico", "/css/**", "/js/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/auth/login", "/auth/login2","/auth/registration", "/favicon.ico", "/css/**", "/js/**", "/swagger-ui/**", "/v3/api-docs/**", "/api/reactivemvc/**").permitAll()
                         .requestMatchers("/api/managers/**","/api/generate/**","/managers/**").hasRole("MANAGER")
-//                        .requestMatchers("/api/generate/**").permitAll()
                         .requestMatchers("/api/users/**").hasRole("USER")
                         // Все остальные запросы требуют аутентификации
                         .anyRequest().authenticated()

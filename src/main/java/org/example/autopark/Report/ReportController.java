@@ -7,6 +7,7 @@ import org.example.autopark.entity.Vehicle;
 import org.example.autopark.repository.EnterpriseRepository;
 import org.example.autopark.service.EnterpriseService;
 import org.example.autopark.service.VehicleService;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -21,6 +22,7 @@ import java.util.List;
 
 
 @Controller
+@Profile("!reactive")
 public class ReportController {
     private final ReportService reportService;
     private final VehicleService vehicleService;

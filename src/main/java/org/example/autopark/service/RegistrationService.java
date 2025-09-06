@@ -5,11 +5,13 @@ import org.example.autopark.repository.ManagerRepository;
 import org.example.autopark.simpleUser.SimpleUser;
 import org.example.autopark.simpleUser.SimpleUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Profile("!reactive")
 public class RegistrationService {
     //private final ManagerRepository managerRepository;
     private final SimpleUserRepository simpleUserRepository;

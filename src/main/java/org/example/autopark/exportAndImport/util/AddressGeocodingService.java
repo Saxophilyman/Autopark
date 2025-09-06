@@ -9,6 +9,7 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.net.URLEncoder;
@@ -16,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @Service
+@Profile("!reactive")
 public class AddressGeocodingService {
 
     public GpsPointCoord geocode(String address) {

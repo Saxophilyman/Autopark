@@ -12,12 +12,14 @@ import org.example.autopark.GPS.GpsPoint;
 import org.example.autopark.GPS.GpsPointMapper;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 @Component
+@Profile("!reactive")
 public class TripMapper {
 
     private final ModelMapper modelMapper;

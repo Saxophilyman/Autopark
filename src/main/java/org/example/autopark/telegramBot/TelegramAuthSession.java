@@ -3,6 +3,7 @@ package org.example.autopark.telegramBot;
 import lombok.Getter;
 import org.example.autopark.Report.PeriodType;
 import org.example.autopark.entity.Manager;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -12,6 +13,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
+@Profile("!reactive")
 public class TelegramAuthSession {
     public enum AuthStep {
         WAITING_USERNAME,

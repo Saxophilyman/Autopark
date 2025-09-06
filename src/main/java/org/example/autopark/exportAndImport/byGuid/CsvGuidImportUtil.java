@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.autopark.exportAndImport.byGuid.ImportServiceByGuid;
 import org.example.autopark.exportAndImport.byGuid.guidDto.TripGuidExportDto;
 import org.example.autopark.exportAndImport.byGuid.guidDto.VehicleExportDtoByGuid;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@Profile("!reactive")
 @RequiredArgsConstructor
 public class CsvGuidImportUtil {
 

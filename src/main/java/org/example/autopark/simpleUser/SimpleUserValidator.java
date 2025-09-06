@@ -2,12 +2,14 @@ package org.example.autopark.simpleUser;
 
 import org.example.autopark.service.GeneralDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 @Component
+@Profile("!reactive")
 public class SimpleUserValidator implements Validator {
     private final GeneralDetailsService generalDetailsService;
 

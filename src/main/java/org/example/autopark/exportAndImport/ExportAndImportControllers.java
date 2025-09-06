@@ -8,6 +8,7 @@ import org.example.autopark.exportAndImport.byGuid.CsvGuidExportUtil;
 import org.example.autopark.exportAndImport.byGuid.guidDto.VehicleExportDtoByGuid;
 import org.example.autopark.exportAndImport.byID.CsvExportUtil;
 import org.example.autopark.exportAndImport.byID.idDto.VehicleExportDtoById;
+import org.springframework.context.annotation.Profile;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 @RestController
+@Profile("!reactive")
 @RequestMapping("api/managers")
 @RequiredArgsConstructor
 public class ExportAndImportControllers {

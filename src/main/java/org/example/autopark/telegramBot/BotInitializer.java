@@ -3,12 +3,14 @@ package org.example.autopark.telegramBot;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 @Component
 @RequiredArgsConstructor
+@Profile("!reactive")
 @Slf4j
 public class BotInitializer {
 
