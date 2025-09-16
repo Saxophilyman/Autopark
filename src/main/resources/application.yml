@@ -10,10 +10,20 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.spatial.dialect.postgis.PostgisPG95Dialect
-        show_sql: true
+        show_sql: false
         format_sql: true
+        session_factory.statement_inspector: org.example.autopark.nplusone.QueryCountingInspector
+#        generate_statistics: true
     hibernate:
       ddl-auto: none  # Обновление схемы БД автоматически
+
+
+
+#logging:
+#  level:
+#    org.hibernate.stat: ERROR   # сам Hibernate статистикой в лог не шумит
+#    org.hibernate.SQL: INFO
+#    org.hibernate.orm.jdbc.bind: WARN
 #  batch:
 #    jdbc:
 #      initialize-schema: always
@@ -36,10 +46,16 @@ spring:
       - org.springframework.boot.autoconfigure.r2dbc.R2dbcTransactionManagerAutoConfiguration
       - org.springframework.boot.autoconfigure.data.r2dbc.R2dbcRepositoriesAutoConfiguration
       - org.springframework.boot.devtools.autoconfigure.DevToolsR2dbcAutoConfiguration
+
+app:
+  telegram:
+    enabled: false   # ← этот флаг будем комментировать/раскомментировать
+
 telegram:
   bot:
     token: 7846683098:AAGq8t2Cz1ppxJSTjYc9xA2iQjtomcoUBXI
     username: SaxophilymanAutoparkBot
+
 
 
 

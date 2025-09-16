@@ -5,6 +5,7 @@ import org.example.autopark.Report.*;
 import org.example.autopark.entity.Manager;
 import org.example.autopark.entity.Vehicle;
 import org.example.autopark.service.VehicleService;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -21,6 +22,7 @@ import java.util.Optional;
 @Component
 @Profile("!reactive")
 @RequiredArgsConstructor
+@ConditionalOnProperty(name = "app.telegram.enabled", havingValue = "true")
 public class TelegramBot extends TelegramLongPollingBot {
 
     private final TelegramAuthService authService;

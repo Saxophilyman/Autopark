@@ -85,7 +85,7 @@ public class Vehicle {
     @JsonIgnore
     private List<GpsPoint> PointsGPS;
 
-    //new
+    @org.hibernate.annotations.BatchSize(size = 32)
     @OneToMany(mappedBy = "vehicleOfTrip" )
     @JsonIgnore
     private List<Trip> tripList;
