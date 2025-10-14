@@ -1,0 +1,105 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/autopark
+    username: postgres
+    password: PostGre
+    hikari:
+      maximum-pool-size: 10
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.spatial.dialect.postgis.PostgisPG95Dialect
+        show_sql: false
+        format_sql: true
+        session_factory.statement_inspector: org.example.autopark.nplusone.QueryCountingInspector
+#        generate_statistics: true
+    hibernate:
+      ddl-auto: none  # Обновление схемы БД автоматически
+
+
+
+#logging:
+#  level:
+#    org.hibernate.stat: ERROR   # сам Hibernate статистикой в лог не шумит
+#    org.hibernate.SQL: INFO
+#    org.hibernate.orm.jdbc.bind: WARN
+#  batch:
+#    jdbc:
+#      initialize-schema: always
+  # R2DBC для реактивных репозиториев и DatabaseClient
+
+#  r2dbc:
+#    url: r2dbc:postgresql://localhost:5432/autopark
+#    username: postgres
+#    password: PostGre
+#  data:
+#    r2dbc:
+#      repositories:
+#        enabled: false
+
+  autoconfigure:
+    exclude:
+      # Полностью гасим R2DBC-автоконфиг в обычном режиме
+      - org.springframework.boot.autoconfigure.r2dbc.R2dbcAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.r2dbc.R2dbcDataAutoConfiguration
+      - org.springframework.boot.autoconfigure.r2dbc.R2dbcTransactionManagerAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.r2dbc.R2dbcRepositoriesAutoConfiguration
+      - org.springframework.boot.devtools.autoconfigure.DevToolsR2dbcAutoConfiguration
+
+app:
+  telegram:
+    enabled: false   # ← этот флаг будем комментировать/раскомментировать
+
+telegram:
+  bot:
+    token: 7846683098:AAGq8t2Cz1ppxJSTjYc9xA2iQjtomcoUBXI
+    username: SaxophilymanAutoparkBot
+
+
+#------------------
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+
+  metrics:
+    tags:
+      application: autopark
+    distribution:
+      percentiles:
+        http.server.requests: 0.5,0.95,0.99
+      percentiles-histogram:
+        http.server.requests: true
+        hikaricp.connections.acquire: true
+      sla:
+        http.server.requests: 10ms,25ms,50ms,100ms,250ms,500ms,1s
+
+#Дополнительно (не обязательно, но полезно для аккуратной гистограммы):
+      minimum-expected-value:
+        http.server.requests: 1ms
+      maximum-expected-value:
+        http.server.requests: 5s
+
+server.compression.enabled: false  # чтобы не мерить gzip CPU
+
+
+  # опционально (явно):
+  # metrics:
+  #   web:
+  #     server:
+  #       request:
+  #         autotime:
+  #           enabled: true
+
+# полезно для метрик Tomcat
+server:
+  tomcat:
+    mbeanregistry:
+      enabled: true
+
