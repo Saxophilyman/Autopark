@@ -17,27 +17,6 @@ spring:
     hibernate:
       ddl-auto: none  # Обновление схемы БД автоматически
 
-
-
-#logging:
-#  level:
-#    org.hibernate.stat: ERROR   # сам Hibernate статистикой в лог не шумит
-#    org.hibernate.SQL: INFO
-#    org.hibernate.orm.jdbc.bind: WARN
-#  batch:
-#    jdbc:
-#      initialize-schema: always
-  # R2DBC для реактивных репозиториев и DatabaseClient
-
-#  r2dbc:
-#    url: r2dbc:postgresql://localhost:5432/autopark
-#    username: postgres
-#    password: PostGre
-#  data:
-#    r2dbc:
-#      repositories:
-#        enabled: false
-
   autoconfigure:
     exclude:
       # Полностью гасим R2DBC-автоконфиг в обычном режиме
@@ -46,15 +25,31 @@ spring:
       - org.springframework.boot.autoconfigure.r2dbc.R2dbcTransactionManagerAutoConfiguration
       - org.springframework.boot.autoconfigure.data.r2dbc.R2dbcRepositoriesAutoConfiguration
       - org.springframework.boot.devtools.autoconfigure.DevToolsR2dbcAutoConfiguration
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
+    properties:
+      spring.json.trusted.packages: "org.example.events,java.util,java.lang"
+    producer:
+      acks: all
+      properties:
+        enable.idempotence: true
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    admin:
+      auto-create: true
+internal:
+  api:
+    token: ${INTERNAL_API_TOKEN:dev-token}  # для /internal/** отчётов
 
-app:
-  telegram:
-    enabled: false   # ← этот флаг будем комментировать/раскомментировать
-
-telegram:
-  bot:
-    token: 7846683098:AAGq8t2Cz1ppxJSTjYc9xA2iQjtomcoUBXI
-    username: SaxophilymanAutoparkBot
+#app:
+#  telegram:
+#    enabled: false   # ← этот флаг будем комментировать/раскомментировать
+#  demo:
+#   kafka: false # временно
+#telegram:
+#  bot:
+#    token: 7846683098:AAGq8t2Cz1ppxJSTjYc9xA2iQjtomcoUBXI
+#    username: SaxophilymanAutoparkBot
 
 
 #------------------
@@ -89,17 +84,10 @@ management:
 server.compression.enabled: false  # чтобы не мерить gzip CPU
 
 
-  # опционально (явно):
-  # metrics:
-  #   web:
-  #     server:
-  #       request:
-  #         autotime:
-  #           enabled: true
-
 # полезно для метрик Tomcat
 server:
   tomcat:
     mbeanregistry:
       enabled: true
+
 

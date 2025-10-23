@@ -40,13 +40,18 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain configure(HttpSecurity http) throws Exception {
+        http.csrf(csrf -> csrf
+                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                .ignoringRequestMatchers("/dev/**", "/internal/tg/**", "/api/notify/lookup/**")          // ← игнорим CSRF для dev
+        );
         //http.csrf(csrf -> csrf.disable());
 
-         http.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()));
+//         http.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()));
         //http.csrf().ignoringRequestMatchers("/auth/login");
 //        http.authenticationManager(authenticationManager) "/api/generate/**",
         http
                 .authorizeHttpRequests(authz -> authz
+                        .requestMatchers("/dev/**", "/internal/tg/**","/api/notify/lookup/**").permitAll()      // ← разрешаем dev без логина
                         // Разрешаем доступ без аутентификации к указанным ресурсам
                         .requestMatchers("/auth/login", "/auth/login2","/auth/registration", "/favicon.ico", "/css/**", "/js/**", "/swagger-ui/**", "/v3/api-docs/**", "/api/reactivemvc/**", "/demo/**", "/rps/**", "/actuator/*").permitAll()
                         .requestMatchers("/api/managers/**","/api/generate/**","/managers/**").hasRole("MANAGER")

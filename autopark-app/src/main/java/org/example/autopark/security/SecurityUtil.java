@@ -12,4 +12,12 @@ public class SecurityUtil {
         }
         return managerDetails.getManager().getManagerId();
     }
+
+    public static Long getAuthenticatedManagerIdOrNull() {
+        try {
+            return getAuthenticatedManagerId();
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

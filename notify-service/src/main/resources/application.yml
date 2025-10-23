@@ -1,0 +1,36 @@
+# src/main/resources/application.yml
+server:
+  port: 8082
+
+spring:
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
+    consumer:
+      group-id: notify-service
+      enable-auto-commit: false
+      auto-offset-reset: latest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "org.example.events,java.util,java.lang"
+
+app:
+  telegram:
+    enabled: true
+
+telegram:
+  bot:
+    token: ${TELEGRAM_BOT_TOKEN:PUT_YOUR_TOKEN_HERE}
+    username: ${TELEGRAM_BOT_USERNAME:PUT_YOUR_BOT_USERNAME}
+
+autopark:
+  base-url: http://localhost:8080
+#  cd C:\Users\79020\Documents\progrExample\Autopark\Autopark\autopark-app
+#  $env:SPRING_KAFKA_BOOTSTRAP_SERVERS="localhost:29092"
+#  mvn -DskipTests spring-boot:run
+
+#  cd C:\Users\79020\Documents\progrExample\Autopark\Autopark\notify-service
+#  $env:SPRING_KAFKA_BOOTSTRAP_SERVERS="localhost:29092"
+#  $env:TELEGRAM_BOT_TOKEN="7846683098:AAGq8t2Cz1ppxJSTjYc9xA2iQjtomcoUBXI"
+#  $env:TELEGRAM_BOT_USERNAME="SaxophilymanAutoparkBot"
+#  mvn -DskipTests spring-boot:run

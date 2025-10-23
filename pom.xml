@@ -12,6 +12,8 @@
     <modules>
         <module>autopark-app</module>
         <module>autopark-loadtest</module>
+        <module>autopark-events</module>
+        <module>notify-service</module>
     </modules>
 
     <properties>
