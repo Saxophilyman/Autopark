@@ -8,7 +8,6 @@ permissions:
   contents: read
   packages: write
 
-# (необязательно) отменять параллельные запуски по одной ветке
 concurrency:
   group: deploy-${{ github.ref }}
   cancel-in-progress: true
@@ -40,10 +39,15 @@ jobs:
     name: Build & Push Image
     needs: ci
     runs-on: ubuntu-latest
-    env:
-      IMAGE_NAME: ghcr.io/${{ toLower(github.repository_owner) }}/autopark
     steps:
       - uses: actions/checkout@v4
+
+      # Приводим OWNER к нижнему регистру для GHCR и кладём IMAGE_NAME в $GITHUB_ENV
+      - name: Compute IMAGE_NAME (lowercase)
+        shell: bash
+        run: |
+          OWNER_LC=$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')
+          echo "IMAGE_NAME=ghcr.io/${OWNER_LC}/autopark" >> "$GITHUB_ENV"
 
       - uses: docker/setup-buildx-action@v3
 
@@ -67,7 +71,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./Dockerfile      # корневой Dockerfile
+          file: ./Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -82,12 +86,11 @@ jobs:
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}   # если секрет у тебя называется иначе — поменяй это имя
+          key: ${{ secrets.SSH_PRIVATE_KEY }}   # если секрет называется иначе — поправь
           script: |
             set -e
             sudo mkdir -p /opt/autopark
             cd /opt/autopark
-            # compose.yml и .env должны уже лежать здесь (создаём один раз вручную)
             docker compose pull
             docker compose up -d
             docker image prune -f
