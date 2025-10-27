@@ -1,37 +1,40 @@
-name: CI/CD Autopark                       # Имя workflow (видно в GitHub Actions)
+name: CI/CD Autopark
 
-on:                                        # Триггеры запуска
+on:
   push:
-    branches: [ "develop" ]                # Запускать только при push в ветку develop
-    # (поменяешь на "main" — будет продовый цикл)
+    branches: ["develop"]   # поменяй на "main", если нужно
 
-permissions:                               # Минимально необходимые права для GITHUB_TOKEN
-  contents: read                           # читать код репозитория (checkout)
-  packages: write                          # пушить образ в GHCR (Container Registry)
+permissions:
+  contents: read
+  packages: write
 
-jobs:                                      # Три работы (jobs), выполняются на GitHub runners
+# (необязательно) отменять параллельные запуски по одной ветке
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
   ci:
-    name: Build & Test                     # 1) CI: сборка и тесты Java-проекта
-    runs-on: ubuntu-latest                 # окружение раннера
-
+    name: Build & Test
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4          # выкачать код репо (по умолчанию fetch-depth=1)
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-java@v4        # поставить JDK
+      - uses: actions/setup-java@v4
         with:
-          distribution: temurin            # дистрибутив OpenJDK от Adoptium
-          java-version: "17"               # версия Java
+          distribution: temurin
+          java-version: "17"
 
-      - name: Cache Maven                  # кэш локального репозитория Maven (~/.m2)
+      - name: Cache Maven
         uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: m2-                # если точного ключа нет — брать ближайший
+          restore-keys: |
+            m2-
 
-      - name: Maven Test                   # запустить тесты
+      - name: Maven Test
         run: mvn -B -U -DskipTests=false test
-        # -B: batch-режим, -U: обновить снапшоты; явное -DskipTests=false гарантирует прогон тестов
 
   docker:
     name: Build & Push Image
@@ -42,6 +45,8 @@ jobs:                                      # Три работы (jobs), вып�
     steps:
       - uses: actions/checkout@v4
 
+      - uses: docker/setup-buildx-action@v3
+
       - name: Extract metadata (tags/labels)
         id: meta
         uses: docker/metadata-action@v5
@@ -50,8 +55,6 @@ jobs:                                      # Три работы (jobs), вып�
           tags: |
             type=raw,value=latest
             type=sha
-
-      - uses: docker/setup-buildx-action@v3
 
       - name: Login to GHCR
         uses: docker/login-action@v3
@@ -64,29 +67,27 @@ jobs:                                      # Три работы (jobs), вып�
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./Dockerfile
+          file: ./Dockerfile      # корневой Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
   deploy:
-    name: Deploy to VPS                    # 3) CD: развернуть на сервере
-    needs: docker                          # только после успешной сборки/публикации образа
+    name: Deploy to VPS
+    needs: docker
     runs-on: ubuntu-latest
-
     steps:
       - name: Deploy over SSH
-        uses: appleboy/ssh-action@v1.0.3   # выполнить команды по SSH на VPS
+        uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.VPS_HOST }}    # IP/домен VPS (секрет)
-          username: ${{ secrets.VPS_USER }} # пользователь на VPS (секрет)
-          key: ${{ secrets.SSH_PRIVATE_KEY }}  # приватный ключ для SSH (секрет)
-          script: |                        # скрипт деплоя на сервере
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}   # если секрет у тебя называется иначе — поменяй это имя
+          script: |
             set -e
-          # «умирать» при первой ошибке
             sudo mkdir -p /opt/autopark
             cd /opt/autopark
-          # compose.yml и .env должны уже лежать здесь (кладём один раз вручную)
-            docker compose pull            # подтянуть свежий образ из GHCR
-            docker compose up -d           # пересоздать/поднять контейнеры
-            docker image prune -f          # почистить «висячие» слои/образы
+            # compose.yml и .env должны уже лежать здесь (создаём один раз вручную)
+            docker compose pull
+            docker compose up -d
+            docker image prune -f
