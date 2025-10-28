@@ -1,6 +1,5 @@
 package org.example.autopark.securityConfig;
 
-import org.example.autopark.securityConfig.BaseAuthenticationSuccessHandler;
 import org.example.autopark.securityConfig.jwt.JwtAuthFilter;
 import org.example.autopark.service.GeneralDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +7,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -46,9 +44,6 @@ public class SecurityConfig {
         );
         //http.csrf(csrf -> csrf.disable());
 
-//         http.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()));
-        //http.csrf().ignoringRequestMatchers("/auth/login");
-//        http.authenticationManager(authenticationManager) "/api/generate/**",
         http
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/dev/**", "/internal/tg/**","/api/notify/lookup/**").permitAll()      // ← разрешаем dev без логина
