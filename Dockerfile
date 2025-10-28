@@ -1,21 +1,19 @@
-# ===== build =====
 FROM maven:3.9.9-eclipse-temurin-17 AS build
 WORKDIR /build
 
-# 1) Кеш зависимостей: копируем только POM'ы
+# Кеш зависимостей: POM'ы ВСЕХ модулей из <modules>
 COPY pom.xml .
-COPY autopark-events/pom.xml autopark-events/pom.xml
-COPY autopark-app/pom.xml     autopark-app/pom.xml
+COPY autopark-events/pom.xml   autopark-events/pom.xml
+COPY autopark-app/pom.xml      autopark-app/pom.xml
+COPY autopark-loadtest/pom.xml autopark-loadtest/pom.xml
+COPY notify-service/pom.xml    notify-service/pom.xml
 RUN mvn -B -U -DskipTests dependency:go-offline
 
-# 2) Теперь исходники — и сборка ТОЛЬКО нужного модуля + его проектных зависимостей
+# Теперь исходники и сборка
 COPY . .
-RUN mvn -B -U -DskipTests -pl autopark-app -am clean package
+RUN mvn -B -U -DskipTests -pl autopark-app -am clean package \
+ && cp autopark-app/target/autopark-app-*.jar /tmp/app.jar
 
-# 3) Забираем fat-jar приложения
-RUN cp /build/autopark-app/target/autopark-app-*.jar /tmp/app.jar
-
-# ===== run =====
 FROM eclipse-temurin:17-jre
 WORKDIR /opt/app
 COPY --from=build /tmp/app.jar app.jar
