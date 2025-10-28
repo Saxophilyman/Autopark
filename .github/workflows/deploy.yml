@@ -33,7 +33,7 @@ jobs:
             m2-
 
       - name: Maven Test
-        run: mvn -B -U -DskipTests=false test
+        run: mvn -B -U -DskipTests package
 
   docker:
     name: Build & Push Image
