@@ -1,0 +1,36 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:autopark-test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop   # для H2 пусть Hibernate сам создаёт таблицы
+    properties:
+#      jakarta:
+#        persistence:
+#          validation:
+#            mode: none
+      hibernate:
+        format_sql: true
+        show_sql: false
+        dialect: org.hibernate.dialect.H2Dialect
+    database-platform: org.hibernate.dialect.H2Dialect
+
+  liquibase:
+    enabled: false            # важно! liquibase со схемой под Postgres/Geo не запускаем в H2
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+# Отключаем всё "лишнее", что может попытаться подняться
+app:
+  kafka:
+    enabled: false
+
+telegram:
+  bot:
+    enabled: false

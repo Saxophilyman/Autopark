@@ -1,8 +1,8 @@
 package org.example.autopark.exportAndImport.byGuid;
 
 import lombok.RequiredArgsConstructor;
-import org.example.autopark.GPS.GpsPoint;
-import org.example.autopark.GPS.GpsPointDto;
+import org.example.autopark.gps.GpsPoint;
+import org.example.autopark.gps.GpsPointDto;
 import org.example.autopark.entity.Enterprise;
 import org.example.autopark.entity.Vehicle;
 import org.example.autopark.exportAndImport.byGuid.guidDto.TripGuidExportDto;
@@ -22,7 +22,6 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @Profile("!reactive")

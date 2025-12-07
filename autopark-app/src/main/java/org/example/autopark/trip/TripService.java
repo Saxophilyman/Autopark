@@ -1,9 +1,9 @@
 package org.example.autopark.trip;
 
-import org.example.autopark.GPS.GpsPoint;
-import org.example.autopark.GPS.GpsPointDto;
-import org.example.autopark.GPS.GpsPointMapper;
-import org.example.autopark.GPS.GpsPointsRepository;
+import org.example.autopark.gps.GpsPoint;
+import org.example.autopark.gps.GpsPointDto;
+import org.example.autopark.gps.GpsPointMapper;
+import org.example.autopark.gps.GpsPointsRepository;
 import org.example.autopark.repository.EnterpriseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;

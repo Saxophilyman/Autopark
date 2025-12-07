@@ -4,17 +4,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.notify.session.SessionStore;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@ConditionalOnProperty(value = "app.telegram.enabled", havingValue = "true")
 public class TelegramUpdateHandler extends TelegramLongPollingBot {
 
     private final SessionStore sessions;
@@ -60,6 +59,13 @@ public class TelegramUpdateHandler extends TelegramLongPollingBot {
         } catch (TelegramApiException e) {
             log.warn("Failed to send message", e);
         }
+    }
+    @Override
+    public void clearWebhook() throws TelegramApiRequestException {
+        // Ничего не делаем: работаем только через long polling.
+        // Это отключает проблемный вызов deleteWebhook и устраняет ошибку
+        // "Error removing old webhook: [404] Not Found".
+        log.debug("clearWebhook() called, but ignored (long polling mode only).");
     }
 
     @Override public String getBotUsername() { return username; }

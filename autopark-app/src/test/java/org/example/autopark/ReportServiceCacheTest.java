@@ -1,8 +1,8 @@
 package org.example.autopark;
 
-import org.example.autopark.Report.ModelReport;
-import org.example.autopark.Report.PeriodType;
-import org.example.autopark.Report.ReportService;
+import org.example.autopark.report.ModelReport;
+import org.example.autopark.report.PeriodType;
+import org.example.autopark.report.ReportService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;

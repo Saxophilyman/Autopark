@@ -1,9 +1,7 @@
 package org.example.autopark.service;
 
-import org.example.autopark.entity.Manager;
-import org.example.autopark.repository.ManagerRepository;
-import org.example.autopark.simpleUser.SimpleUser;
-import org.example.autopark.simpleUser.SimpleUserRepository;
+import org.example.autopark.simpleuser.SimpleUser;
+import org.example.autopark.simpleuser.SimpleUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;

@@ -1,14 +1,7 @@
 package org.example.autopark.exportAndImport.byID;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.example.autopark.GPS.GpsPoint;
-import org.example.autopark.GPS.GpsPointsRepository;
-import org.example.autopark.appUtil.trackGeneration.GpsPointCoord;
+import org.example.autopark.gps.GpsPointsRepository;
 import org.example.autopark.appUtil.trackGeneration.TrackGenService;
 import org.example.autopark.entity.Brand;
 import org.example.autopark.entity.Enterprise;
@@ -18,25 +11,11 @@ import org.example.autopark.exportAndImport.util.TripImportHelper;
 import org.example.autopark.repository.BrandRepository;
 import org.example.autopark.repository.EnterpriseRepository;
 import org.example.autopark.repository.VehicleRepository;
-import org.example.autopark.service.VehicleService;
-import org.example.autopark.trip.Trip;
-import org.example.autopark.trip.TripDTO;
 import org.example.autopark.trip.TripRepository;
-import org.example.autopark.trip.TripService;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.Point;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.util.List;
 
 @Service
 @Profile("!reactive")

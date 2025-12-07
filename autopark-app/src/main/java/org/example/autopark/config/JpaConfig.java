@@ -9,9 +9,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @Profile("!reactive")
 @EnableJpaRepositories(basePackages = {
         "org.example.autopark.repository", // пакет с JPA репами
-        "org.example.autopark.simpleUser", //
+        "org.example.autopark.simpleuser", //
         "org.example.autopark.trip", //
-        "org.example.autopark.GPS",
+        "org.example.autopark.gps",
         "org.example.autopark.exportAndImport"//
 }, bootstrapMode = org.springframework.data.repository.config.BootstrapMode.DEFERRED // <-- важное
 )

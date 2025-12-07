@@ -12,16 +12,18 @@ import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 
 public class CsvGuidExportUtil {
+
     public static void writeVehicleExportToCsvGuid(VehicleExportDtoByGuid dto, OutputStream out) {
         try {
-            // Добавляем BOM для корректного отображения в Excel
+            // BOM для корректного отображения в Excel
             OutputStreamWriter writerWithBom = new OutputStreamWriter(out, StandardCharsets.UTF_8);
             writerWithBom.write('\uFEFF');
 
             PrintWriter writer = new PrintWriter(writerWithBom);
-            // Шапка по предприятию и машине
-            writer.println("Enterprise ID;Enterprise Name;City;TimeZone;Vehicle ID;Vehicle Name;Cost;Year;Brand");
-            writer.printf("%s;%s;%s;%s;%s;%s;%s;%d;%d;%s\n",
+
+            // Шапка по предприятию и машине (GUID-ы явно указаны в заголовке)
+            writer.println("Enterprise GUID;Enterprise Name;City;TimeZone;Vehicle GUID;Vehicle Name;LicensePlate;Cost;Year;Brand");
+            writer.printf("%s;%s;%s;%s;%s;%s;%s;%d;%d;%s%n",
                     dto.getEnterprise().getGuid(),
                     dto.getEnterprise().getName(),
                     dto.getEnterprise().getCity(),
@@ -34,12 +36,13 @@ public class CsvGuidExportUtil {
                     dto.getVehicle().getBrand()
             );
 
-            // Заголовок для поездок
+            // Заголовок для поездок с GUID
             writer.println();
-            writer.println("Trip Start;Trip End;Start Location;End Location;Duration");
+            writer.println("Trip GUID;Trip Start;Trip End;Start Location;End Location;Duration");
 
             for (TripGuidExportDto trip : dto.getTrips()) {
-                writer.printf("%s;%s;%s;%s;%s\n",
+                writer.printf("%s;%s;%s;%s;%s;%s%n",
+                        trip.getGuid(),
                         trip.getStartTime(),
                         trip.getEndTime(),
                         trip.getStartLocationInString(),
@@ -48,11 +51,11 @@ public class CsvGuidExportUtil {
                 );
             }
 
-
             writer.flush();
         } catch (Exception e) {
-            throw new RuntimeException("Ошибка при записи CSV", e);
+            throw new RuntimeException("Ошибка при записи CSV (GUID)", e);
         }
     }
 }
+
 

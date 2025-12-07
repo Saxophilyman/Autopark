@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import org.example.autopark.customAnnotation.currentManagerId.CurrentManagerId;
 import org.example.autopark.dto.VehicleDTO;
 import org.example.autopark.entity.Vehicle;
+import org.example.autopark.security.ManagerDetails;
 import org.example.autopark.service.BrandsService;
 import org.example.autopark.service.DriverService;
 import org.example.autopark.service.EnterpriseService;
@@ -17,6 +18,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -47,7 +50,14 @@ public class ManagerUIController {
         this.modelMapper = modelMapper;
     }
 
+    @GetMapping
+    public ModelAndView start(Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        ManagerDetails managerDetails = (ManagerDetails) authentication.getPrincipal();
+        model.addAttribute("manager", managerDetails.getManager());
 
+        return new ModelAndView("startPage");
+    }
 
 
     @GetMapping("/enterprises/{id}/vehicles/new")

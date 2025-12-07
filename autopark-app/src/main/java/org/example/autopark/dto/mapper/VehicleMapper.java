@@ -11,7 +11,6 @@ import java.time.format.DateTimeFormatter;
 
 @Component
 public class VehicleMapper {
-
     private final ModelMapper modelMapper;
     private static final DateTimeFormatter DATE_TIME_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -20,19 +19,25 @@ public class VehicleMapper {
         this.modelMapper = modelMapper;
     }
 
-    /**
-     * Конвертирует `Vehicle` в `VehicleDTO` и переводит время в таймзону предприятия.
-     */
     public VehicleDTO convertToVehicleDTO(Vehicle vehicle, String enterpriseTimezone) {
         if (vehicle == null) {
             throw new IllegalArgumentException("Vehicle cannot be null");
         }
 
         VehicleDTO vehicleDTO = modelMapper.map(vehicle, VehicleDTO.class);
+
+        // Берём значение один раз, чтобы не дёргать геттер 2 раза
+        Instant purchaseDateUtc = vehicle.getPurchaseDateUtc();
+
+        // Локальное время предприятия (метод и так умеет работать с null)
         vehicleDTO.setPurchaseDateEnterpriseTime(
-                formatUtcToEnterpriseTime(vehicle.getPurchaseDateUtc(), enterpriseTimezone)
+                formatUtcToEnterpriseTime(purchaseDateUtc, enterpriseTimezone)
         );
-        vehicleDTO.setPurchaseDateUtc(vehicle.getPurchaseDateUtc().toString()); // Добавляем UTC время
+
+        // Сюда кладём строку, но только если не null
+        vehicleDTO.setPurchaseDateUtc(
+                purchaseDateUtc != null ? purchaseDateUtc.toString() : null
+        );
 
         return vehicleDTO;
     }
@@ -43,7 +48,6 @@ public class VehicleMapper {
         }
         VehicleApiDto vehicleApiDto = modelMapper.map(vehicle, VehicleApiDto.class);
 
-
         if (vehicle.getBrandOwner() != null) {
             vehicleApiDto.setBrandId(vehicle.getBrandOwner().getBrandId());
         }
@@ -51,21 +55,21 @@ public class VehicleMapper {
             vehicleApiDto.setEnterpriseId(vehicle.getEnterpriseOwnerOfVehicle().getEnterpriseId());
         }
 
+        Instant purchaseDateUtc = vehicle.getPurchaseDateUtc();
         vehicleApiDto.setPurchaseDateEnterpriseTime(
-                formatUtcToEnterpriseTime(vehicle.getPurchaseDateUtc(), enterpriseTimezone)
+                formatUtcToEnterpriseTime(purchaseDateUtc, enterpriseTimezone)
         );
+
         return vehicleApiDto;
     }
 
-    /**
-     * Конвертирует `VehicleDTO` в `Vehicle` и переводит время из таймзоны предприятия в UTC.
-     */
     public Vehicle convertToVehicle(VehicleDTO vehicleDTO, String enterpriseTimezone) {
         if (vehicleDTO == null) {
             throw new IllegalArgumentException("VehicleDTO cannot be null");
         }
 
         Vehicle vehicle = modelMapper.map(vehicleDTO, Vehicle.class);
+        // Может вернуть null — это ок, ниже в сервисе ты это аккуратно обрабатываешь
         vehicle.setPurchaseDateUtc(
                 parseEnterpriseTimeToUtc(vehicleDTO.getPurchaseDateEnterpriseTime(), enterpriseTimezone)
         );

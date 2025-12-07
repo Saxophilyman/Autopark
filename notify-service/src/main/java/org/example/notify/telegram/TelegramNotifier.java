@@ -14,7 +14,11 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import java.util.Optional;
 
 @Component
-@ConditionalOnProperty(value = "app.telegram.enabled", havingValue = "true")
+@ConditionalOnProperty(
+        value = "telegram.bot.enabled",
+        havingValue = "true",
+        matchIfMissing = true
+)
 @RequiredArgsConstructor
 @Slf4j
 public class TelegramNotifier {

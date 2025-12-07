@@ -1,6 +1,6 @@
 package org.example.autopark.exportAndImport.batchConfig;
 
-import lombok.RequiredArgsConstructor;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @Profile("!reactive")
 @Slf4j
+@Hidden
 public class BatchController {
 
     private final Job importVehicleGuidJob;

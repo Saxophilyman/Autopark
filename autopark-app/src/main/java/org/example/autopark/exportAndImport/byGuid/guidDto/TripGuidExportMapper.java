@@ -1,6 +1,6 @@
 package org.example.autopark.exportAndImport.byGuid.guidDto;
 
-import org.example.autopark.GPS.GpsPoint;
+import org.example.autopark.gps.GpsPoint;
 import org.example.autopark.exportAndImport.util.ReverseGeocodingService;
 import org.example.autopark.trip.Trip;
 import org.springframework.context.annotation.Profile;

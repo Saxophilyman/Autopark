@@ -1,10 +1,10 @@
 package org.example.autopark.gpx;
 
 import lombok.RequiredArgsConstructor;
-import org.example.autopark.GPS.GpsPoint;
-import org.example.autopark.GPS.GpsPointDto;
-import org.example.autopark.GPS.GpsPointMapper;
-import org.example.autopark.GPS.GpsPointsRepository;
+import org.example.autopark.gps.GpsPoint;
+import org.example.autopark.gps.GpsPointDto;
+import org.example.autopark.gps.GpsPointMapper;
+import org.example.autopark.gps.GpsPointsRepository;
 import org.example.autopark.entity.Vehicle;
 import org.example.autopark.repository.VehicleRepository;
 import org.example.autopark.trip.Trip;

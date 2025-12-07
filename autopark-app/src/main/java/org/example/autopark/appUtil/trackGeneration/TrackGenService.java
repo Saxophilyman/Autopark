@@ -6,9 +6,9 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.example.autopark.GPS.GenerateRandomTimeForDate;
-import org.example.autopark.GPS.GpsPoint;
-import org.example.autopark.GPS.GpsPointsService;
+import org.example.autopark.gps.GenerateRandomTimeForDate;
+import org.example.autopark.gps.GpsPoint;
+import org.example.autopark.gps.GpsPointsService;
 import org.example.autopark.entity.Vehicle;
 import org.example.autopark.service.VehicleService;
 import org.example.autopark.trip.Trip;
@@ -16,9 +16,7 @@ import org.example.autopark.trip.TripService;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -43,6 +41,9 @@ public class TrackGenService {
 
     private final String openRouteUrl = "https://api.openrouteservice.org/v2/directions/driving-car?api_key=5b3ce3597851110001cf6248c3876f54a9c846e7bba824abc9f891f3";
 
+    // Новый GeometryFactory с SRID 4326, переиспользуем во всём сервисе
+    private final GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
+
     @Autowired
     public TrackGenService(VehicleService vehicleService, GpsPointsService gpsPointsService, TripService tripService) {
         this.vehicleService = vehicleService;
@@ -65,6 +66,12 @@ public class TrackGenService {
                 start.getLng(), start.getLat(),
                 end.getLng(), end.getLat()
         );
+        // ВАЖНО: проверяем, что маршрут не пустой
+        if (track == null || track.isEmpty()) {
+            throw new IllegalStateException(
+                    "Не удалось построить маршрут для генерации трека (пустой ответ от сервиса маршрутизации)"
+            );
+        }
 
         List<GpsPoint> points = new ArrayList<>();
 
@@ -76,7 +83,7 @@ public class TrackGenService {
             GpsPoint point = new GpsPoint();
             point.setVehicleIdForGps(vehicle); // Привязываем к авто
 
-            GeometryFactory geometryFactory = new GeometryFactory();
+            // Используем общий GeometryFactory с SRID 4326
             Coordinate coordinate = new Coordinate(pointOfTrack.getLng(), pointOfTrack.getLat());
             Point coord = geometryFactory.createPoint(coordinate);
             point.setLocation(coord);
@@ -84,12 +91,14 @@ public class TrackGenService {
             point.setTimestamp(currentTimestamp); // Записываем вычисленное время
 
             points.add(point);
-            gpsPointsService.save(point); // Сохраняем в базу
+//!!!       gpsPointsService.save(point); // Сохраняем в базу(будем использовать saveAll)
 
             // Прибавляем 10 секунд к следующей точке
             currentTimestamp = currentTimestamp.plusSeconds(10);
         }
-        System.out.println("Всё В ПОРЯДКЕ");
+        // Сохраняем все точки одним батчем, а не по одной
+        gpsPointsService.saveAll(points);
+
         Instant timeOfStart = points.get(0).getTimestamp();
         Instant timeOfEnd = points.get(points.size()-1).getTimestamp();
         Trip trip = new Trip(vehicle, timeOfStart, timeOfEnd);
@@ -103,19 +112,24 @@ public class TrackGenService {
         // Генерируем случайный радиус, используя квадратный корень (чтобы точки были равномерно распределены)
         double r = radius * Math.sqrt(random.nextDouble()); // случайный радиус
 
-        // Вычисляем долготу и широту
-        double longitude = centerLongitude + r * Math.cos(angle) / (111.32 * Math.cos(centerLatitude));
+        // Широта/долгота центра в градусах
+        double latRad = Math.toRadians(centerLatitude);
+
+        // Вычисляем долготу и широту (примерная формула для окрестностей точки)
+        double longitude = centerLongitude + r * Math.cos(angle) / (111.32 * Math.cos(latRad));
         double latitude = centerLatitude + r * Math.sin(angle) / 111.32;
 
         return new GpsPointCoord(latitude, longitude);
     }
 
     public GpsPointCoord generateEnd(GpsPointCoord start, int lengthOfTrack) {
-        double degreesPerKm = 0.0089;
+        double degreesPerKm = 0.0089; // грубое приближение
         double angle = Math.random() * 2 * Math.PI;
 
+        double latRad = Math.toRadians(start.getLat());
+
         double deltaLatitude = lengthOfTrack * degreesPerKm * Math.cos(angle);
-        double deltaLongitude = lengthOfTrack * degreesPerKm * Math.sin(angle);
+        double deltaLongitude = lengthOfTrack * degreesPerKm * Math.sin(angle)/ Math.cos(latRad);;
 
         double latitude = start.getLat() + deltaLatitude;
         double longitude = start.getLng() + deltaLongitude;

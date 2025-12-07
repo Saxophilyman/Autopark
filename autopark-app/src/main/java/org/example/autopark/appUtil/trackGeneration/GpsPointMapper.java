@@ -1,13 +1,13 @@
 package org.example.autopark.appUtil.trackGeneration;
 
-import org.example.autopark.GPS.GpsPoint;
+import org.example.autopark.gps.GpsPoint;
 import org.example.autopark.entity.Vehicle;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 
 import java.time.Instant;
-
+@Deprecated
 public class GpsPointMapper {
     private static final GeometryFactory geometryFactory = new GeometryFactory();
 

@@ -28,7 +28,9 @@
     <div>
         <button class="btn btn-primary" style="padding: 10px 20px;" type="submit">Войти</button>
     </div>
-
+    <div th:if="${param.error}" class="alert alert-danger">
+        Неверный логин или пароль
+    </div>
 </form>
 
 </body>

@@ -1,6 +1,9 @@
 package org.example.autopark.exportAndImport;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.example.autopark.customAnnotation.currentManagerId.CurrentManagerId;
@@ -23,18 +26,44 @@ import java.util.UUID;
 @Profile("!reactive")
 @RequestMapping("api/managers")
 @RequiredArgsConstructor
+@Tag(
+        name = "Export & Import (Manager API)",
+        description = "Экспорт и импорт данных по ТС (по ID и по GUID) в форматах JSON и CSV"
+)
 public class ExportAndImportControllers {
 
     private final ExportAndImportService exportAndImportService;
     private final ObjectMapper objectMapper;
 
+    // ─────────────────────────────────────────────────────────────────────
+    // EXPORT BY ID
+    // ─────────────────────────────────────────────────────────────────────
     @GetMapping("/export/vehicle/{vehicleId}")
-    public void exportVehicleData(@CurrentManagerId
-                                  @PathVariable Long vehicleId,
-                                  @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
-                                  @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
-                                  @RequestParam(defaultValue = "json") String format,
-                                  HttpServletResponse response) throws Exception {
+    @Operation(
+            summary = "Экспорт данных по ТС (по ID)",
+            description = """
+                    Экспортирует данные по одному ТС (предприятие, машина, поездки) за период.
+                    Формат ответа: JSON (по умолчанию) или CSV-файл.
+                    """
+    )
+    public void exportVehicleData(
+            @Parameter(hidden = true)
+            @CurrentManagerId Long managerId,
+
+            @Parameter(description = "ID транспортного средства", example = "1")
+            @PathVariable Long vehicleId,
+
+            @Parameter(description = "Дата начала периода", example = "2025-01-01")
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+
+            @Parameter(description = "Дата окончания периода", example = "2025-01-31")
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
+
+            @Parameter(description = "Формат: json или csv", example = "json")
+            @RequestParam(defaultValue = "json") String format,
+
+            HttpServletResponse response
+    ) throws Exception {
 
         VehicleExportDtoById dto = exportAndImportService.exportDataById(vehicleId, fromDate, toDate);
 
@@ -49,12 +78,28 @@ public class ExportAndImportControllers {
         }
     }
 
-
+    // ─────────────────────────────────────────────────────────────────────
+    // IMPORT BY ID
+    // ─────────────────────────────────────────────────────────────────────
     @PostMapping("/import")
-    public String importVehicleData(@CurrentManagerId @RequestParam("file") MultipartFile file) {
+    @Operation(
+            summary = "Импорт данных по ТС (по ID)",
+            description = """
+                    Импортирует данные по одному ТС и его поездкам из файла JSON или CSV.
+                    Формат файла должен соответствовать структуре, которую отдает экспорт по ID.
+                    """
+    )
+    public String importVehicleData(
+            @Parameter(hidden = true)
+            @CurrentManagerId Long managerId,
+
+            @RequestParam("file") MultipartFile file
+    ) {
         try {
             String filename = file.getOriginalFilename();
-            if (filename == null) throw new IllegalArgumentException("Файл без имени");
+            if (filename == null) {
+                throw new IllegalArgumentException("Файл без имени");
+            }
 
             if (filename.endsWith(".json")) {
                 VehicleExportDtoById dto = objectMapper.readValue(file.getInputStream(), VehicleExportDtoById.class);
@@ -72,33 +117,40 @@ public class ExportAndImportControllers {
         }
     }
 
-    //    @GetMapping("/export-guid/vehicle/{guid}")
-//    public void exportVehicleByGuid(@CurrentManagerId @PathVariable UUID guid,
-//                                    @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
-//                                    @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
-//                                    @RequestParam(defaultValue = "json") String format,
-//                                    HttpServletResponse response) throws IOException {
-//
-//        VehicleExportDtoByGuid dto = exportAndImportService.exportDataByGuid(guid, fromDate, toDate);
-//
-//        if ("csv".equalsIgnoreCase(format)) {
-//            response.setContentType("text/csv");
-//            response.setHeader("Content-Disposition", "attachment; filename=vehicle_" + guid + ".csv");
-//            CsvGuidExportUtil.writeVehicleExportToCsvGuid(dto, response.getOutputStream());
-//        } else {
-//            response.setContentType("application/json");
-//            response.setHeader("Content-Disposition", "attachment; filename=vehicle_" + guid + ".json");
-//            objectMapper.writeValue(response.getOutputStream(), dto);
-//        }
-//    }
-
+    // ─────────────────────────────────────────────────────────────────────
+    // EXPORT BY GUID (файл JSON/CSV)
+    // ─────────────────────────────────────────────────────────────────────
     @GetMapping("/export-guid/vehicle/{guid}")
-    public void exportVehicleByGuid(@CurrentManagerId @PathVariable UUID guid,
-                                    @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
-                                    @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
-                                    @RequestParam(defaultValue = "json") String format,
-                                    @RequestParam(defaultValue = "false") boolean withTrack,
-                                    HttpServletResponse response) throws IOException {
+    @Operation(
+            summary = "Экспорт данных по ТС (по GUID)",
+            description = """
+                    Экспорт по GUID (устойчивый идентификатор). Можно выгрузить:
+                    - только поездки (start/end + адреса),
+                    - либо поездки с полным треком (withTrack=true).
+                    Форматы: JSON или CSV.
+                    """
+    )
+    public void exportVehicleByGuid(
+            @Parameter(hidden = true)
+            @CurrentManagerId Long managerId,
+
+            @Parameter(description = "GUID транспортного средства")
+            @PathVariable UUID guid,
+
+            @Parameter(description = "Дата начала периода", example = "2025-01-01")
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+
+            @Parameter(description = "Дата окончания периода", example = "2025-01-31")
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
+
+            @Parameter(description = "Формат экспорта: json или csv", example = "json")
+            @RequestParam(defaultValue = "json") String format,
+
+            @Parameter(description = "Включать полный GPS-трек по каждой поездке", example = "false")
+            @RequestParam(defaultValue = "false") boolean withTrack,
+
+            HttpServletResponse response
+    ) throws IOException {
 
         VehicleExportDtoByGuid dto = exportAndImportService.exportDataByGuid(guid, fromDate, toDate, withTrack);
 
@@ -113,11 +165,28 @@ public class ExportAndImportControllers {
         }
     }
 
+    // ─────────────────────────────────────────────────────────────────────
+    // IMPORT BY GUID
+    // ─────────────────────────────────────────────────────────────────────
     @PostMapping("/import-guid")
-    public String importVehicleFromGuid(@CurrentManagerId @RequestParam("file") MultipartFile file) {
+    @Operation(
+            summary = "Импорт данных по ТС (по GUID)",
+            description = """
+                    Импортирует данные по ТС и поездкам, используя GUID предприятия и машины.
+                    Формат файла должен соответствовать структуре, которую отдает экспорт по GUID.
+                    """
+    )
+    public String importVehicleFromGuid(
+            @Parameter(hidden = true)
+            @CurrentManagerId Long managerId,
+
+            @RequestParam("file") MultipartFile file
+    ) {
         try {
             String filename = file.getOriginalFilename();
-            if (filename == null) throw new IllegalArgumentException("Файл без имени");
+            if (filename == null) {
+                throw new IllegalArgumentException("Файл без имени");
+            }
 
             if (filename.endsWith(".json")) {
                 VehicleExportDtoByGuid dto = objectMapper.readValue(file.getInputStream(), VehicleExportDtoByGuid.class);
@@ -135,13 +204,33 @@ public class ExportAndImportControllers {
         }
     }
 
+    // ─────────────────────────────────────────────────────────────────────
+    // EXPORT BY GUID (чистый JSON-ответ, удобно для UI-просмотра)
+    // ─────────────────────────────────────────────────────────────────────
     @GetMapping("/export-guid/json")
+    @Operation(
+            summary = "Экспорт по GUID (JSON-ответ)",
+            description = """
+                    Возвращает JSON-структуру VehicleExportDtoByGuid без скачивания файла.
+                    Удобно для предварительного просмотра в UI (например, в модальном окне).
+                    """
+    )
     public ResponseEntity<VehicleExportDtoByGuid> exportGuidJsonResponse(
-            @RequestParam UUID vehicleGuid,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
-            @RequestParam(defaultValue = "false") boolean withTrack) {
+            @Parameter(hidden = true)
+            @CurrentManagerId Long managerId,
 
+            @Parameter(description = "GUID транспортного средства")
+            @RequestParam UUID vehicleGuid,
+
+            @Parameter(description = "Дата начала периода", example = "2025-01-01")
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+
+            @Parameter(description = "Дата окончания периода", example = "2025-01-31")
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
+
+            @Parameter(description = "Включать полный GPS-трек по каждой поездке", example = "false")
+            @RequestParam(defaultValue = "false") boolean withTrack
+    ) {
         VehicleExportDtoByGuid dto = exportAndImportService.exportDataByGuid(vehicleGuid, fromDate, toDate, withTrack);
         return ResponseEntity.ok(dto);
     }

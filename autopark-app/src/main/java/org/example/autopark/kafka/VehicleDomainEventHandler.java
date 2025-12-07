@@ -2,6 +2,7 @@ package org.example.autopark.kafka;
 
 import lombok.RequiredArgsConstructor;
 import org.example.events.VehicleEvent;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -10,6 +11,7 @@ import java.time.Instant;
 
 @Component
 @RequiredArgsConstructor
+@ConditionalOnProperty(name = "app.kafka.enabled", havingValue = "true")
 public class VehicleDomainEventHandler {
 
     private final VehicleEventPublisher publisher;

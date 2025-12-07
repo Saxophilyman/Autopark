@@ -26,7 +26,7 @@ spring:
       - org.springframework.boot.autoconfigure.data.r2dbc.R2dbcRepositoriesAutoConfiguration
       - org.springframework.boot.devtools.autoconfigure.DevToolsR2dbcAutoConfiguration
   kafka:
-    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:}
     properties:
       spring.json.trusted.packages: "org.example.events,java.util,java.lang"
     producer:
@@ -41,15 +41,6 @@ internal:
   api:
     token: ${INTERNAL_API_TOKEN:dev-token}  # для /internal/** отчётов
 
-#app:
-#  telegram:
-#    enabled: false   # ← этот флаг будем комментировать/раскомментировать
-#  demo:
-#   kafka: false # временно
-#telegram:
-#  bot:
-#    token: 7846683098:AAGq8t2Cz1ppxJSTjYc9xA2iQjtomcoUBXI
-#    username: SaxophilymanAutoparkBot
 
 
 #------------------
@@ -91,3 +82,12 @@ server:
       enabled: true
 
 
+#app:
+#  telegram:
+#    enabled: false   # ← этот флаг будем комментировать/раскомментировать
+#  demo:
+#   kafka: false # временно
+#telegram:
+#  bot:
+#    token: 7846683098:AAGq8t2Cz1ppxJSTjYc9xA2iQjtomcoUBXI
+#    username: SaxophilymanAutoparkBot

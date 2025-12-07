@@ -1,8 +1,8 @@
 package org.example.autopark.exportAndImport.util;
 
 import lombok.RequiredArgsConstructor;
-import org.example.autopark.GPS.GpsPoint;
-import org.example.autopark.GPS.GpsPointsRepository;
+import org.example.autopark.gps.GpsPoint;
+import org.example.autopark.gps.GpsPointsRepository;
 import org.example.autopark.appUtil.trackGeneration.GpsPointCoord;
 import org.example.autopark.entity.Vehicle;
 import org.locationtech.jts.geom.Point;

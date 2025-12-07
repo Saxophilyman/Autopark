@@ -17,6 +17,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
 
+/*
+Это UI контроллер.
+Если необходим API, его надо реализовать
+ */
 @Controller
 @RequiredArgsConstructor
 @Profile("!reactive")
@@ -30,19 +34,23 @@ public class TripUploadController {
      * Открытие формы загрузки поездки (по vehicleId для возврата назад)
      */
     @GetMapping("/uploadTripGpx")
-    public String showUploadFormWithReturn(@CurrentManagerId @RequestParam("vehicleId") Long vehicleId, Model model) {
+    public String showUploadFormWithReturn(@CurrentManagerId Long managerId,
+                                           @RequestParam("vehicleId") Long vehicleId,
+                                           Model model) {
         Vehicle vehicle = vehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new RuntimeException("ТС не найдено"));
 
         model.addAttribute("vehicleId", vehicle.getVehicleId());
         model.addAttribute("enterpriseId", vehicle.getEnterpriseOwnerOfVehicle().getEnterpriseId());
+        model.addAttribute("licensePlate", vehicle.getLicensePlate());
         return "trip/upload-form";
     }
 
 
 
     @PostMapping("/upload")
-    public String handleUpload(@RequestParam String licensePlate,
+    public String handleUpload(@CurrentManagerId Long managerId,
+                               @RequestParam String licensePlate,
                                @RequestParam Long vehicleIdBack,
                                @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
                                @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end,
@@ -54,7 +62,7 @@ public class TripUploadController {
             redirectAttributes.addFlashAttribute("message", "Поездка успешно загружена");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Ошибка загрузки: " + e.getMessage());
-            return "redirect:/trips/uploadTripGpxBack?vehicleId=" + vehicleIdBack;
+            return "redirect:/managers/uploadTripGpx?vehicleId=" + vehicleIdBack;
         }
 
         // Перенаправление назад на страницу ТС

@@ -36,14 +36,22 @@ public class CsvGuidImportUtil {
             if (line.trim().isEmpty()) continue;
 
             if (line.startsWith("Enterprise GUID")) {
+                // читаем строку данных по предприятию + машине
                 line = reader.readLine();
                 String[] parts = line.split(";");
                 dto.setEnterprise(new VehicleExportDtoByGuid.EnterpriseShortDTOByGuid(
-                        UUID.fromString(parts[0]), parts[1], parts[2], parts[3]
+                        UUID.fromString(parts[0]), // Enterprise GUID
+                        parts[1],                  // Name
+                        parts[2],                  // City
+                        parts[3]                   // TimeZone
                 ));
                 dto.setVehicle(new VehicleExportDtoByGuid.VehicleShortDTOByGuid(
-                        UUID.fromString(parts[3]), parts[4], parts[5], Integer.parseInt(parts[6]),
-                        Integer.parseInt(parts[7]), parts[8]
+                        UUID.fromString(parts[4]), // Vehicle GUID
+                        parts[5],                  // Vehicle Name
+                        parts[6],                  // LicensePlate
+                        Integer.parseInt(parts[7]),// Cost
+                        Integer.parseInt(parts[8]),// Year
+                        parts[9]                   // Brand
                 ));
             } else if (line.startsWith("Trip GUID")) {
                 readingTrips = true;
@@ -55,6 +63,7 @@ public class CsvGuidImportUtil {
                 trip.setEndTime(LocalDateTime.parse(parts[2]));
                 trip.setStartLocationInString(parts[3]);
                 trip.setEndLocationInString(parts[4]);
+                trip.setDuration(parts[5]);
                 trips.add(trip);
             }
         }

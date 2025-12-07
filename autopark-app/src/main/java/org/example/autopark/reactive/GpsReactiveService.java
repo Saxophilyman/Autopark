@@ -1,8 +1,7 @@
 package org.example.autopark.reactive;
 
 import lombok.RequiredArgsConstructor;
-import org.example.autopark.GPS.GpsPointDto;
-import org.example.autopark.reactive.GpsPointReactiveRepository;
+import org.example.autopark.gps.GpsPointDto;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;

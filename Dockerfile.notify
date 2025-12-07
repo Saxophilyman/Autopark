@@ -1,0 +1,23 @@
+FROM maven:3.9.9-eclipse-temurin-17 AS build
+WORKDIR /build
+
+# POM'ы всех модулей, чтобы кешировать зависимости
+COPY pom.xml .
+COPY autopark-events/pom.xml   autopark-events/pom.xml
+COPY autopark-app/pom.xml      autopark-app/pom.xml
+COPY autopark-loadtest/pom.xml autopark-loadtest/pom.xml
+COPY notify-service/pom.xml    notify-service/pom.xml
+
+RUN mvn -B -U -DskipTests dependency:go-offline
+
+# Сборка только notify-service (+ зависимые модули)
+COPY . .
+RUN mvn -B -U -DskipTests -pl notify-service -am clean package \
+ && cp notify-service/target/*.jar /tmp/app.jar
+
+FROM eclipse-temurin:17-jre
+WORKDIR /opt/app
+COPY --from=build /tmp/app.jar app.jar
+ENV JAVA_OPTS="-Xms128m -Xmx256m"
+EXPOSE 8082
+ENTRYPOINT ["sh","-c","java $JAVA_OPTS -jar app.jar"]

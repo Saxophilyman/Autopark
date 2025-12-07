@@ -1,29 +1,19 @@
 package org.example.autopark.exportAndImport.byID;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.example.autopark.GPS.GpsPoint;
-import org.example.autopark.GPS.GpsPointDto;
-import org.example.autopark.appUtil.trackGeneration.GpsPointCoord;
+import org.example.autopark.gps.GpsPoint;
+import org.example.autopark.gps.GpsPointDto;
 import org.example.autopark.entity.Enterprise;
 import org.example.autopark.entity.Vehicle;
 import org.example.autopark.exportAndImport.byID.idDto.VehicleExportDtoById;
 import org.example.autopark.repository.VehicleRepository;
 import org.example.autopark.trip.*;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;

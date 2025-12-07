@@ -29,10 +29,8 @@ public class Brand {
     @NotBlank
     private String brandName;
 
-    @Enumerated
-    @NotBlank
-    @Min(value = 0)
-    @Max(value = 4)
+    @Enumerated(EnumType.ORDINAL) // или STRING, если БД позволяет
+    @NotNull
     @Column(name = "type")
     private TypeVehicle brandType;
 

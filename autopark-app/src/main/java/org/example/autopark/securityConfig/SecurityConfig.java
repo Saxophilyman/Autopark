@@ -19,7 +19,7 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 @EnableWebSecurity
 @Configuration
-@Profile("!reactive")
+@Profile("!reactive & !test")  // активен, только если НЕТ профилей reactive и test
 public class SecurityConfig {
 
     private final GeneralDetailsService generalDetailsService;
@@ -40,16 +40,27 @@ public class SecurityConfig {
     public SecurityFilterChain configure(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                .ignoringRequestMatchers("/dev/**", "/internal/tg/**", "/api/notify/lookup/**")          // ← игнорим CSRF для dev
+                .ignoringRequestMatchers(
+                        "/dev/**",
+                        "/internal/tg/**",
+                        "/api/notify/lookup/**",
+                        "/auth/api/**",
+                        "/auth/login",      // ← игнорим CSRF для dev
+                        "/api/**"          // ← добавили все API под JWT)
+                )
         );
-        //http.csrf(csrf -> csrf.disable());
 
         http
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/dev/**", "/internal/tg/**","/api/notify/lookup/**").permitAll()      // ← разрешаем dev без логина
+                        .requestMatchers("/dev/**", "/internal/tg/**", "/api/notify/lookup/**").permitAll()      // ← разрешаем dev без логина
                         // Разрешаем доступ без аутентификации к указанным ресурсам
-                        .requestMatchers("/auth/login", "/auth/login2","/auth/registration", "/favicon.ico", "/css/**", "/js/**", "/swagger-ui/**", "/v3/api-docs/**", "/api/reactivemvc/**", "/demo/**", "/rps/**", "/actuator/*").permitAll()
-                        .requestMatchers("/api/managers/**","/api/generate/**","/managers/**").hasRole("MANAGER")
+                        .requestMatchers("/auth/**",
+                                "/error", "/error/**",
+                                "/favicon.ico", "/css/**", "/js/**",
+                                "/swagger-ui/**", "/v3/api-docs/**",
+                                "/api/reactivemvc/**", "/demo/**", "/rps/**",
+                                "/actuator/*, /h2-console/**").permitAll()
+                        .requestMatchers("/api/managers/**", "/api/generate/**", "/managers/**").hasRole("MANAGER")
                         .requestMatchers("/api/users/**").hasRole("USER")
                         // Все остальные запросы требуют аутентификации
                         .anyRequest().authenticated()

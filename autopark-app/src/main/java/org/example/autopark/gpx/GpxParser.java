@@ -1,6 +1,6 @@
 package org.example.autopark.gpx;
 
-import org.example.autopark.GPS.GpsPointDto;
+import org.example.autopark.gps.GpsPointDto;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;

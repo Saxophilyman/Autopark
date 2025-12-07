@@ -17,7 +17,7 @@ public class CsvExportUtil {
 
             PrintWriter writer = new PrintWriter(writerWithBom);
             // Шапка по предприятию и машине
-            writer.println("Enterprise ID;Enterprise Name;City;TimeZone;Vehicle ID;Vehicle Name;Cost;Year;Brand");
+            writer.println("Enterprise ID;Enterprise Name;City;TimeZone;Vehicle ID;Vehicle Name;LicensePlate;Cost;Year;Brand");
             writer.printf("%d;%s;%s;%s;%d;%s;%s;%d;%d;%s\n",
                     dto.getEnterprise().getId(),
                     dto.getEnterprise().getName(),
