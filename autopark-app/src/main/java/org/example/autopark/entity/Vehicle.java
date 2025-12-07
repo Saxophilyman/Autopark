@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+
 import org.example.autopark.gps.GpsPoint;
 import org.example.autopark.trip.Trip;
 
