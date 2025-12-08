@@ -37,8 +37,10 @@
         <!-- Регистрационный номер -->
         <div class="mb-3">
             <label for="licensePlate" class="form-label">Регистрационный номер(Формат номера А123БВ):</label>
-            <input type="text" th:field="*{licensePlate}" id="licensePlate" class="form-control" required/>
-            <div class="invalid-feedback">Введите корректный номер.</div>
+            <input type="text" th:field="*{licensePlate}" id="licensePlate" class="form-control" required
+                   pattern="^[А-Я]\d{3}[А-Я]{2}$"
+                   title="Формат: одна русская буква, три цифры, две буквы, например А123БВ"/>
+            <div class="invalid-feedback">Формат номера: А123БВ (одна буква, три цифры, две буквы).</div>
         </div>
 
         <!-- Цена -->
