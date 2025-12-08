@@ -81,7 +81,9 @@ server:
     mbeanregistry:
       enabled: true
 
-
+app:
+  kafka:
+    enabled: ${APP_KAFKA_ENABLED:false}
 #app:
 #  telegram:
 #    enabled: false   # ← этот флаг будем комментировать/раскомментировать
