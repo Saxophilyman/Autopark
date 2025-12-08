@@ -185,7 +185,6 @@ public class ManagerUIController {
         return "redirect:/managers/enterprises/" + enterpriseId + "/vehicles";
     }
 
-
     private VehicleDTO convertToVehicleDTO(Vehicle vehicle) {
         return modelMapper.map(vehicle, VehicleDTO.class);
     }
