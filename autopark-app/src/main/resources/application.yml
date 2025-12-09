@@ -84,6 +84,18 @@ server:
 app:
   kafka:
     enabled: ${APP_KAFKA_ENABLED:false}
+
+springdoc:
+  swagger-ui:
+    # если path уже есть — оставь как есть
+    # path: /swagger-ui.html
+
+    customCss: |
+      /* уменьшаем высоту редактора тела запроса */
+      .swagger-ui .opblock .opblock-body .body-param__text .ace_editor {
+        min-height: 120px;
+        max-height: 250px;
+      }
 #app:
 #  telegram:
 #    enabled: false   # ← этот флаг будем комментировать/раскомментировать
