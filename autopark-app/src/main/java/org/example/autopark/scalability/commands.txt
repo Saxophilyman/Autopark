@@ -1,0 +1,10 @@
+запустить докер прометеус
+docker run -d --name prom -p 9090:9090 -v "C:\Users\79020\Documents\progrExample\Autopark\Autopark\src\main\java\org\example\autopark\scalability\prometheus.yml:/etc/prometheus/prometheus.yml" prom/prometheus
+
+запустить докер графана
+docker run -d --name grafana -p 3000:3000 -e GF_SECURITY_ADMIN_USER=admin -e GF_SECURITY_ADMIN_PASSWORD=admin grafana/grafana
+
+Запуск k6 - Приложение должно быть запущено в IDE, Prometheus и Grafana — подняты.
+docker run --rm -e BASE=http://host.docker.internal:8080 -e VEH_ID=1   -v "C:\Users\79020\Documents\progrExample\Autopark\Autopark\src\main\java\org\example\autopark\scalability:/work"   -v "C:\Users\79020\Documents\progrExample\Autopark\Autopark\src\main\java\org\example\autopark\scalability\k6-out:/out"   -w /work grafana/k6 run k6-multi.js
+
+

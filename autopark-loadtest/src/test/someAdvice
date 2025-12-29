@@ -1,0 +1,2 @@
+# (опционально) побольше памяти самому лаунчеру Maven/Gatling
+$env:MAVEN_OPTS="-Xms1g -Xmx4g -XX:+UseG1GC"

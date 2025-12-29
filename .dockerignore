@@ -1,0 +1,9 @@
+.git
+**/target
+**/.idea
+**/*.iml
+**/.mvn/wrapper
+**/.DS_Store
+*.log
+*.zip
+*.rar

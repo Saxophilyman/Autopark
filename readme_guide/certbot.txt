@@ -1,0 +1,7 @@
+Команда для запуска Certbot:
+docker compose run --rm certbot certonly --webroot \
+  --webroot-path=/var/www/certbot \
+  --email ПОЧТА \
+  --agree-tos \
+  --no-eff-email \
+  -d ДОМЕН

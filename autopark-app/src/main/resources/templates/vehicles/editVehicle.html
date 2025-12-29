@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Редактирование автомобиля</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+          rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+          crossorigin="anonymous">
+</head>
+<body>
+
+<div class="container mt-4">
+    <h1 class="mb-4">Редактирование транспортного средства</h1>
+
+    <form th:action="@{/managers/enterprises/{enterpriseId}/vehicles/{id}/update(enterpriseId=${enterpriseId}, id=${vehicle.vehicleId})}"
+          method="post" th:object="${vehicle}" class="needs-validation" novalidate>
+        <input type="hidden" name="enterpriseId" th:value="${enterpriseId}"/>
+
+        <!-- Марка -->
+        <div class="mb-3">
+            <label for="brand" class="form-label">Марка:</label>
+            <select id="brand" class="form-select" th:field="*{brandOwner.brandId}" required>
+                <option value="">Выберите марку</option>
+                <option th:each="brand : ${brands}" th:value="${brand.brandId}" th:text="${brand.brandName}"></option>
+            </select>
+            <div class="invalid-feedback">Выберите марку автомобиля.</div>
+        </div>
+
+        <!-- Название -->
+        <div class="mb-3">
+            <label for="vehicleName" class="form-label">Название транспорта:</label>
+            <input type="text" th:field="*{vehicleName}" id="vehicleName" class="form-control" required/>
+            <div class="invalid-feedback">Введите название транспорта.</div>
+        </div>
+
+        <!-- Регистрационный номер -->
+        <div class="mb-3">
+            <label for="licensePlate" class="form-label">Регистрационный номер(Формат номера А123БВ):</label>
+            <input type="text" th:field="*{licensePlate}" id="licensePlate" class="form-control" required/>
+            <div class="invalid-feedback">Введите корректный номер.</div>
+        </div>
+
+        <!-- Цена -->
+        <div class="mb-3">
+            <label for="vehicleCost" class="form-label">Цена транспорта:</label>
+            <input type="number" th:field="*{vehicleCost}" id="vehicleCost" class="form-control" required min="0"/>
+            <div class="invalid-feedback">Введите корректную цену.</div>
+        </div>
+
+        <!-- Год выпуска -->
+        <div class="mb-3">
+            <label for="vehicleYearOfRelease" class="form-label">Год выпуска:</label>
+            <input type="number" th:field="*{vehicleYearOfRelease}" id="vehicleYearOfRelease" class="form-control"
+                   required min="1900" max="2025"/>
+            <div class="invalid-feedback">Введите корректный год выпуска.</div>
+        </div>
+
+        <!-- Кнопки -->
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-success">Сохранить</button>
+            <a th:href="@{/managers/enterprises/{enterpriseId}/vehicles(id=${enterpriseId})}" class="btn btn-secondary">Отмена</a>
+        </div>
+    </form>
+</div>
+
+<!-- JS для Bootstrap-валидации -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let forms = document.querySelectorAll('.needs-validation');
+
+        Array.from(forms).forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    });
+</script>
+
+</body>
+</html>

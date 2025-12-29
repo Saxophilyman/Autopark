@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <title>SSE demo</title>
+    <style>
+        body { font-family: system-ui, sans-serif; line-height: 1.4; }
+        #log { white-space: pre; font-family: ui-monospace, monospace; }
+    </style>
+</head>
+<body>
+<h1>SSE: поток событий</h1>
+
+<p>
+    <button id="demoBtn">Подключить демо-стрим</button>
+    <button id="gpsBtn">Подключить GPS-стрим</button>
+    <button id="stopBtn">Отключить</button>
+</p>
+
+<div id="status">Статус: выключено</div>
+<hr/>
+<div id="log"></div>
+
+<script>
+    let es = null;
+    const status = document.getElementById('status');
+    const log = document.getElementById('log');
+
+    function connect(url) {
+        if (es) es.close();
+        log.textContent = '';
+        status.textContent = 'Статус: подключаемся к ' + url + ' ...';
+
+        es = new EventSource(url);
+
+        es.onopen = () => {
+            status.textContent = 'Статус: подключено к ' + url;
+        };
+
+        es.onmessage = (e) => {
+            // События без имени попадают сюда
+            log.textContent += `[message] ${e.data}\n`;
+            window.scrollTo(0, document.body.scrollHeight);
+        };
+
+        es.addEventListener('tick', (e) => {
+            log.textContent += `[tick] ${e.data}\n`;
+        });
+
+        es.addEventListener('gps-point', (e) => {
+            log.textContent += `[gps-point] ${e.data}\n`;
+        });
+
+        es.onerror = (e) => {
+            status.textContent = 'Статус: ошибка/разрыв соединения';
+            // Не закрываем: браузер попробует переподключиться сам
+        };
+    }
+
+    document.getElementById('demoBtn').onclick = () =>
+        connect('/api/reactive/demo/stream');
+
+    document.getElementById('gpsBtn').onclick = () =>
+        connect('/api/reactive/gps/playback/2?ms=500&from=2025-02-01T12:00:00Z&to=2025-04-01T18:00:00Z');
+
+    document.getElementById('stopBtn').onclick = () => {
+        if (es) es.close();
+        es = null;
+        status.textContent = 'Статус: выключено';
+    };
+</script>
+</body>
+</html>

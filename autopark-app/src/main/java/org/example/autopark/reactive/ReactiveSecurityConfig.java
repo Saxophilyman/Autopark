@@ -1,0 +1,29 @@
+package org.example.autopark.reactive;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.web.server.SecurityWebFilterChain;
+
+@Profile("reactive")
+@Configuration
+@EnableWebFluxSecurity
+public class ReactiveSecurityConfig {
+
+    @Bean
+    SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
+        return http
+                .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .authorizeExchange(ex -> ex
+                        .pathMatchers("/reactive/**", "/api/reactive/**", "/actuator/**", "/sse.html").permitAll()
+                        .anyExchange().authenticated()
+                )
+                .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
+                .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
+                .build();
+    }
+}
+
+

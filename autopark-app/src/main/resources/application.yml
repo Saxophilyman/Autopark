@@ -1,0 +1,107 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/autopark
+    username: postgres
+    password: PostGre
+    hikari:
+      maximum-pool-size: 10
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.spatial.dialect.postgis.PostgisPG95Dialect
+        show_sql: false
+        format_sql: true
+        session_factory.statement_inspector: org.example.autopark.nplusone.QueryCountingInspector
+#        generate_statistics: true
+    hibernate:
+      ddl-auto: none  # Обновление схемы БД автоматически
+
+  autoconfigure:
+    exclude:
+      # Полностью гасим R2DBC-автоконфиг в обычном режиме
+      - org.springframework.boot.autoconfigure.r2dbc.R2dbcAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.r2dbc.R2dbcDataAutoConfiguration
+      - org.springframework.boot.autoconfigure.r2dbc.R2dbcTransactionManagerAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.r2dbc.R2dbcRepositoriesAutoConfiguration
+      - org.springframework.boot.devtools.autoconfigure.DevToolsR2dbcAutoConfiguration
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:}
+    properties:
+      spring.json.trusted.packages: "org.example.events,java.util,java.lang"
+    producer:
+      acks: all
+      properties:
+        enable.idempotence: true
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    admin:
+      auto-create: true
+internal:
+  api:
+    token: ${INTERNAL_API_TOKEN:dev-token}  # для /internal/** отчётов
+
+
+
+#------------------
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+
+  metrics:
+    tags:
+      application: autopark
+    distribution:
+      percentiles:
+        http.server.requests: 0.5,0.95,0.99
+      percentiles-histogram:
+        http.server.requests: true
+        hikaricp.connections.acquire: true
+      sla:
+        http.server.requests: 10ms,25ms,50ms,100ms,250ms,500ms,1s
+
+#Дополнительно (не обязательно, но полезно для аккуратной гистограммы):
+      minimum-expected-value:
+        http.server.requests: 1ms
+      maximum-expected-value:
+        http.server.requests: 5s
+
+server.compression.enabled: false  # чтобы не мерить gzip CPU
+
+
+# полезно для метрик Tomcat
+server:
+  tomcat:
+    mbeanregistry:
+      enabled: true
+
+app:
+  kafka:
+    enabled: ${APP_KAFKA_ENABLED:false}
+
+springdoc:
+  swagger-ui:
+    # если path уже есть — оставь как есть
+    # path: /swagger-ui.html
+
+    customCss: |
+      /* уменьшаем высоту редактора тела запроса */
+      .swagger-ui .opblock .opblock-body .body-param__text .ace_editor {
+        min-height: 120px;
+        max-height: 250px;
+      }
+#app:
+#  telegram:
+#    enabled: false   # ← этот флаг будем комментировать/раскомментировать
+#  demo:
+#   kafka: false # временно
+#telegram:
+#  bot:
+#    token: 7846683098:AAGq8t2Cz1ppxJSTjYc9xA2iQjtomcoUBXI
+#    username: SaxophilymanAutoparkBot

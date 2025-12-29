@@ -1,0 +1,132 @@
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: autopark-db
+    environment:
+      POSTGRES_DB: autopark
+      POSTGRES_USER: autopark
+      POSTGRES_PASSWORD: PostGre
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U autopark"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks: [app-network]
+    restart: unless-stopped
+
+  #       Отключая Kafka
+#  kafka:
+#    image: confluentinc/cp-kafka:7.6.1
+#    container_name: kafka
+#    environment:
+#      KAFKA_NODE_ID: 1
+#      KAFKA_PROCESS_ROLES: "broker,controller"
+#      KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:29092,CONTROLLER://0.0.0.0:9093"
+#      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092"
+#      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT"
+#      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+#      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+#      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
+#      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+#      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+#      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+#      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+#      CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+#      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+#    ports:
+#      - "9092:9092"
+#      - "29092:29092"
+#    networks: [app-network]
+#    restart: unless-stopped
+
+#  kafka-ui:
+#    image: provectuslabs/kafka-ui:latest
+#    container_name: kafka-ui
+#    environment:
+#      - KAFKA_CLUSTERS_0_NAME=local
+#      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
+#    ports:
+#      - "8085:8080"
+#    depends_on:
+#      - kafka
+#    networks: [app-network]
+#    restart: unless-stopped
+
+  autopark-app:
+    image: ghcr.io/saxophilyman/autopark-app:latest   # ← заменишь YOUR_OWNER
+    container_name: autopark-app
+    depends_on:
+      db:
+        condition: service_healthy
+#      kafka:       #Отключая Kafka
+#        condition: service_started
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/autopark
+      SPRING_DATASOURCE_USERNAME: autopark
+      SPRING_DATASOURCE_PASSWORD: PostGre
+#       Отключая Kafka
+#      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+#      APP_KAFKA_ENABLED: "true"
+
+      # при необходимости: JWT секреты, профили и т.п.
+      # SPRING_PROFILES_ACTIVE: prod
+    expose:
+      - "8080"
+    networks: [app-network]
+    restart: unless-stopped
+
+  #       Отключая Kafka
+#  notify-service:
+#    image: ghcr.io/saxophilyman/notify-service:latest  # ← второй образ
+#    container_name: notify-service
+#    depends_on:
+#      kafka:
+#        condition: service_started
+#      app:
+#        condition: service_started
+#    environment:
+#      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+#      AUTOPARK_BASE_URL: http://app:8080
+#
+#      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+#      TELEGRAM_BOT_USERNAME: ${TELEGRAM_BOT_USERNAME}
+#    networks: [app-network]
+#    restart: unless-stopped
+
+  nginx:
+    image: nginx:latest
+    container_name: autopark-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+      - ./nginx/logs:/var/log/nginx
+      - ./nginx/.htpasswd:/etc/nginx/.htpasswd
+    depends_on:
+      - autopark-app
+    networks: [app-network]
+    restart: unless-stopped
+
+  certbot:
+    image: certbot/certbot
+    container_name: autopark-certbot
+    command: tail -f /dev/null
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    networks: [app-network]
+    restart: unless-stopped
+
+volumes:
+  db-data:
+    external: true  # если том не создан — либо убери строку, либо создай: docker volume create db-data
+
+networks:
+  app-network:
+    driver: bridge

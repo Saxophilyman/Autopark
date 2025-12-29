@@ -1,0 +1,37 @@
+# src/main/resources/application.yml
+server:
+  port: 8082
+
+spring:
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:}
+    consumer:
+      group-id: notify-service
+      enable-auto-commit: false
+      auto-offset-reset: latest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "org.example.events,java.util,java.lang"
+
+#в последующем переведу на
+#    token: ${TELEGRAM_BOT_TOKEN}
+#    username: ${TELEGRAM_BOT_USERNAME}
+# пока он и так светится в комментариях
+telegram:
+  bot:
+    enabled: true
+    token: "7846683098:AAHjq8qiI3Qwn5ZjGpiEAf2HT9zFEHjilso"
+    username: "SaxophilymanAutoparkBot"
+
+autopark:
+  base-url: http://localhost:8080
+#  cd C:\Users\79020\Documents\progrExample\Autopark\Autopark\autopark-app
+#  $env:SPRING_KAFKA_BOOTSTRAP_SERVERS="localhost:29092"
+#  mvn -DskipTests spring-boot:run
+
+#  cd C:\Users\79020\Documents\progrExample\Autopark\Autopark\notify-service
+#  $env:SPRING_KAFKA_BOOTSTRAP_SERVERS="localhost:29092"
+#  $env:TELEGRAM_BOT_TOKEN="7846683098:AAHjq8qiI3Qwn5ZjGpiEAf2HT9zFEHjilso"
+#  $env:TELEGRAM_BOT_USERNAME="SaxophilymanAutoparkBot"
+#  mvn -DskipTests spring-boot:run
