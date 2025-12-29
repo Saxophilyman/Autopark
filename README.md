@@ -3,21 +3,21 @@
 **О проекте и технологиях**
  
 Данный проект был создан в процессе обучения основным технологиям программной разработки и включает в себя применение таких инструментов как
-Spring Framework(Spring boot, Security, MVC, JPA, Hibernate),
-SQL(Postgres+H2), 
-REST, cURL 
-Docker, Kafka,
-Reactive, Webflux,
-Micrometer, Prometheus, Grafana, 	
-Assets, 
-telegramm bot,
-OpenRoute,
-Junit5, Testcontainers, Playwright,
-Swagger,
-Git,
-Lombok, 
-CI/CD,
-Thymeleaf, HTML, Bootstrap, JS, CSS.
+Spring Framework(Spring boot, Security, MVC, JPA, Hibernate),  
+SQL(Postgres+H2),   
+REST, cURL,  
+Docker, Kafka, 
+Reactive, Webflux,  
+Micrometer, Prometheus, Grafana,   	
+Assets,  
+telegramm bot,  
+OpenRoute,  
+Junit5, Testcontainers, Playwright,  
+Swagger,  
+Git,  
+Lombok,   
+CI/CD,  
+Thymeleaf, HTML, Bootstrap, JS, CSS.  
 
 Инструмент  разработки - IntelliJ IDEA
 Сборка осуществляется Maven.
