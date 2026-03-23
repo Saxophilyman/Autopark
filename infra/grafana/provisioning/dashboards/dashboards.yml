@@ -1,0 +1,14 @@
+#  infra/grafana/provisioning/dashboards/dashboards.yml
+
+apiVersion: 1
+
+providers:
+  - name: "Autopark"
+    orgId: 1
+    folder: "Autopark"
+    type: file
+    disableDeletion: true
+    editable: false
+    updateIntervalSeconds: 10
+    options:
+      path: /var/lib/grafana/dashboards

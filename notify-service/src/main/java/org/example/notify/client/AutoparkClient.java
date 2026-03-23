@@ -1,21 +1,30 @@
 package org.example.notify.client;
 
-import lombok.RequiredArgsConstructor;
 import org.example.notify.model.VehicleBriefDto;
 import org.example.notify.model.VehiclesSummaryDto;
+import org.example.notify.telegram.report.ReportPeriod;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 
 @Component
-@RequiredArgsConstructor
 public class AutoparkClient {
 
     private final RestClient rest;
+
+    @Value("${internal.api.token:dev-token}")
+    private String internalToken;
+
+    public AutoparkClient(@Qualifier("autoparkRestClient") RestClient rest) {
+        this.rest = rest;
+    }
 
     public VehiclesSummaryDto getVehiclesSummary(Long managerId) {
         return rest.get()
@@ -37,29 +46,17 @@ public class AutoparkClient {
         }
     }
 
-    public String mileageReport(String plate, String from, String to, String period) {
+    public String mileageReport(Long managerId, String plate, LocalDate from, LocalDate to, ReportPeriod period) {
         return rest.get()
                 .uri(uri -> uri.path("/internal/tg/report/mileage")
+                        .queryParam("managerId", managerId)
                         .queryParam("licensePlate", plate)
-                        .queryParam("from", from)
-                        .queryParam("to", to)
-                        .queryParam("period", period)
+                        .queryParam("from", from.toString())
+                        .queryParam("to", to.toString())
+                        .queryParam("period", period.name())
                         .build())
                 .retrieve()
                 .body(String.class);
-    }
-
-    public Optional<VehicleBriefDto> getVehicleBrief(UUID vehicleGuid) {
-        try {
-            var dto = rest.get()
-                    .uri("/api/notify/lookup/vehicle-brief?vehicleGuid={id}", vehicleGuid)
-                    .accept(MediaType.APPLICATION_JSON)
-                    .retrieve()
-                    .body(VehicleBriefDto.class);
-            return Optional.ofNullable(dto);
-        } catch (HttpClientErrorException.NotFound ex) {
-            return Optional.empty();
-        }
     }
 
     public Optional<VehicleBriefDto> lookupVehicleBrief(UUID vehicleGuid) {

@@ -1,0 +1,15 @@
+#  infra/grafana/provisioning/alerting/contact-points.yml
+
+apiVersion: 1
+
+contactPoints:
+  - orgId: 1
+    name: notify-service
+    receivers:
+      - uid: notify_service_webhook
+        type: webhook
+        settings:
+          url: http://host.docker.internal:8082/api/notify/grafana
+          httpMethod: POST
+          headers:
+            X-Internal-Token: dev-token

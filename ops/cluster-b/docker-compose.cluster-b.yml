@@ -1,0 +1,131 @@
+name: autopark-cluster-b
+
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_DB: ${DB_NAME:-autopark}
+      POSTGRES_USER: ${DB_USER:-autopark}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-PostGre}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-autopark} -d ${DB_NAME:-autopark}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    networks: [app-network]
+    restart: unless-stopped
+
+  autopark-app:
+    build:
+      context: ../..              # корень репозитория
+      dockerfile: Dockerfile      # корневой Dockerfile (autopark-app)
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      TZ: UTC
+
+      SPRING_PROFILES_ACTIVE: ${AUTOPARK_PROFILE:-cluster-b}
+
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${DB_NAME:-autopark}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER:-autopark}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-PostGre}
+
+      # если Liquibase уже есть — накатываем схему на пустую БД
+      SPRING_LIQUIBASE_ENABLED: "true"
+
+      # метрики для Prometheus
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,info,prometheus
+      MANAGEMENT_ENDPOINT_PROMETHEUS_ENABLED: "true"
+    ports:
+      - "${AUTOPARK_PORT:-8080}:8080"
+    networks: [app-network]
+    restart: unless-stopped
+
+  notify-service:
+    build:
+      context: ../..
+      dockerfile: Dockerfile.notify
+    depends_on:
+      autopark-app:
+        condition: service_started
+    environment:
+      TZ: UTC
+
+      AUTOPARK_BASE_URL: http://autopark-app:8080
+      INTERNAL_API_TOKEN: ${INTERNAL_API_TOKEN:-dev-token}
+
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_BOT_USERNAME: ${TELEGRAM_BOT_USERNAME:-}
+      TELEGRAM_ALERT_CHAT_ID: ${TELEGRAM_ALERT_CHAT_ID:-0}
+
+      APP_KAFKA_ENABLED: "false"
+
+      NOTIFY_FEATURE_GRAFANA_WEBHOOK_ENABLED: "true"
+      NOTIFY_FEATURE_AUTH_SESSIONS_ENABLED: "false"
+      NOTIFY_FEATURE_VEHICLE_EVENTS_ENABLED: "false"
+      NOTIFY_FEATURE_REPORTS_ENABLED: "false"
+
+      # метрики (если есть actuator)
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,info,prometheus
+      MANAGEMENT_ENDPOINT_PROMETHEUS_ENABLED: "true"
+    ports:
+      - "${NOTIFY_PORT:-8082}:8082"
+    networks: [app-network]
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v2.53.1
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    networks: [app-network]
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana-oss:11.2.2
+    depends_on:
+      prometheus:
+        condition: service_started
+    environment:
+      TZ: UTC
+
+      GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+
+      # unified alerting обычно включён по умолчанию в новых версиях,
+      # но оставим явным флагом как в твоём compose.monitoring
+      GF_UNIFIED_ALERTING_ENABLED: "true"
+
+      # env для provisioning contact point
+      INTERNAL_API_TOKEN: ${INTERNAL_API_TOKEN:-dev-token}
+      GRAFANA_WEBHOOK_URL: ${GRAFANA_WEBHOOK_URL:-http://notify-service:8082/api/grafana/webhook}
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    networks: [app-network]
+    restart: unless-stopped
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  # ВАЖНО: без external:true, чтобы “скачал и запустил”.
+  # Нюанс учтён: имя тома фиксируем через name, чтобы оно было стабильным между запусками/папками.
+  db-data:
+    name: ${DB_VOLUME_NAME:-autopark-b-db-data}
+
+  grafana-data:
+    name: ${GRAFANA_VOLUME_NAME:-autopark-b-grafana-data}

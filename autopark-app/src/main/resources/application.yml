@@ -41,8 +41,18 @@ internal:
   api:
     token: ${INTERNAL_API_TOKEN:dev-token}  # для /internal/** отчётов
 
-
-
+monitoring:
+  enabled: false
+  check-interval-ms: 10000   # 60 секунд, можно потом вынести в профиль
+  sql:
+    errors-per-interval-threshold: 1
+  latency:
+    p95-threshold-seconds: 0.5 #стоит увеличить, но для теста сейчас подойдёт
+  http-client:
+    errors4xx-per-interval-threshold: 1
+    errors5xx-per-interval-threshold: 1
+notify:
+  base-url: http://localhost:8082
 #------------------
 
 management:
@@ -75,6 +85,7 @@ management:
 server.compression.enabled: false  # чтобы не мерить gzip CPU
 
 
+
 # полезно для метрик Tomcat
 server:
   tomcat:
@@ -96,6 +107,8 @@ springdoc:
         min-height: 120px;
         max-height: 250px;
       }
+      
+
 #app:
 #  telegram:
 #    enabled: false   # ← этот флаг будем комментировать/раскомментировать

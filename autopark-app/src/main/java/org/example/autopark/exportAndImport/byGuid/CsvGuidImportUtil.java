@@ -25,50 +25,8 @@ public class CsvGuidImportUtil {
     private final ImportServiceByGuid importServiceByGuid;
 
     public void importFromCsvGuid(InputStream inputStream) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-        String line;
-        VehicleExportDtoByGuid dto = new VehicleExportDtoByGuid();
-        List<TripGuidExportDto> trips = new ArrayList<>();
-
-        boolean readingTrips = false;
-
-        while ((line = reader.readLine()) != null) {
-            if (line.trim().isEmpty()) continue;
-
-            if (line.startsWith("Enterprise GUID")) {
-                // читаем строку данных по предприятию + машине
-                line = reader.readLine();
-                String[] parts = line.split(";");
-                dto.setEnterprise(new VehicleExportDtoByGuid.EnterpriseShortDTOByGuid(
-                        UUID.fromString(parts[0]), // Enterprise GUID
-                        parts[1],                  // Name
-                        parts[2],                  // City
-                        parts[3]                   // TimeZone
-                ));
-                dto.setVehicle(new VehicleExportDtoByGuid.VehicleShortDTOByGuid(
-                        UUID.fromString(parts[4]), // Vehicle GUID
-                        parts[5],                  // Vehicle Name
-                        parts[6],                  // LicensePlate
-                        Integer.parseInt(parts[7]),// Cost
-                        Integer.parseInt(parts[8]),// Year
-                        parts[9]                   // Brand
-                ));
-            } else if (line.startsWith("Trip GUID")) {
-                readingTrips = true;
-            } else if (readingTrips) {
-                String[] parts = line.split(";");
-                TripGuidExportDto trip = new TripGuidExportDto();
-                trip.setGuid(UUID.fromString(parts[0]));
-                trip.setStartTime(LocalDateTime.parse(parts[1]));
-                trip.setEndTime(LocalDateTime.parse(parts[2]));
-                trip.setStartLocationInString(parts[3]);
-                trip.setEndLocationInString(parts[4]);
-                trip.setDuration(parts[5]);
-                trips.add(trip);
-            }
-        }
-
-        dto.setTrips(trips);
+        VehicleExportDtoByGuid dto = CsvVehicleDtoByGuidParser.parse(inputStream);
         importServiceByGuid.importFromDtoByGuid(dto);
     }
+
 }
