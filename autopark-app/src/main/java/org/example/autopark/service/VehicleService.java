@@ -292,5 +292,3 @@ public class VehicleService {
         return vehicleRepository.findByLicensePlateContainingIgnoreCase(query);
     }
 }
-
-
