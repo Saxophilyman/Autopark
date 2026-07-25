@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.autopark.customAnnotation.currentManagerId.CurrentManagerId;
 import org.example.autopark.exportAndImport.byGuid.CsvGuidExportUtil;
 import org.example.autopark.exportAndImport.byGuid.guidDto.VehicleExportDtoByGuid;
@@ -19,7 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.UUID;
-
+@Slf4j
 @RestController
 @Profile("!reactive")
 @RequestMapping("api/managers")
@@ -33,9 +34,7 @@ public class ExportAndImportControllers {
     private final ExportAndImportService exportAndImportService;
     private final ObjectMapper objectMapper;
 
-    // ─────────────────────────────────────────────────────────────────────
     // EXPORT BY ID
-    // ─────────────────────────────────────────────────────────────────────
     @GetMapping("/export/vehicle/{vehicleId}")
     @Operation(
             summary = "Экспорт данных по ТС (по ID)",
@@ -62,15 +61,12 @@ public class ExportAndImportControllers {
 
             HttpServletResponse response
     ) throws Exception {
-        //очень просто метод превращается в 3 строчки
         VehicleExportDtoById dto = exportAndImportService.exportDataById(vehicleId, fromDate, toDate);
         DataFormat dataFormat = DataFormat.fromRequestParam(format);
         writeVehicleByIdResponse(dto, vehicleId, dataFormat, response);
     }
 
-    // ─────────────────────────────────────────────────────────────────────
     // IMPORT BY ID
-    // ─────────────────────────────────────────────────────────────────────
     @PostMapping("/import")
     @Operation(
             summary = "Импорт данных по ТС (по ID)",
@@ -89,14 +85,12 @@ public class ExportAndImportControllers {
             importVehicleById(file);
             return "Файл успешно импортирован!";
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Ошибка импорта данных по ТС по ID", e);
             return "Ошибка импорта: " + e.getMessage();
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────
     // EXPORT BY GUID (файл JSON/CSV)
-    // ─────────────────────────────────────────────────────────────────────
     @GetMapping("/export-guid/vehicle/{guid}")
     @Operation(
             summary = "Экспорт данных по ТС (по GUID)",
@@ -134,9 +128,7 @@ public class ExportAndImportControllers {
         writeVehicleByGuidResponse(dto, guid, dataFormat, response);
     }
 
-    // ─────────────────────────────────────────────────────────────────────
     // IMPORT BY GUID
-    // ─────────────────────────────────────────────────────────────────────
     @PostMapping("/import-guid")
     @Operation(
             summary = "Импорт данных по ТС (по GUID)",
@@ -155,14 +147,12 @@ public class ExportAndImportControllers {
             importVehicleByGuid(file);
             return "Файл успешно импортирован!";
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Ошибка импорта данных по ТС по GUID", e);
             return "Ошибка импорта: " + e.getMessage();
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────
     // EXPORT BY GUID (чистый JSON-ответ, удобно для UI-просмотра)
-    // ─────────────────────────────────────────────────────────────────────
     @GetMapping("/export-guid/json")
     @Operation(
             summary = "Экспорт по GUID (JSON-ответ)",
@@ -207,14 +197,15 @@ public class ExportAndImportControllers {
         DataFormat dataFormat = DataFormat.fromFilename(file.getOriginalFilename());
 
         switch (dataFormat) {
-            case JSON -> {VehicleExportDtoByGuid dto = objectMapper.readValue(file.getInputStream(), VehicleExportDtoByGuid.class);
-            exportAndImportService.importFromDtoByGuid(dto);
+            case JSON -> {
+                VehicleExportDtoByGuid dto = objectMapper.readValue(file.getInputStream(), VehicleExportDtoByGuid.class);
+                exportAndImportService.importFromDtoByGuid(dto);
             }
             case CSV -> exportAndImportService.importFromCsvGuid(file.getInputStream());
         }
     }
 
-    private void writeVehicleByIdResponse(VehicleExportDtoById dto, long vehicleId,
+    private void writeVehicleByIdResponse(VehicleExportDtoById dto, Long vehicleId,
                                           DataFormat dataFormat, HttpServletResponse response) throws IOException {
         String baseFilename = "vehicle_" + vehicleId;
         prepareDownloadResponse(response, baseFilename, dataFormat);
@@ -237,7 +228,7 @@ public class ExportAndImportControllers {
     }
 
 
-    private void prepareDownloadResponse(HttpServletResponse response, String baseFilename, DataFormat dataFormat) throws IOException {
+    private void prepareDownloadResponse(HttpServletResponse response, String baseFilename, DataFormat dataFormat) {
         response.setContentType(dataFormat.getContentType());
         response.setHeader("Content-Disposition", "attachment; filename=" + baseFilename + "." + dataFormat.getExtension());
     }
