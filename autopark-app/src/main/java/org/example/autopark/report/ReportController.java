@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 import org.example.autopark.customAnnotation.currentManagerId.CurrentManagerId;
 import org.example.autopark.entity.Enterprise;
 import org.example.autopark.entity.Vehicle;
@@ -26,26 +27,15 @@ import java.util.List;
 
 @Controller
 @Profile("!reactive")
+@RequiredArgsConstructor
 @Tag(
         name = "Reports (Manager API)",
         description = "Отчёты по пробегу автомобилей менеджера"
 )
 public class ReportController {
 
-    private final ReportService reportService;
+    private final VehicleMileageReportService vehicleMileageReportService;
     private final VehicleService vehicleService;
-    private final EnterpriseRepository enterpriseRepository;
-    private final EnterpriseService enterpriseService;
-
-    public ReportController(ReportService reportService,
-                            VehicleService vehicleService,
-                            EnterpriseRepository enterpriseRepository,
-                            EnterpriseService enterpriseService) {
-        this.reportService = reportService;
-        this.vehicleService = vehicleService;
-        this.enterpriseRepository = enterpriseRepository;
-        this.enterpriseService = enterpriseService;
-    }
 
     // ─────────────────────────────────────────────────────────────────────
     // UI: выбор типа отчёта
@@ -92,7 +82,7 @@ public class ReportController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "ТС с номером " + licensePlate + " не найдено");
         }
 
-        ModelReport report = buildVehicleMileageReport(managerId, vehicle, fromDate, toDate, period);
+        ModelReport report = vehicleMileageReportService.buildMileageReportForManager(managerId, vehicle, fromDate, toDate, period);
 
         session.setAttribute("report", report);
         session.setAttribute("vehicle", vehicle);
@@ -160,14 +150,8 @@ public class ReportController {
             )
             @RequestParam("period") String period
     ) {
-
         Vehicle vehicle = vehicleService.findOne(vehicleId);
-        if (vehicle == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Транспортное средство не найдено");
-        }
-
-        ModelReport report = buildVehicleMileageReport(managerId, vehicle, fromDate, toDate, period);
-
+        ModelReport report = vehicleMileageReportService.buildMileageReportForManager(managerId, vehicle, fromDate, toDate, period);
         return ResponseEntity.ok(report);
     }
 
@@ -196,44 +180,4 @@ public class ReportController {
                 .distinct()
                 .toList();
     }
-
-    private ModelReport buildVehicleMileageReport(Long managerId,
-                                                  Vehicle vehicle,
-                                                  String fromDate,
-                                                  String toDate,
-                                                  String period) {
-        Enterprise enterprise = vehicle.getEnterpriseOwnerOfVehicle();
-        if (enterprise == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Транспортное средство не привязано к предприятию");
-        }
-
-        if (!enterpriseService.managerHasEnterprise(managerId, enterprise.getEnterpriseId())) {
-            throw new AccessDeniedException("У вас нет доступа к этому предприятию!");
-        }
-
-        LocalDate startDate;
-        LocalDate endDate;
-        if ("MONTH".equals(period)) {
-            startDate = LocalDate.parse(fromDate + "-01");
-            endDate = LocalDate.parse(toDate + "-01")
-                    .withDayOfMonth(1)
-                    .plusMonths(1)
-                    .minusDays(1);
-        } else {
-            startDate = LocalDate.parse(fromDate);
-            endDate = LocalDate.parse(toDate);
-        }
-
-        if (startDate.isAfter(endDate)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Начальная дата не может быть позже конечной");
-        }
-
-        return reportService.generateMileageReport(
-                vehicle.getVehicleId(),
-                startDate,
-                endDate,
-                PeriodType.valueOf(period.toUpperCase())
-        );
-    }
-
 }

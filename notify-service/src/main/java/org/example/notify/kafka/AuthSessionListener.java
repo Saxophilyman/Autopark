@@ -4,12 +4,20 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.events.AuthSessionEvent;
 import org.example.notify.session.SessionStore;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@ConditionalOnProperty(
+        name = {
+                "app.kafka.enabled",
+                "notify.features.auth-sessions.enabled"
+        },
+        havingValue = "true"
+)
 public class AuthSessionListener {
 
     private final SessionStore sessions;

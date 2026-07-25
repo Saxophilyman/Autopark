@@ -1,0 +1,202 @@
+#  infra/grafana/provisioning/alerting/alert-rules.yml
+apiVersion: 1
+
+groups:
+  - orgId: 1
+    name: autopark-main
+    folder: Autopark
+    interval: 1m
+
+    rules:
+      # 1) SQL errors (critical) — любая ошибка за 5 минут (для теста)
+      - uid: autopark-sql-errors
+        title: autopark-sql-errors
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              editorMode: code
+              expr: increase(autopark_sql_errors_total{job="autopark-app"}[5m])
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              datasource: { type: __expr__, uid: __expr__ }
+              type: threshold
+              expression: A
+              refId: C
+              conditions:
+                - type: query
+                  reducer: { type: last, params: [] }
+                  evaluator: { type: gt, params: [0] }
+                  operator: { type: and }
+                  query: { params: [C] }
+        for: 0m
+        noDataState: OK
+        execErrState: Alerting
+        isPaused: false
+        notification_settings: { receiver: notify-service }
+        missing_series_evals_to_resolve: 1
+        labels:
+          system: autopark
+          type: SQL_ERRORS
+          severity: critical
+        annotations:
+          summary: "Мониторинг Autopark: SQL_ERRORS"
+          window: "5m"
+          threshold: "ошибки > 0"
+          value: "{{ $values.A }}"
+          description: "За последние 5 минут были SQL-ошибки."
+
+      # 2) p95 latency (critical) > 0.5s
+      - uid: autopark-high-latency-p95
+        title: autopark-high-latency-p95
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              editorMode: code
+              expr: >
+                histogram_quantile(0.95,
+                  sum(rate(http_server_requests_seconds_bucket{job="autopark-app"}[5m])) by (le)
+                )
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              datasource: { type: __expr__, uid: __expr__ }
+              type: threshold
+              expression: A
+              refId: C
+              conditions:
+                - type: query
+                  reducer: { type: last, params: [] }
+                  evaluator: { type: gt, params: [0.5] }
+                  operator: { type: and }
+                  query: { params: [C] }
+        for: 1m
+        noDataState: OK
+        execErrState: Alerting
+        isPaused: false
+        notification_settings: { receiver: notify-service }
+        missing_series_evals_to_resolve: 1
+        labels:
+          system: autopark
+          type: LATENCY_P95
+          severity: critical
+        annotations:
+          summary: "Мониторинг Autopark: LATENCY_P95"
+          window: "5m"
+          threshold: "p95 > 0.5s"
+          value: "{{ $values.A }}s"
+          description: "P95 задержки ответа превышает порог."
+
+      # 3) 5xx rate (critical) > 5%
+      - uid: autopark-high-5xx-rate
+        title: autopark-high-5xx-rate
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              editorMode: code
+              expr: >
+                (
+                  sum(rate(http_server_requests_seconds_count{job="autopark-app",status=~"5.."}[5m]))
+                  /
+                  clamp_min(sum(rate(http_server_requests_seconds_count{job="autopark-app"}[5m])), 0.000001)
+                ) * 100
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              datasource: { type: __expr__, uid: __expr__ }
+              type: threshold
+              expression: A
+              refId: C
+              conditions:
+                - type: query
+                  reducer: { type: last, params: [] }
+                  evaluator: { type: gt, params: [5] }
+                  operator: { type: and }
+                  query: { params: [C] }
+        for: 1m
+        noDataState: OK
+        execErrState: Alerting
+        isPaused: false
+        notification_settings: { receiver: notify-service }
+        missing_series_evals_to_resolve: 1
+        labels:
+          system: autopark
+          type: HTTP_5XX_RATE
+          severity: critical
+        annotations:
+          summary: "Мониторинг Autopark: HTTP_5XX_RATE"
+          window: "5m"
+          threshold: "5xx > 5%"
+          value: "{{ $values.A }}%"
+          description: "Доля ответов 5xx за 5 минут выше порога."
+
+      # 4) 4xx rate (warning) > 5%
+      - uid: autopark-high-4xx-rate
+        title: autopark-high-4xx-rate
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              editorMode: code
+              expr: >
+                (
+                  sum(rate(http_server_requests_seconds_count{job="autopark-app",status=~"4.."}[5m]))
+                  /
+                  clamp_min(sum(rate(http_server_requests_seconds_count{job="autopark-app"}[5m])), 0.000001)
+                ) * 100
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              datasource: { type: __expr__, uid: __expr__ }
+              type: threshold
+              expression: A
+              refId: C
+              conditions:
+                - type: query
+                  reducer: { type: last, params: [] }
+                  evaluator: { type: gt, params: [5] }
+                  operator: { type: and }
+                  query: { params: [C] }
+        for: 1m
+        noDataState: OK
+        execErrState: Alerting
+        isPaused: false
+        notification_settings: { receiver: notify-service }
+        missing_series_evals_to_resolve: 1
+        labels:
+          system: autopark
+          type: HTTP_4XX_RATE
+          severity: warning
+        annotations:
+          summary: "Мониторинг Autopark: HTTP_4XX_RATE"
+          window: "5m"
+          threshold: "4xx > 5%"
+          value: "{{ $values.A }}%"
+          description: "Доля ответов 4xx за 5 минут выше порога."

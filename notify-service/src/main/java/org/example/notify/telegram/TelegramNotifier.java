@@ -7,23 +7,16 @@ import org.example.events.VehicleEvent;
 import org.example.notify.client.AutoparkClient;
 import org.example.notify.model.VehicleBriefDto;
 import org.example.notify.session.SessionStore;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
 import java.util.Optional;
 
 @Component
-@ConditionalOnProperty(
-        value = "telegram.bot.enabled",
-        havingValue = "true",
-        matchIfMissing = true
-)
 @RequiredArgsConstructor
 @Slf4j
 public class TelegramNotifier {
 
-    private final TelegramUpdateHandler bot;
+    private final TelegramSender telegramSender;
     private final SessionStore sessions;
     private final AutoparkClient http;
 
@@ -60,7 +53,7 @@ public class TelegramNotifier {
 
     public void send(long chatId, String text) {
         try {
-            bot.execute(new SendMessage(Long.toString(chatId), text));
+            telegramSender.send(chatId, text);
         } catch (Exception e) {
             log.warn("Failed to send TG message", e);
         }

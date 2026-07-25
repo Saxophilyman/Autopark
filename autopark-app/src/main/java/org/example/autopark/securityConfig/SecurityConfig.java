@@ -43,6 +43,7 @@ public class SecurityConfig {
                 .ignoringRequestMatchers(
                         "/dev/**",
                         "/internal/tg/**",
+                        "/api/notify/grafana",
                         "/api/notify/lookup/**",
                         "/auth/api/**",
                         "/auth/login",      // ← игнорим CSRF для dev
@@ -59,7 +60,7 @@ public class SecurityConfig {
                                 "/favicon.ico", "/css/**", "/js/**",
                                 "/swagger-ui/**", "/v3/api-docs/**",
                                 "/api/reactivemvc/**", "/demo/**", "/rps/**",
-                                "/actuator/*, /h2-console/**").permitAll()
+                                "/actuator/**", "/h2-console/**").permitAll()
                         .requestMatchers("/api/managers/**", "/api/generate/**", "/managers/**").hasRole("MANAGER")
                         .requestMatchers("/api/users/**").hasRole("USER")
                         // Все остальные запросы требуют аутентификации

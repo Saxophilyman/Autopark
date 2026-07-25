@@ -1,0 +1,15 @@
+1. Где-то в коде ты принимается решение «надо сгенерировать событие мониторинга»:
+2. MonitoringDomainEventHandler с @TransactionalEventListener(AFTER_COMMIT):
+ - ловит это доменное событие,
+ - маппит его во внешний MonitoringEvent,
+ - передаёт в MonitoringEventPublisher.
+3. MonitoringEventPublisher:
+ - использует KafkaTemplate<String, MonitoringEvent> monitoringEventKafkaTemplate,
+ - вызывает kafka.send("monitoring.alerts", key, evt),
+ - сообщение улетает в Kafka.
+
+ То есть:
+ MonitoringDomainEvent — внутреннее доменное событие;
+ MonitoringEvent — контракт в модуле autopark-events, который уходит наружу;
+ MonitoringEventPublisher — обёртка над KafkaTemplate, которая физически шлёт в Kafka;
+ связь между доменным и внешним событием — через MonitoringDomainEventHandler.

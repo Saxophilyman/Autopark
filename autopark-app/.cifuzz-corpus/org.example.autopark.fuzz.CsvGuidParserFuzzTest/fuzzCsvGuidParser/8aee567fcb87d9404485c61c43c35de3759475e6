@@ -1,0 +1,4 @@
+Enterprise GUID;Enterprise Name;City;TimeZone;Vehicle GUID;Vehicle Name;LicensePlate;Cost;Year;Brand
+00000000-0000-0000-0000-000001;E1;Oslo;Europe/Oslo;00040000-000-0000-0000-0000000001;V1;23BC;100;2020;CCity
+Trip GUID;Trip Start;Trip End;Start Location;End Location;Duration
+0000-0-0000-0000-0000003;2205-01-01T10:00:00;2025-01-01T10:00;A;B;PT1Š0M

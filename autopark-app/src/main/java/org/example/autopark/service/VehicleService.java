@@ -1,6 +1,6 @@
 package org.example.autopark.service;
 
-import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.autopark.dto.VehicleApiDto;
 import org.example.autopark.dto.mapper.VehicleMapper;
@@ -13,11 +13,9 @@ import org.example.autopark.exception.VehicleNotFoundException;
 import org.example.autopark.repository.DriverRepository;
 import org.example.autopark.repository.VehicleRepository;
 import org.example.autopark.specifications.VehicleSpecification;
-import org.example.autopark.kafka.VehicleDomainEvent;           // ⬅ добавлено
-import org.geolatte.geom.V;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.example.autopark.kafka.VehicleDomainEvent;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.ApplicationEventPublisher;      // ⬅ добавлено
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -37,6 +35,7 @@ import static org.example.autopark.security.SecurityUtil.getAuthenticatedManager
 @Service
 @Slf4j
 @Profile("!reactive")
+@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class VehicleService {
 
@@ -45,23 +44,7 @@ public class VehicleService {
     private final EnterpriseService enterpriseService;
     private final DriverRepository driverRepository;
     private final VehicleMapper vehicleMapper;
-
-    private final ApplicationEventPublisher events;            // ⬅ добавлено
-
-    @Autowired
-    public VehicleService(VehicleRepository vehicleRepository,
-                          BrandsService brandService,
-                          EnterpriseService enterpriseService,
-                          DriverRepository driverRepository,
-                          VehicleMapper vehicleMapper,
-                          ApplicationEventPublisher events) {  // ⬅ добавлено
-        this.vehicleRepository = vehicleRepository;
-        this.brandService = brandService;
-        this.enterpriseService = enterpriseService;
-        this.driverRepository = driverRepository;
-        this.vehicleMapper = vehicleMapper;
-        this.events = events;                                   // ⬅ добавлено
-    }
+    private final ApplicationEventPublisher events;
 
     public List<Vehicle> findAll() {
         return vehicleRepository.findAll();
@@ -70,120 +53,34 @@ public class VehicleService {
     @Cacheable(value = "vehicles", key = "#id")
     public Vehicle findOne(Long id) {
         log.info("Поиск автомобиля по id: {}", id);
-        Optional<Vehicle> foundVehicle = vehicleRepository.findById(id);
-        return foundVehicle.orElseThrow(()->new VehicleNotFoundException(id));
+        return vehicleRepository.findById(id)
+                .orElseThrow(() -> new VehicleNotFoundException(id));
     }
 
     // --------- CREATE ---------
 
     @Transactional
     public void save(Vehicle vehicle, Long brandId) {
-        if (vehicleRepository.existsByLicensePlate(vehicle.getLicensePlate())) {
-            throw new VehicleNotCreatedException("Номер уже используется: " + vehicle.getLicensePlate());
-        }
+        validateLicensePlateForCreate(vehicle.getLicensePlate());
         vehicle.setBrandOwner(brandService.findOne(brandId));
-        Vehicle saved = vehicleRepository.save(vehicle);
-
-        // публикация доменного события после коммита
-        publishDomainEvent(saved, VehicleDomainEvent.Action.CREATED, getAuthenticatedManagerIdOrNull());
+        saveAndPublish(vehicle, VehicleDomainEvent.Action.CREATED);
     }
 
     @Transactional
     public void save(Vehicle vehicle) {
-        if (vehicleRepository.existsByLicensePlate(vehicle.getLicensePlate())) {
-            throw new VehicleNotCreatedException("Номер уже используется: " + vehicle.getLicensePlate());
-        }
-        Vehicle saved = vehicleRepository.save(vehicle);
-        publishDomainEvent(saved, VehicleDomainEvent.Action.CREATED, getAuthenticatedManagerIdOrNull());
+        validateLicensePlateForCreate(vehicle.getLicensePlate());
+        saveAndPublish(vehicle, VehicleDomainEvent.Action.CREATED);
     }
 
     @Transactional
     public void saveAll(List<Vehicle> vehicles) {
-        List<Vehicle> saved = vehicleRepository.saveAll(vehicles);
-        // при массовом сохранении отправим события по каждому авто
-        for (Vehicle v : saved) {
-            publishDomainEvent(v, VehicleDomainEvent.Action.CREATED, getAuthenticatedManagerIdOrNull());
+        List<Vehicle> savedVehicles = vehicleRepository.saveAll(vehicles);
+        for (Vehicle vehicle : savedVehicles) {
+            publishDomainEvent(vehicle, VehicleDomainEvent.Action.CREATED, getAuthenticatedManagerIdOrNull());
         }
     }
 
     // --------- UPDATE ---------
-
-    @Transactional
-    public void update(Long id, Vehicle updatedVehicle, Long updatedBrandId) {
-        Vehicle existing = vehicleRepository.findById(id)
-                .orElseThrow(() -> new VehicleNotFoundException(id));
-
-        // проверка уникальности номера
-        String newPlate = updatedVehicle.getLicensePlate();
-        if (newPlate != null
-                && !newPlate.equals(existing.getLicensePlate())
-                && vehicleRepository.existsByLicensePlateAndVehicleIdNot(newPlate, id)) {
-            throw new VehicleNotCreatedException("Номер уже используется: " + newPlate);
-        }
-
-        // обновляем только редактируемые поля
-        if (updatedVehicle.getVehicleName() != null) {
-            existing.setVehicleName(updatedVehicle.getVehicleName());
-        }
-        if (newPlate != null) {
-            existing.setLicensePlate(newPlate);
-        }
-        existing.setVehicleCost(updatedVehicle.getVehicleCost());
-        existing.setVehicleYearOfRelease(updatedVehicle.getVehicleYearOfRelease());
-
-        // НЕ затираем дату, если из формы пришёл null
-        if (updatedVehicle.getPurchaseDateUtc() != null) {
-            existing.setPurchaseDateUtc(updatedVehicle.getPurchaseDateUtc());
-        }
-
-        // бренд реально меняется — его всегда берём из параметра
-        existing.setBrandOwner(brandService.findOne(updatedBrandId));
-
-        Vehicle saved = vehicleRepository.save(existing);
-        publishDomainEvent(saved, VehicleDomainEvent.Action.UPDATED, getAuthenticatedManagerIdOrNull());
-    }
-
-    @Transactional
-    public void update(Long id, Vehicle updatedVehicle, Long updatedBrandId, Long enterpriseId) {
-        Vehicle existing = vehicleRepository.findById(id)
-                .orElseThrow(() -> new VehicleNotFoundException(id));
-
-        String newPlate = updatedVehicle.getLicensePlate();
-        if (newPlate != null
-                && !newPlate.equals(existing.getLicensePlate())
-                && vehicleRepository.existsByLicensePlateAndVehicleIdNot(newPlate, id)) {
-            throw new VehicleNotCreatedException("Номер уже используется: " + newPlate);
-        }
-
-        if (updatedVehicle.getVehicleName() != null) {
-            existing.setVehicleName(updatedVehicle.getVehicleName());
-        }
-        if (newPlate != null) {
-            existing.setLicensePlate(newPlate);
-        }
-        existing.setVehicleCost(updatedVehicle.getVehicleCost());
-        existing.setVehicleYearOfRelease(updatedVehicle.getVehicleYearOfRelease());
-
-        if (updatedVehicle.getPurchaseDateUtc() != null) {
-            existing.setPurchaseDateUtc(updatedVehicle.getPurchaseDateUtc());
-        }
-
-        existing.setBrandOwner(brandService.findOne(updatedBrandId));
-        existing.setEnterpriseOwnerOfVehicle(enterpriseService.findOne(enterpriseId));
-
-        Vehicle saved = vehicleRepository.save(existing);
-        publishDomainEvent(saved, VehicleDomainEvent.Action.UPDATED, getAuthenticatedManagerIdOrNull());
-    }
-
-//    @Transactional
-//    public void update(Long id, Vehicle updatedVehicle) {
-//        if (vehicleRepository.existsByLicensePlateAndVehicleIdNot(updatedVehicle.getLicensePlate(), id)) {
-//            throw new VehicleNotCreatedException("Номер уже используется: " + updatedVehicle.getLicensePlate());
-//        }
-//        updatedVehicle.setVehicleId(id);
-//        Vehicle saved = vehicleRepository.save(updatedVehicle);
-//        publishDomainEvent(saved, VehicleDomainEvent.Action.UPDATED, getAuthenticatedManagerIdOrNull());
-//    }
 
     /**
      * Обновление машины без смены бренда/предприятия.
@@ -191,48 +88,35 @@ public class VehicleService {
      */
     @Transactional
     public void update(Long id, Vehicle updatedVehicle) {
-        // 1. Забираем текущую машину из БД
-        Vehicle existing = vehicleRepository.findById(id)
-                .orElseThrow(() -> new VehicleNotFoundException(id));
+        Vehicle existing = findVehicleOrThrow(id);
 
-        // 2. Проверяем уникальность номера, если он меняется
-        String newPlate = updatedVehicle.getLicensePlate();
-        if (newPlate != null
-                && !newPlate.equals(existing.getLicensePlate())
-                && vehicleRepository.existsByLicensePlateAndVehicleIdNot(newPlate, id)) {
-            throw new VehicleNotCreatedException("Номер уже используется: " + newPlate);
-        }
+        validateLicensePlateForUpdate(id, existing, updatedVehicle);
+        applyEditableFields(existing, updatedVehicle);
 
-        // 3. Копируем редактируемые поля из updatedVehicle в existing
+        saveAndPublish(existing, VehicleDomainEvent.Action.UPDATED);
+    }
 
-        // имя — если пришло (на всякий случай через проверку)
-        if (updatedVehicle.getVehicleName() != null) {
-            existing.setVehicleName(updatedVehicle.getVehicleName());
-        }
+    @Transactional
+    public void update(Long id, Vehicle updatedVehicle, Long updatedBrandId) {
+        Vehicle existing = findVehicleOrThrow(id);
 
-        // номер — если пришёл
-        if (newPlate != null) {
-            existing.setLicensePlate(newPlate);
-        }
+        validateLicensePlateForUpdate(id, existing, updatedVehicle);
+        applyEditableFields(existing, updatedVehicle);
+        existing.setBrandOwner(brandService.findOne(updatedBrandId));
 
-        // стоимость и год — примитивы (int), их можно просто перезаписать
-        existing.setVehicleCost(updatedVehicle.getVehicleCost());
-        existing.setVehicleYearOfRelease(updatedVehicle.getVehicleYearOfRelease());
+        saveAndPublish(existing, VehicleDomainEvent.Action.UPDATED);
+    }
 
-        // purchaseDateUtc в БД NOT NULL — не затираем его null'ом.
-        // Если DTO пришлёт новое значение — обновим.
-        if (updatedVehicle.getPurchaseDateUtc() != null) {
-            existing.setPurchaseDateUtc(updatedVehicle.getPurchaseDateUtc());
-        }
+    @Transactional
+    public void update(Long id, Vehicle updatedVehicle, Long updatedBrandId, Long enterpriseId) {
+        Vehicle existing = findVehicleOrThrow(id);
 
-        // brandOwner, enterpriseOwnerOfVehicle, guid и прочие важные поля
-        // специально не трогаем — остаются как в БД.
+        validateLicensePlateForUpdate(id, existing, updatedVehicle);
+        applyEditableFields(existing, updatedVehicle);
+        existing.setBrandOwner(brandService.findOne(updatedBrandId));
+        existing.setEnterpriseOwnerOfVehicle(enterpriseService.findOne(enterpriseId));
 
-        // 4. Сохраняем
-        Vehicle saved = vehicleRepository.save(existing);
-
-        // 5. Публикуем доменное событие
-        publishDomainEvent(saved, VehicleDomainEvent.Action.UPDATED, getAuthenticatedManagerIdOrNull());
+        saveAndPublish(existing, VehicleDomainEvent.Action.UPDATED);
     }
 
 
@@ -240,21 +124,80 @@ public class VehicleService {
 
     @Transactional
     public void delete(Long vehicleId) {
-        Vehicle vehicle = vehicleRepository.findById(vehicleId)
-                .orElseThrow(() -> new EntityNotFoundException("Vehicle with id " + vehicleId + " not found"));
+        Vehicle vehicle = findVehicleOrThrow(vehicleId);
 
-        // "снять" активную машину у водителей
+        clearDriversFromVehicle(vehicle);
+        vehicleRepository.delete(vehicle);
+
+        // событие удаление — публикуем по данным *удалённой* сущности
+        publishDomainEvent(vehicle, VehicleDomainEvent.Action.DELETED, getAuthenticatedManagerIdOrNull());
+    }
+
+    //---------- вспомогательные методы для crud ---------
+
+    private Vehicle findVehicleOrThrow(Long id) {
+        return vehicleRepository.findById(id)
+                .orElseThrow(() -> new VehicleNotFoundException(id));
+    }
+
+    private void validateLicensePlateForCreate(String licensePlate) {
+        if (vehicleRepository.existsByLicensePlate(licensePlate)) {
+            throw new VehicleNotCreatedException("Номер уже используется: " + licensePlate);
+        }
+    }
+
+    private void validateLicensePlateForUpdate(Long id, Vehicle existing, Vehicle updatedVehicle) {
+        String newPlate = updatedVehicle.getLicensePlate();
+        if (newPlate != null
+                && !newPlate.equals(existing.getLicensePlate())
+                && vehicleRepository.existsByLicensePlateAndVehicleIdNot(newPlate, id)) {
+            throw new VehicleNotCreatedException("Номер уже используется: " + newPlate);
+        }
+    }
+
+    private void applyEditableFields(Vehicle existing, Vehicle updatedVehicle) {
+        if (updatedVehicle.getVehicleName() != null) {
+            existing.setVehicleName(updatedVehicle.getVehicleName());
+        }
+
+        if (updatedVehicle.getLicensePlate() != null) {
+            existing.setLicensePlate(updatedVehicle.getLicensePlate());
+        }
+
+        existing.setVehicleCost(updatedVehicle.getVehicleCost());
+        existing.setVehicleYearOfRelease(updatedVehicle.getVehicleYearOfRelease());
+
+        if (updatedVehicle.getPurchaseDateUtc() != null) {
+            existing.setPurchaseDateUtc(updatedVehicle.getPurchaseDateUtc());
+        }
+    }
+
+    private void clearDriversFromVehicle(Vehicle vehicle) {
         List<Driver> driversWithThisVehicle = driverRepository.findByActiveVehicle(vehicle);
         for (Driver driver : driversWithThisVehicle) {
             driver.setActiveVehicle(null);
             driverRepository.save(driver);
         }
+    }
 
-        // удаление
-        vehicleRepository.delete(vehicle);
+    private void saveAndPublish(Vehicle vehicle, VehicleDomainEvent.Action action) {
+        Vehicle saved = vehicleRepository.save(vehicle);
+        publishDomainEvent(saved, action, getAuthenticatedManagerIdOrNull());
+    }
 
-        // событие удаление — публикуем по данным *удалённой* сущности
-        publishDomainEvent(vehicle, VehicleDomainEvent.Action.DELETED, getAuthenticatedManagerIdOrNull());
+    /**
+     * Публикует доменное событие; обработчик отправит его в Kafka ТОЛЬКО после коммита.
+     * Сейчас managerId и enterpriseGuid передаются как null (TODO: заполнить, когда появятся).
+     */
+    private void publishDomainEvent(Vehicle v,
+                                    VehicleDomainEvent.Action action,
+                                    Long managerId) {               // <-- Long, не UUID
+        UUID vehicleGuid = v.getGuid();
+        UUID enterpriseGuid = null; // если появится guid у Enterprise — подставишь здесь
+
+        events.publishEvent(new VehicleDomainEvent(
+                vehicleGuid, enterpriseGuid, managerId, action
+        ));
     }
 
     // --------- прочие методы без изменений ---------
@@ -347,23 +290,6 @@ public class VehicleService {
     public List<Vehicle> findByLicensePlateContaining(String query) {
         log.info("Поиск автомобиля по номеру через запрос: {}", query);
         return vehicleRepository.findByLicensePlateContainingIgnoreCase(query);
-    }
-
-    // ======================== вспомогательное ========================
-
-    /**
-     * Публикует доменное событие; обработчик отправит его в Kafka ТОЛЬКО после коммита.
-     * Сейчас managerId и enterpriseGuid передаются как null (TODO: заполнить, когда появятся).
-     */
-    private void publishDomainEvent(Vehicle v,
-                                    VehicleDomainEvent.Action action,
-                                    Long managerId) {               // <-- Long, не UUID
-        UUID vehicleGuid = v.getGuid();
-        UUID enterpriseGuid = null; // если появится guid у Enterprise — подставишь здесь
-
-        events.publishEvent(new VehicleDomainEvent(
-                vehicleGuid, enterpriseGuid, managerId, action
-        ));
     }
 }
 

@@ -1,11 +1,11 @@
 package org.example.autopark.exportAndImport;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.autopark.customAnnotation.currentManagerId.CurrentManagerId;
 import org.example.autopark.exportAndImport.byGuid.CsvGuidExportUtil;
 import org.example.autopark.exportAndImport.byGuid.guidDto.VehicleExportDtoByGuid;
@@ -13,15 +13,14 @@ import org.example.autopark.exportAndImport.byID.CsvExportUtil;
 import org.example.autopark.exportAndImport.byID.idDto.VehicleExportDtoById;
 import org.springframework.context.annotation.Profile;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.UUID;
-
+@Slf4j
 @RestController
 @Profile("!reactive")
 @RequestMapping("api/managers")
@@ -35,9 +34,7 @@ public class ExportAndImportControllers {
     private final ExportAndImportService exportAndImportService;
     private final ObjectMapper objectMapper;
 
-    // ─────────────────────────────────────────────────────────────────────
     // EXPORT BY ID
-    // ─────────────────────────────────────────────────────────────────────
     @GetMapping("/export/vehicle/{vehicleId}")
     @Operation(
             summary = "Экспорт данных по ТС (по ID)",
@@ -64,23 +61,12 @@ public class ExportAndImportControllers {
 
             HttpServletResponse response
     ) throws Exception {
-
         VehicleExportDtoById dto = exportAndImportService.exportDataById(vehicleId, fromDate, toDate);
-
-        if ("csv".equalsIgnoreCase(format)) {
-            response.setContentType("text/csv");
-            response.setHeader("Content-Disposition", "attachment; filename=vehicle_" + vehicleId + ".csv");
-            CsvExportUtil.writeVehicleExportToCsv(dto, response.getOutputStream());
-        } else {
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            response.setHeader("Content-Disposition", "attachment; filename=vehicle_" + vehicleId + ".json");
-            objectMapper.writeValue(response.getOutputStream(), dto);
-        }
+        DataFormat dataFormat = DataFormat.fromRequestParam(format);
+        writeVehicleByIdResponse(dto, vehicleId, dataFormat, response);
     }
 
-    // ─────────────────────────────────────────────────────────────────────
     // IMPORT BY ID
-    // ─────────────────────────────────────────────────────────────────────
     @PostMapping("/import")
     @Operation(
             summary = "Импорт данных по ТС (по ID)",
@@ -96,30 +82,15 @@ public class ExportAndImportControllers {
             @RequestParam("file") MultipartFile file
     ) {
         try {
-            String filename = file.getOriginalFilename();
-            if (filename == null) {
-                throw new IllegalArgumentException("Файл без имени");
-            }
-
-            if (filename.endsWith(".json")) {
-                VehicleExportDtoById dto = objectMapper.readValue(file.getInputStream(), VehicleExportDtoById.class);
-                exportAndImportService.importFromDtoById(dto);
-            } else if (filename.endsWith(".csv")) {
-                exportAndImportService.importFromCsv(file.getInputStream());
-            } else {
-                throw new IllegalArgumentException("Поддерживаются только JSON и CSV");
-            }
-
+            importVehicleById(file);
             return "Файл успешно импортирован!";
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Ошибка импорта данных по ТС по ID", e);
             return "Ошибка импорта: " + e.getMessage();
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────
     // EXPORT BY GUID (файл JSON/CSV)
-    // ─────────────────────────────────────────────────────────────────────
     @GetMapping("/export-guid/vehicle/{guid}")
     @Operation(
             summary = "Экспорт данных по ТС (по GUID)",
@@ -153,21 +124,11 @@ public class ExportAndImportControllers {
     ) throws IOException {
 
         VehicleExportDtoByGuid dto = exportAndImportService.exportDataByGuid(guid, fromDate, toDate, withTrack);
-
-        if ("csv".equalsIgnoreCase(format)) {
-            response.setContentType("text/csv");
-            response.setHeader("Content-Disposition", "attachment; filename=vehicle_" + guid + ".csv");
-            CsvGuidExportUtil.writeVehicleExportToCsvGuid(dto, response.getOutputStream());
-        } else {
-            response.setContentType("application/json");
-            response.setHeader("Content-Disposition", "attachment; filename=vehicle_" + guid + ".json");
-            objectMapper.writeValue(response.getOutputStream(), dto);
-        }
+        DataFormat dataFormat = DataFormat.fromRequestParam(format);
+        writeVehicleByGuidResponse(dto, guid, dataFormat, response);
     }
 
-    // ─────────────────────────────────────────────────────────────────────
     // IMPORT BY GUID
-    // ─────────────────────────────────────────────────────────────────────
     @PostMapping("/import-guid")
     @Operation(
             summary = "Импорт данных по ТС (по GUID)",
@@ -183,30 +144,15 @@ public class ExportAndImportControllers {
             @RequestParam("file") MultipartFile file
     ) {
         try {
-            String filename = file.getOriginalFilename();
-            if (filename == null) {
-                throw new IllegalArgumentException("Файл без имени");
-            }
-
-            if (filename.endsWith(".json")) {
-                VehicleExportDtoByGuid dto = objectMapper.readValue(file.getInputStream(), VehicleExportDtoByGuid.class);
-                exportAndImportService.importFromDtoByGuid(dto);
-            } else if (filename.endsWith(".csv")) {
-                exportAndImportService.importFromCsvGuid(file.getInputStream());
-            } else {
-                throw new IllegalArgumentException("Поддерживаются только JSON и CSV");
-            }
-
+            importVehicleByGuid(file);
             return "Файл успешно импортирован!";
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Ошибка импорта данных по ТС по GUID", e);
             return "Ошибка импорта: " + e.getMessage();
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────
     // EXPORT BY GUID (чистый JSON-ответ, удобно для UI-просмотра)
-    // ─────────────────────────────────────────────────────────────────────
     @GetMapping("/export-guid/json")
     @Operation(
             summary = "Экспорт по GUID (JSON-ответ)",
@@ -234,4 +180,57 @@ public class ExportAndImportControllers {
         VehicleExportDtoByGuid dto = exportAndImportService.exportDataByGuid(vehicleGuid, fromDate, toDate, withTrack);
         return ResponseEntity.ok(dto);
     }
+
+    private void importVehicleById(MultipartFile file) throws IOException {
+        DataFormat dataFormat = DataFormat.fromFilename(file.getOriginalFilename());
+
+        switch (dataFormat) {
+            case JSON -> {
+                VehicleExportDtoById dto = objectMapper.readValue(file.getInputStream(), VehicleExportDtoById.class);
+                exportAndImportService.importFromDtoById(dto);
+            }
+            case CSV -> exportAndImportService.importFromCsv(file.getInputStream());
+        }
+    }
+
+    private void importVehicleByGuid(MultipartFile file) throws IOException {
+        DataFormat dataFormat = DataFormat.fromFilename(file.getOriginalFilename());
+
+        switch (dataFormat) {
+            case JSON -> {
+                VehicleExportDtoByGuid dto = objectMapper.readValue(file.getInputStream(), VehicleExportDtoByGuid.class);
+                exportAndImportService.importFromDtoByGuid(dto);
+            }
+            case CSV -> exportAndImportService.importFromCsvGuid(file.getInputStream());
+        }
+    }
+
+    private void writeVehicleByIdResponse(VehicleExportDtoById dto, Long vehicleId,
+                                          DataFormat dataFormat, HttpServletResponse response) throws IOException {
+        String baseFilename = "vehicle_" + vehicleId;
+        prepareDownloadResponse(response, baseFilename, dataFormat);
+
+        switch (dataFormat){
+            case JSON -> objectMapper.writeValue(response.getOutputStream(), dto);
+            case CSV -> CsvExportUtil.writeVehicleExportToCsv(dto, response.getOutputStream());
+        }
+    }
+
+    private void writeVehicleByGuidResponse(VehicleExportDtoByGuid dto, UUID guid,
+                                            DataFormat dataFormat, HttpServletResponse response) throws IOException {
+        String baseFilename = "vehicle_" + guid;
+        prepareDownloadResponse(response, baseFilename, dataFormat);
+
+        switch (dataFormat){
+            case JSON -> objectMapper.writeValue(response.getOutputStream(), dto);
+            case CSV -> CsvGuidExportUtil.writeVehicleExportToCsvGuid(dto, response.getOutputStream());
+        }
+    }
+
+
+    private void prepareDownloadResponse(HttpServletResponse response, String baseFilename, DataFormat dataFormat) {
+        response.setContentType(dataFormat.getContentType());
+        response.setHeader("Content-Disposition", "attachment; filename=" + baseFilename + "." + dataFormat.getExtension());
+    }
+
 }

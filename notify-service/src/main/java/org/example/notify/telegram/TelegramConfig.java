@@ -13,9 +13,8 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 @Configuration
 @ConditionalOnProperty(
-        value = "telegram.bot.enabled",
-        havingValue = "true",
-        matchIfMissing = true
+        name = {"telegram.enabled", "telegram.bot.polling-enabled"},
+        havingValue = "true"
 )
 @RequiredArgsConstructor
 @Slf4j
@@ -30,11 +29,11 @@ public class TelegramConfig {
     ApplicationRunner registerBot(
             TelegramBotsApi telegramBotsApi,
             TelegramUpdateHandler telegramUpdateHandler,
-            @Value("${telegram.bot.enabled:true}") boolean enabled
+            @Value("${telegram.bot.polling-enabled:false}") boolean pollingEnabled
     ) {
         return args -> {
-            if (!enabled) {
-                log.info("Telegram bot is disabled by property 'telegram.bot.enabled=false'.");
+            if (!pollingEnabled) {
+                log.info("Telegram long polling is disabled (telegram.bot.polling-enabled=false).");
                 return;
             }
 

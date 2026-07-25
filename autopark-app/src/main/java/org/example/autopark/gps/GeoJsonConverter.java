@@ -38,25 +38,3 @@ public class GeoJsonConverter {
         return geoJson;
     }
 }
-//Возможный вариант со StreamAPI
-/// **
-// * Конвертация списка точек в GeoJSON
-// */
-//private Map<String, Object> convertToGeoJSON(List<GpsPoint> points, ZoneId enterpriseTimeZone) {
-//    return Map.of(
-//            "type", "FeatureCollection",
-//            "features", points.stream().map(point -> Map.of(
-//                    "type", "Feature",
-//                    "geometry", Map.of(
-//                            "type", "Point",
-//                            "coordinates", List.of(point.getLocation().getX(), point.getLocation().getY())
-//                    ),
-//                    "properties", Map.of(
-//                            "timestamp", convertToEnterpriseTimeZone(point.getTimestamp(), enterpriseTimeZone),
-//                            "vehicleId", point.getVehicleGPS().getVehicleId()
-//                    )
-//            )).collect(Collectors.toList())
-//    );
-//
-//
-//}
