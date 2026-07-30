@@ -12,7 +12,7 @@ spring:
         dialect: org.hibernate.spatial.dialect.postgis.PostgisPG95Dialect
         show_sql: false
         format_sql: true
-        session_factory.statement_inspector: org.example.autopark.nplusone.QueryCountingInspector
+#        session_factory.statement_inspector: org.example.autopark.nplusone.QueryCountingInspector
 #        generate_statistics: true
     hibernate:
       ddl-auto: none  # Обновление схемы БД автоматически
