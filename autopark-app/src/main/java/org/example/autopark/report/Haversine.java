@@ -1,13 +1,13 @@
 package org.example.autopark.report;
 
-import org.example.autopark.appUtil.trackGeneration.GpsPointCoord;
+import org.example.autopark.geo.GeoPoint;
 
 public class Haversine {
     // Радиус Земли в километрах
     private static final double R = 6371.0;
 
     // Метод для расчёта расстояния между двумя точками GPS
-    public static double calculateDistance(GpsPointCoord point1, GpsPointCoord point2) {
+    public static double calculateDistance(GeoPoint point1, GeoPoint point2) {
         // Преобразуем координаты из градусов в радианы
         double lat1 = Math.toRadians(point1.getLat());
         double lon1 = Math.toRadians(point1.getLng());

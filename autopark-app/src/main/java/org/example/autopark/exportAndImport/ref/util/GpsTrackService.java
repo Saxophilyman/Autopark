@@ -3,7 +3,7 @@ package org.example.autopark.exportAndImport.ref.util;
 import lombok.RequiredArgsConstructor;
 import org.example.autopark.gps.GpsPoint;
 import org.example.autopark.gps.GpsPointsRepository;
-import org.example.autopark.appUtil.trackGeneration.GpsPointCoord;
+import org.example.autopark.geo.GeoPoint;
 import org.example.autopark.entity.Vehicle;
 import org.locationtech.jts.geom.Point;
 import org.springframework.context.annotation.Profile;
@@ -21,13 +21,13 @@ public class GpsTrackService {
     private final GpsPointsRepository gpsPointsRepository;
     private final GeometryUtils geometryUtils;
 
-    public Instant generateAndSaveTrack(List<GpsPointCoord> track, Instant startTime, Vehicle vehicle) {
+    public Instant generateAndSaveTrack(List<GeoPoint> track, Instant startTime, Vehicle vehicle) {
         Instant currentTime = startTime;
         Instant lastTime = startTime;
 
         List<GpsPoint> gpsPoints = new ArrayList<>();
 
-        for (GpsPointCoord coord : track) {
+        for (GeoPoint coord : track) {
             Point point = geometryUtils.toPoint(coord);
 
             GpsPoint gpsPoint = new GpsPoint();

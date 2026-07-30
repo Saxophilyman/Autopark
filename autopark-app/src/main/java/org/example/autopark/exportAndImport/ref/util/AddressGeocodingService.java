@@ -1,7 +1,7 @@
 package org.example.autopark.exportAndImport.ref.util;
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.autopark.appUtil.trackGeneration.GpsPointCoord;
+import org.example.autopark.geo.GeoPoint;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
@@ -20,7 +20,7 @@ import java.nio.charset.StandardCharsets;
 @Profile("!reactive")
 public class AddressGeocodingService {
 
-    public GpsPointCoord geocode(String address) {
+    public GeoPoint geocode(String address) {
         try {
             String encoded = URLEncoder.encode(address, StandardCharsets.UTF_8);
             String url = "https://nominatim.openstreetmap.org/search?format=json&q=" + encoded;
@@ -38,7 +38,7 @@ public class AddressGeocodingService {
                     JSONObject obj = arr.getJSONObject(0);
                     double lat = Double.parseDouble(obj.getString("lat"));
                     double lon = Double.parseDouble(obj.getString("lon"));
-                    return new GpsPointCoord(lat, lon);
+                    return new GeoPoint(lat, lon);
                 } else {
                     log.warn("Геокодер не нашёл координаты для адреса: {}", address);
                 }

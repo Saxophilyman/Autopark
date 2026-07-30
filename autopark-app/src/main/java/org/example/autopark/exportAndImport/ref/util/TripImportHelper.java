@@ -1,8 +1,8 @@
 package org.example.autopark.exportAndImport.ref.util;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.autopark.appUtil.trackGeneration.GpsPointCoord;
-import org.example.autopark.appUtil.trackGeneration.TrackGenService;
+import org.example.autopark.geo.GeoPoint;
+import org.example.autopark.routing.port.RouteProvider;
 
 import org.example.autopark.entity.Vehicle;
 
@@ -26,20 +26,20 @@ public class TripImportHelper {
 
     private final AddressGeocodingService geocodingService;
     private final GpsTrackService gpsTrackService;
-    private final TrackGenService trackGenService;
+    private final RouteProvider routeProvider;
     private final TripRepository tripRepository;
 
     public void importTripsByDto(List<TripDTO> trips, Vehicle vehicle) {
         for (TripDTO dto : trips) {
-            GpsPointCoord start = geocodingService.geocode(dto.getStartLocationInString());
-            GpsPointCoord end = geocodingService.geocode(dto.getEndLocationInString());
+            GeoPoint start = geocodingService.geocode(dto.getStartLocationInString());
+            GeoPoint end = geocodingService.geocode(dto.getEndLocationInString());
 
             if (start == null || end == null) {
                 log.warn("Пропущена поездка: не удалось геокодировать адреса: {} / {}", dto.getStartLocationInString(), dto.getEndLocationInString());
                 continue;
             }
 
-            List<GpsPointCoord> track = trackGenService.getRouting(start.getLng(), start.getLat(), end.getLng(), end.getLat());
+            List<GeoPoint> track = routeProvider.getRoute(start.getLng(), start.getLat(), end.getLng(), end.getLat());
             if (track.isEmpty()) {
                 log.warn("Пропущена поездка: пустой маршрут между {} и {}", start, end);
                 continue;
@@ -55,15 +55,15 @@ public class TripImportHelper {
 
     public void importTripsByGuid(List<TripGuidExportDto> trips, Vehicle vehicle) {
         for (TripGuidExportDto dto : trips) {
-            GpsPointCoord start = geocodingService.geocode(dto.getStartLocationInString());
-            GpsPointCoord end = geocodingService.geocode(dto.getEndLocationInString());
+            GeoPoint start = geocodingService.geocode(dto.getStartLocationInString());
+            GeoPoint end = geocodingService.geocode(dto.getEndLocationInString());
 
             if (start == null || end == null) {
                 log.warn("Пропущена поездка (GUID): не удалось геокодировать адреса: {} / {}", dto.getStartLocationInString(), dto.getEndLocationInString());
                 continue;
             }
 
-            List<GpsPointCoord> track = trackGenService.getRouting(start.getLng(), start.getLat(), end.getLng(), end.getLat());
+            List<GeoPoint> track = routeProvider.getRoute(start.getLng(), start.getLat(), end.getLng(), end.getLat());
             if (track.isEmpty()) {
                 log.warn("Пропущена поездка (GUID): пустой маршрут между {} и {}", start, end);
                 continue;

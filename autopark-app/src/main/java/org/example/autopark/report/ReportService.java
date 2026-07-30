@@ -2,7 +2,7 @@ package org.example.autopark.report;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.autopark.appUtil.trackGeneration.GpsPointCoord;
+import org.example.autopark.geo.GeoPoint;
 import org.example.autopark.gps.GpsPoint;
 import org.example.autopark.gps.GpsPointsRepository;
 import org.springframework.cache.annotation.Cacheable;
@@ -139,8 +139,8 @@ public class ReportService {
 
     private double calculateDistanceBetweenPoints(GpsPoint point1, GpsPoint point2) {
         return Haversine.calculateDistance(
-                new GpsPointCoord(point1.getLocation().getY(), point1.getLocation().getX()),
-                new GpsPointCoord(point2.getLocation().getY(), point2.getLocation().getX())
+                new GeoPoint(point1.getLocation().getY(), point1.getLocation().getX()),
+                new GeoPoint(point2.getLocation().getY(), point2.getLocation().getX())
         );
     }
 

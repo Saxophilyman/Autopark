@@ -1,4 +1,4 @@
-package org.example.autopark.appUtil.trackGeneration;
+package org.example.autopark.trackingRef.entry.web.generation;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;

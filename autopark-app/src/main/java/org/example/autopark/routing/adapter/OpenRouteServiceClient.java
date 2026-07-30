@@ -1,10 +1,13 @@
-package org.example.autopark.appUtil.trackGeneration;
+package org.example.autopark.routing.adapter;
+
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.autopark.geo.GeoPoint;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.example.autopark.routing.port.RouteProvider;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -24,7 +27,7 @@ import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class OpenRouteServiceClient {
+public class OpenRouteServiceClient implements RouteProvider {
 
     private final RestTemplate restTemplate;
 
@@ -40,7 +43,8 @@ public class OpenRouteServiceClient {
      * Получить маршрут между двумя точками.
      * Возвращает список координат маршрута, либо пустой список при ошибке/пустом ответе.
      */
-    public List<GpsPointCoord> getRoute(double startLong, double startLat, double endLong, double endLat) {
+    @Override
+    public List<GeoPoint> getRoute(double startLong, double startLat, double endLong, double endLat) {
         String uri = UriComponentsBuilder.fromHttpUrl(ORS_DIRECTIONS_URL)
                 .queryParam("start", startLong + "," + startLat)
                 .queryParam("end", endLong + "," + endLat)
@@ -81,8 +85,8 @@ public class OpenRouteServiceClient {
      * Парсит JSON-ответ ORS и достает координаты маршрута.
      * Логика перенесена из TrackGenService
      */
-    private static List<GpsPointCoord> parseRoutePoints(String jsonResponse) {
-        List<GpsPointCoord> points = new ArrayList<>();
+    private static List<GeoPoint> parseRoutePoints(String jsonResponse) {
+        List<GeoPoint> points = new ArrayList<>();
         try {
             JSONObject responseObject = new JSONObject(jsonResponse);
 
@@ -116,7 +120,7 @@ public class OpenRouteServiceClient {
                 JSONArray point = coordinates.getJSONArray(i);
                 double longitude = point.getDouble(0);
                 double latitude = point.getDouble(1);
-                points.add(new GpsPointCoord(latitude, longitude));
+                points.add(new GeoPoint(latitude, longitude));
             }
 
         } catch (JSONException e) {

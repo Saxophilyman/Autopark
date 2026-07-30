@@ -1,9 +1,11 @@
-package org.example.autopark.gpx;
+package org.example.autopark.trackingRef.entry.web.gpx;
 
 import lombok.RequiredArgsConstructor;
 import org.example.autopark.customAnnotation.currentManagerId.CurrentManagerId;
 import org.example.autopark.entity.Vehicle;
+
 import org.example.autopark.repository.VehicleRepository;
+import org.example.autopark.trackingRef.application.gpx.TripUploadService;
 import org.springframework.context.annotation.Profile;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.InputStream;
 import java.time.LocalDateTime;
 
 /*
@@ -57,8 +60,13 @@ public class TripUploadController {
                                @RequestParam MultipartFile gpxFile,
                                RedirectAttributes redirectAttributes) {
 
-        try {
-            tripUploadService.uploadTripFromGpx(licensePlate, start, end, gpxFile);
+        try (InputStream source = gpxFile.getInputStream()) {
+            tripUploadService.uploadTripFromGpx(
+                    licensePlate,
+                    start,
+                    end,
+                    source
+            );
             redirectAttributes.addFlashAttribute("message", "Поездка успешно загружена");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Ошибка загрузки: " + e.getMessage());
